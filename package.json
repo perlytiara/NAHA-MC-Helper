@@ -7,12 +7,17 @@
     "dev": "vite",
     "build": "vite build",
     "build:css": "tailwindcss -i src/input.css -o dist/output.css",
+    "build:installer": "cd tools/minecraft-installer && cargo build --release",
+    "build:electron": "electron-builder",
+    "build:all": "npm run build:installer && npm run build",
     "start": "electron .",
     "make": "electron-forge make",
-    "dist": "npm run build && electron-builder",
-    "dist:win": "npm run build && electron-builder --win",
-    "dist:portable": "npm run build && electron-builder --win portable",
-    "package": "npm run build && electron-packager . naha-mc-helper --platform=win32 --arch=x64 --out=dist-package --overwrite --ignore=node_modules/electron-packager --ignore=node_modules/electron-builder",
+    "dist": "npm run build:all && electron-builder",
+    "dist:win": "npm run build:all && electron-builder --win",
+    "dist:portable": "npm run build:all && electron-builder --win portable",
+    "dist:setup": "npm run build:all && electron-builder --win nsis",
+    "dist:both": "npm run build:all && electron-builder --win nsis portable",
+    "package": "npm run build:all && electron-packager . naha-mc-helper --platform=win32 --arch=x64 --out=dist-package --overwrite --ignore=node_modules/electron-packager --ignore=node_modules/electron-builder",
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "eslint src --ext .ts,.svelte",
     "lint:fix": "eslint src --ext .ts,.svelte --fix"
@@ -49,25 +54,25 @@
   },
   "dependencies": {
     "adm-zip": "^0.5.16",
+    "electron-updater": "^6.6.2",
     "yauzl": "^3.2.0"
   },
   "build": {
     "appId": "com.naha.mc-helper",
     "productName": "NAHA MC Helper",
     "directories": {
-      "output": "dist-electron"
+      "output": "dist-electron-fixed"
     },
     "files": [
       "dist/**/*",
       "main.js",
       "preload.js",
-      "MinecraftInstallerService.js",
-      "minecraft-installer.exe",
+      "src/shared/services/**/*",
       "node_modules/**/*"
     ],
     "extraResources": [
       {
-        "from": "minecraft-installer.exe",
+        "from": "tools/minecraft-installer/target/release/minecraft-installer.exe",
         "to": "minecraft-installer.exe"
       }
     ],
@@ -86,7 +91,13 @@
           ]
         }
       ],
-      "forceCodeSigning": false
+      "forceCodeSigning": false,
+      "signAndEditExecutable": false
+    },
+    "publish": {
+      "provider": "github",
+      "owner": "perlytiara",
+      "repo": "NAHA-MC-Helper"
     },
     "nsis": {
       "oneClick": false,

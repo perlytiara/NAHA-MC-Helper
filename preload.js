@@ -71,6 +71,19 @@ contextBridge.exposeInMainWorld('prism', {
     installMinecraft: (options) => ipcRenderer.invoke('installer-install-minecraft', options),
     onProgress: (callback) => ipcRenderer.on('installer-progress', callback)
   },
+
+  // Auto-Updater functions
+  autoUpdater: {
+    checkForUpdates: () => ipcRenderer.invoke('auto-updater:check-for-updates'),
+    downloadUpdate: () => ipcRenderer.invoke('auto-updater:download-update'),
+    installUpdate: () => ipcRenderer.invoke('auto-updater:install-update'),
+    getCurrentVersion: () => ipcRenderer.invoke('auto-updater:get-current-version'),
+    getUpdateInfo: () => ipcRenderer.invoke('auto-updater:get-update-info'),
+    startPeriodicCheck: () => ipcRenderer.invoke('auto-updater:start-periodic-check'),
+    stopPeriodicCheck: () => ipcRenderer.invoke('auto-updater:stop-periodic-check'),
+    on: (event, callback) => ipcRenderer.on(`auto-updater:${event}`, callback),
+    off: (event, callback) => ipcRenderer.off(`auto-updater:${event}`, callback)
+  },
   
   // Direct IPC access for progress events
   ipcRenderer: {

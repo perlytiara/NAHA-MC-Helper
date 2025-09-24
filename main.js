@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, Menu, shell } from "electron";
+import { app, BrowserWindow, ipcMain, Menu } from "electron";
 import { fileURLToPath } from "url";
 import path from "path";
 import fs from "fs/promises";
@@ -9,7 +9,8 @@ import http from "http";
 import crypto from "crypto";
 import AdmZip from "adm-zip";
 import os from "os";
-import MinecraftInstallerService from "./MinecraftInstallerService.js";
+import MinecraftInstallerService from "./src/shared/services/MinecraftInstallerService.js";
+import AutoUpdaterService from "./src/shared/services/AutoUpdaterService.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -18,8 +19,9 @@ const __dirname = path.dirname(__filename);
 let debugMode = false;
 let mainWindow = null;
 
-// Initialize Minecraft Installer Service
+// Initialize services
 const minecraftInstaller = new MinecraftInstallerService();
+let autoUpdater = null;
 
 const createMenu = () => {
   const template = [
@@ -70,16 +72,8 @@ const createMenu = () => {
         {
           label: "Check for Updates",
           click: async () => {
-            if (mainWindow) {
-              const { dialog } = await import("electron");
-              await dialog.showMessageBox(mainWindow, {
-                type: "info",
-                title: "Check for Updates",
-                message: "Coming Soon!",
-                detail:
-                  "Update checking functionality will be available in a future version.",
-                buttons: ["OK"],
-              });
+            if (autoUpdater) {
+              await autoUpdater.manualUpdateCheck();
             }
           },
         },
@@ -244,10 +238,24 @@ app.whenReady().then(() => {
   createWindow();
   createMenu();
 
+  // Initialize auto-updater after window is created
+  if (mainWindow) {
+    autoUpdater = new AutoUpdaterService(mainWindow);
+    
+    // Start periodic update checks if enabled
+    autoUpdater.startPeriodicUpdateCheck();
+  }
+
   app.on("activate", () => {
     if (BrowserWindow.getAllWindows().length === 0) {
       createWindow();
       createMenu();
+      
+      // Re-initialize auto-updater for new window
+      if (mainWindow) {
+        autoUpdater = new AutoUpdaterService(mainWindow);
+        autoUpdater.startPeriodicUpdateCheck();
+      }
     }
   });
 });
@@ -1368,6 +1376,104 @@ ipcMain.handle("installer-install-minecraft", async (event, options) => {
     );
   } catch (error) {
     console.error("Error installing Minecraft:", error);
+    return { success: false, error: error.message };
+  }
+});
+
+// Auto-Updater IPC Handlers
+
+// Check for updates
+ipcMain.handle("auto-updater:check-for-updates", async () => {
+  try {
+    if (autoUpdater) {
+      await autoUpdater.checkForUpdates();
+      return { success: true };
+    }
+    return { success: false, error: "Auto-updater not initialized" };
+  } catch (error) {
+    console.error("Error checking for updates:", error);
+    return { success: false, error: error.message };
+  }
+});
+
+// Download update
+ipcMain.handle("auto-updater:download-update", async () => {
+  try {
+    if (autoUpdater) {
+      await autoUpdater.downloadUpdate();
+      return { success: true };
+    }
+    return { success: false, error: "Auto-updater not initialized" };
+  } catch (error) {
+    console.error("Error downloading update:", error);
+    return { success: false, error: error.message };
+  }
+});
+
+// Install update
+ipcMain.handle("auto-updater:install-update", async () => {
+  try {
+    if (autoUpdater) {
+      await autoUpdater.installUpdate();
+      return { success: true };
+    }
+    return { success: false, error: "Auto-updater not initialized" };
+  } catch (error) {
+    console.error("Error installing update:", error);
+    return { success: false, error: error.message };
+  }
+});
+
+// Get current version
+ipcMain.handle("auto-updater:get-current-version", async () => {
+  try {
+    if (autoUpdater) {
+      return { success: true, version: autoUpdater.getCurrentVersion() };
+    }
+    return { success: false, error: "Auto-updater not initialized" };
+  } catch (error) {
+    console.error("Error getting current version:", error);
+    return { success: false, error: error.message };
+  }
+});
+
+// Get update info
+ipcMain.handle("auto-updater:get-update-info", async () => {
+  try {
+    if (autoUpdater) {
+      return { success: true, info: autoUpdater.getUpdateInfo() };
+    }
+    return { success: false, error: "Auto-updater not initialized" };
+  } catch (error) {
+    console.error("Error getting update info:", error);
+    return { success: false, error: error.message };
+  }
+});
+
+// Start periodic update checks
+ipcMain.handle("auto-updater:start-periodic-check", async () => {
+  try {
+    if (autoUpdater) {
+      autoUpdater.startPeriodicUpdateCheck();
+      return { success: true };
+    }
+    return { success: false, error: "Auto-updater not initialized" };
+  } catch (error) {
+    console.error("Error starting periodic check:", error);
+    return { success: false, error: error.message };
+  }
+});
+
+// Stop periodic update checks
+ipcMain.handle("auto-updater:stop-periodic-check", async () => {
+  try {
+    if (autoUpdater) {
+      autoUpdater.stopPeriodicUpdateCheck();
+      return { success: true };
+    }
+    return { success: false, error: "Auto-updater not initialized" };
+  } catch (error) {
+    console.error("Error stopping periodic check:", error);
     return { success: false, error: error.message };
   }
 });

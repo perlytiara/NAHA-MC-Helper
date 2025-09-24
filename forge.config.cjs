@@ -2,7 +2,7 @@ module.exports = {
   packagerConfig: {
     asar: true,
     ignore: [
-      /^\/tools/,
+      /^\/tools\/(?!minecraft-installer\/target\/release\/minecraft-installer\.exe$)/,
       /^\/\.git/,
       /^\/\.vscode/,
       /^\/src/,
@@ -17,6 +17,12 @@ module.exports = {
       /^\/package-app\.bat$/,
       /^\/ARCHITECTURE\.md$/,
       /^\/README\.md$/,
+    ],
+    extraResource: [
+      {
+        from: 'tools/minecraft-installer/target/release/minecraft-installer.exe',
+        to: 'minecraft-installer.exe'
+      }
     ],
   },
   makers: [

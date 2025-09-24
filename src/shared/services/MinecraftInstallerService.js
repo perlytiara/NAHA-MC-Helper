@@ -11,17 +11,16 @@ import fs from 'fs';
 export class MinecraftInstallerService {
     constructor() {
         // Path to the minecraft-installer.exe
-        this.installerPath = path.join(
-            process.resourcesPath || app.getAppPath(),
-            'tools',
-            'minecraft-installer',
-            'target',
-            'release',
-            'minecraft-installer.exe'
-        );
-        
-        // Fallback to development path
-        if (!fs.existsSync(this.installerPath)) {
+        // In production, it will be in extraResources
+        // In development, it will be in the tools directory
+        if (app.isPackaged) {
+            // Production: executable is in extraResources
+            this.installerPath = path.join(
+                process.resourcesPath,
+                'minecraft-installer.exe'
+            );
+        } else {
+            // Development: executable is in tools directory
             this.installerPath = path.join(
                 app.getAppPath(),
                 'tools',
@@ -31,6 +30,10 @@ export class MinecraftInstallerService {
                 'minecraft-installer.exe'
             );
         }
+        
+        console.log('MinecraftInstallerService: Looking for executable at:', this.installerPath);
+        console.log('MinecraftInstallerService: App is packaged:', app.isPackaged);
+        console.log('MinecraftInstallerService: Resources path:', process.resourcesPath);
     }
 
     /**
