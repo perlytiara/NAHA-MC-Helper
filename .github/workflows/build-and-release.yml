@@ -46,7 +46,18 @@ jobs:
         rm -rf node_modules package-lock.json
         npm install
       
-    - name: Build minecraft-installer
+    - name: Build minecraft-installer (Windows)
+      if: runner.os == 'Windows'
+      timeout-minutes: 10
+      run: |
+        if (Test-Path "tools/minecraft-installer") {
+          npm run build:installer
+        } else {
+          Write-Host "minecraft-installer directory not found, skipping build"
+        }
+        
+    - name: Build minecraft-installer (Unix)
+      if: runner.os != 'Windows'
       timeout-minutes: 10
       run: |
         if [ -d "tools/minecraft-installer" ]; then
