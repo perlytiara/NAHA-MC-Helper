@@ -28,14 +28,17 @@ jobs:
         node-version: '20'
         cache: 'npm'
         
-    - name: Install dependencies
+    - name: Install dependencies (Windows)
+      if: runner.os == 'Windows'
       run: |
-        if [ "$RUNNER_OS" == "Windows" ]; then
-          if exist node_modules rmdir /s /q node_modules
-          if exist package-lock.json del package-lock.json
-        else
-          rm -rf node_modules package-lock.json
-        fi
+        if exist node_modules rmdir /s /q node_modules
+        if exist package-lock.json del package-lock.json
+        npm install
+        
+    - name: Install dependencies (Unix)
+      if: runner.os != 'Windows'
+      run: |
+        rm -rf node_modules package-lock.json
         npm install
       
     - name: Build minecraft-installer
