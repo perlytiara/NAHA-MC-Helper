@@ -11,5 +11,4 @@ dist-electron/
 dist-electron-new/
 dist-electron-fixed/
 out/
-tools/minecraft-installer/
-!tools/minecraft-installer/target/release/minecraft-installer.exe
+tools/minecraft-installer/target/

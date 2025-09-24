@@ -31,8 +31,8 @@ jobs:
     - name: Install dependencies (Windows)
       if: runner.os == 'Windows'
       run: |
-        if exist node_modules rmdir /s /q node_modules
-        if exist package-lock.json del package-lock.json
+        if (Test-Path node_modules) { Remove-Item -Recurse -Force node_modules }
+        if (Test-Path package-lock.json) { Remove-Item package-lock.json }
         npm install
         
     - name: Install dependencies (Unix)
