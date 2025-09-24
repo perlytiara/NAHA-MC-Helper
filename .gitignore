@@ -4,6 +4,7 @@ dist
 *.log
 .DS_Store
 Thumbs.db
+.env
 
 # Large executable files
 dist-electron/
