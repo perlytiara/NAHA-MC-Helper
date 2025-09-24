@@ -14,9 +14,10 @@ export class MinecraftInstallerService {
         // In production, it will be in extraResources
         // In development, it will be in the tools directory
         if (app.isPackaged) {
-            // Production: executable is in extraResources
+            // Production: executable is in extraResources/installer/
             this.installerPath = path.join(
                 process.resourcesPath,
+                'installer',
                 'minecraft-installer.exe'
             );
         } else {
@@ -34,6 +35,27 @@ export class MinecraftInstallerService {
         console.log('MinecraftInstallerService: Looking for executable at:', this.installerPath);
         console.log('MinecraftInstallerService: App is packaged:', app.isPackaged);
         console.log('MinecraftInstallerService: Resources path:', process.resourcesPath);
+        
+        // Check if the file exists and log the result
+        const exists = fs.existsSync(this.installerPath);
+        console.log('MinecraftInstallerService: Executable exists:', exists);
+        
+        if (!exists) {
+            console.warn('MinecraftInstallerService: Executable not found! This will cause legacy installation mode.');
+            
+            // Try alternative paths for debugging
+            const altPaths = [
+                path.join(process.resourcesPath, 'minecraft-installer.exe'),
+                path.join(process.resourcesPath, 'installer', 'minecraft-installer.exe'),
+                path.join(app.getAppPath(), 'tools', 'minecraft-installer', 'target', 'release', 'minecraft-installer.exe')
+            ];
+            
+            console.log('MinecraftInstallerService: Checking alternative paths:');
+            altPaths.forEach((altPath, index) => {
+                const altExists = fs.existsSync(altPath);
+                console.log(`  ${index + 1}. ${altPath} - ${altExists ? 'EXISTS' : 'NOT FOUND'}`);
+            });
+        }
     }
 
     /**
