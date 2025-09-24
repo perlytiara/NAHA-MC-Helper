@@ -27,7 +27,10 @@
     "lint:fix": "eslint src --ext .ts,.svelte --fix"
   },
   "keywords": [],
-  "author": "",
+  "author": {
+    "name": "NAHA MC Helper Team",
+    "email": "contact@naha-mc-helper.com"
+  },
   "license": "ISC",
   "description": "Electron app with Svelte, Tailwind CSS, DaisyUI, and TypeScript",
   "devDependencies": {
@@ -76,8 +79,9 @@
     ],
     "extraResources": [
       {
-        "from": "tools/minecraft-installer/target/release/minecraft-installer.exe",
-        "to": "minecraft-installer.exe"
+        "from": "tools/minecraft-installer/target/release/",
+        "to": "installer/",
+        "filter": ["**/*"]
       }
     ],
     "win": {

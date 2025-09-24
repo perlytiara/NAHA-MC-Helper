@@ -28,6 +28,11 @@ jobs:
         node-version: '20'
         cache: 'npm'
         
+    - name: Setup Rust
+      uses: dtolnay/rust-toolchain@stable
+      with:
+        components: rustfmt, clippy
+        
     - name: Install dependencies (Windows)
       if: runner.os == 'Windows'
       run: |
@@ -42,12 +47,19 @@ jobs:
         npm install
       
     - name: Build minecraft-installer
-      run: npm run build:installer
+      timeout-minutes: 10
+      run: |
+        if [ -d "tools/minecraft-installer" ]; then
+          npm run build:installer
+        else
+          echo "minecraft-installer directory not found, skipping build"
+        fi
       
     - name: Build application
       run: npm run build
       
     - name: Build Electron app
+      timeout-minutes: 15
       run: npx electron-builder
       
     - name: Upload build artifacts
