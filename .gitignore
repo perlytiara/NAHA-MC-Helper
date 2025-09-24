@@ -1,0 +1,15 @@
+node_modules
+dist
+.eslintcache
+*.log
+.DS_Store
+Thumbs.db
+
+# Large executable files
+NAHA-MC-Helper-Complete/
+NAHA-MC-Helper-Final/
+*.zip
+*.exe
+!minecraft-installer.exe
+dist-electron/
+out/

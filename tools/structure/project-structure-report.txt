@@ -1,0 +1,132 @@
+📁 PROJECT FOLDER STRUCTURE
+============================================================
+Root: NAHA-MC-Helper/
+============================================================
+
+├── 📁 -p/
+├── 📁 src/
+│   ├── 📁 app/
+│   │   └── 💻 App.svelte (2 KB)
+│   ├── 📁 features/
+│   │   ├── 📁 install/
+│   │   │   ├── 📁 components/
+│   │   │   │   ├── 📁 forms/
+│   │   │   │   │   ├── 💻 AssetSelector.svelte (4.1 KB)
+│   │   │   │   │   ├── 💻 LauncherModeSelector.svelte (6.2 KB)
+│   │   │   │   │   ├── 💻 ModLoaderSelector.svelte (6.7 KB)
+│   │   │   │   │   └── 💻 ServerLoaderSelector.svelte (4.5 KB)
+│   │   │   │   ├── 💻 InstallHeaderSection.svelte (7.3 KB)
+│   │   │   │   ├── 💻 InstallPage.svelte (21.4 KB)
+│   │   │   │   ├── 💻 MrpackDownloader.svelte (17.3 KB)
+│   │   │   │   └── 💻 ProgressTracker.svelte (7.5 KB)
+│   │   │   └── 💻 index.ts (757 B)
+│   │   ├── 📁 servers/
+│   │   │   ├── 📁 components/
+│   │   │   │   └── 💻 ServersPage.svelte (9.6 KB)
+│   │   │   ├── 📁 types/
+│   │   │   │   └── 💻 server.ts (454 B)
+│   │   │   └── 💻 index.ts (211 B)
+│   │   ├── 📁 user-management/
+│   │   │   ├── 📁 components/
+│   │   │   │   └── 💻 UserCard.svelte (818 B)
+│   │   │   ├── 📁 stores/
+│   │   │   │   └── 💻 userStore.ts (501 B)
+│   │   │   ├── 📁 types/
+│   │   │   │   └── 💻 user.ts (192 B)
+│   │   │   ├── 📁 utils/
+│   │   │   │   └── 💻 userValidation.ts (660 B)
+│   │   │   └── 💻 index.ts (374 B)
+│   │   └── 📁 welcome/
+│   │       ├── 📁 components/
+│   │       │   ├── 💻 WelcomeFeatureGrid.svelte (12.4 KB)
+│   │       │   ├── 💻 WelcomeHeroSection.svelte (7.2 KB)
+│   │       │   ├── 💻 WelcomeLoaderShowcase.svelte (16.5 KB)
+│   │       │   └── 💻 WelcomePage.svelte (8.8 KB)
+│   │       └── 💻 index.ts (378 B)
+│   ├── 📁 lib/
+│   │   └── 💻 constants.ts (259 B)
+│   ├── 📁 shared/
+│   │   ├── 📁 components/
+│   │   │   ├── 📁 ui/
+│   │   │   │   ├── 📁 buttons/
+│   │   │   │   │   └── 💻 PrimaryInstallButton.svelte (4.4 KB)
+│   │   │   │   ├── 📁 cards/
+│   │   │   │   │   └── 💻 InstallCard.svelte (6.6 KB)
+│   │   │   │   ├── 📁 display/
+│   │   │   │   │   └── 💻 ServerBadge.svelte (1.6 KB)
+│   │   │   │   ├── 📁 feedback/
+│   │   │   │   │   └── 💻 StatusBanner.svelte (10.2 KB)
+│   │   │   │   └── 📁 navigation/
+│   │   │   │       └── 💻 NavigationBar.svelte (9.3 KB)
+│   │   │   ├── 💻 ActionButtons.svelte (387 B)
+│   │   │   ├── 💻 FeatureCards.svelte (1 KB)
+│   │   │   ├── 💻 HeroSection.svelte (566 B)
+│   │   │   └── 💻 StatsSection.svelte (678 B)
+│   │   ├── 📁 stores/
+│   │   │   ├── 💻 appStore.ts (481 B)
+│   │   │   ├── 💻 counter.ts (211 B)
+│   │   │   └── 💻 installerStore.ts (580 B)
+│   │   ├── 📁 types/
+│   │   │   └── 💻 common.ts (172 B)
+│   │   └── 📁 utils/
+│   │       ├── 💻 dateUtils.ts (560 B)
+│   │       └── 💻 fetchModData.ts (773 B)
+│   ├── 💻 app.d.ts (173 B)
+│   ├── 🎨 input.css (62 B)
+│   └── 💻 main.ts (277 B)
+├── 📁 tools/
+│   └── 📁 structure/
+│       ├── 📄 generate-structure.bat (1.1 KB)
+│       ├── ⚙️ generate-structure.cjs (10.9 KB)
+│       ├── 📄 project-structure-report.txt (5.7 KB)
+│       └── 📄 STRUCTURE-GENERATOR-README.md (4.9 KB)
+├── ⚙️ .eslintrc.alt.json (738 B)
+├── ⚙️ .eslintrc.json (1.7 KB)
+├── 📄 ARCHITECTURE.md (4.9 KB)
+├── 💻 eslint.config.js (2.1 KB)
+├── ⚙️ forge.config.cjs (385 B)
+├── 📄 independentModules.jsonc (4.1 KB)
+├── 🎨 index.html (352 B)
+├── 💻 main.js (1.4 KB)
+├── ⚙️ package-lock.json (333.9 KB)
+├── ⚙️ package.json (1.4 KB)
+├── 💻 postcss.config.js (105 B)
+├── 📄 README.md (2.7 KB)
+├── 💻 svelte.config.js (229 B)
+├── 💻 tailwind.config.js (223 B)
+├── 🎨 test.html (1 B)
+├── ⚙️ tsconfig.json (611 B)
+└── 💻 vite.config.ts (698 B)
+
+============================================================
+📊 PROJECT STRUCTURE SUMMARY
+============================================================
+
+📁 Total Directories: 31
+📄 Total Files: 63
+📏 Maximum Depth: 4 levels
+🔍 Deepest Path: src\features\install\components\forms
+
+📂 FILES BY CATEGORY:
+------------------------------
+💻 Source Code: 47 files
+🎨 Markup & Styles: 3 files
+⚙️ Configuration: 7 files
+📄 Documentation: 4 files
+📄 Other: 2 files
+
+📦 LARGEST FILES:
+------------------------------
+1. ⚙️ package-lock.json (333.9 KB)
+2. 💻 src\features\install\components\InstallPage.svelte (21.4 KB)
+3. 💻 src\features\install\components\MrpackDownloader.svelte (17.3 KB)
+4. 💻 src\features\welcome\components\WelcomeLoaderShowcase.svelte (16.5 KB)
+5. 💻 src\features\welcome\components\WelcomeFeatureGrid.svelte (12.4 KB)
+6. ⚙️ tools\structure\generate-structure.cjs (10.9 KB)
+7. 💻 src\shared\components\ui\feedback\StatusBanner.svelte (10.2 KB)
+8. 💻 src\features\servers\components\ServersPage.svelte (9.6 KB)
+9. 💻 src\shared\components\ui\navigation\NavigationBar.svelte (9.3 KB)
+10. 💻 src\features\welcome\components\WelcomePage.svelte (8.8 KB)
+
+⏰ Generated on: 9/19/2025, 2:52:42 PM
+🚫 Excluded: node_modules, .git, .svn, .hg, dist, build, out, .cache, .tmp, .temp, coverage, .nyc_output, .DS_Store, Thumbs.db, *.log, .env.local, .env.*.local

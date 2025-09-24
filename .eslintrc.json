@@ -1,0 +1,91 @@
+{
+  "root": true,
+  "parser": "@typescript-eslint/parser",
+  "plugins": [
+    "@typescript-eslint",
+    "boundaries"
+  ],
+  "extends": [
+    "eslint:recommended",
+    "@typescript-eslint/recommended"
+  ],
+  "parserOptions": {
+    "ecmaVersion": 2020,
+    "sourceType": "module",
+    "extraFileExtensions": [".svelte"]
+  },
+  "env": {
+    "browser": true,
+    "es6": true,
+    "node": true
+  },
+  "overrides": [
+    {
+      "files": ["*.svelte"],
+      "parser": "svelte-eslint-parser",
+      "parserOptions": {
+        "parser": "@typescript-eslint/parser"
+      }
+    }
+  ],
+  "settings": {
+    "boundaries/elements": [
+      {
+        "type": "app",
+        "pattern": "src/app"
+      },
+      {
+        "type": "features",
+        "pattern": "src/features/*",
+        "capture": ["featureName"]
+      },
+      {
+        "type": "shared",
+        "pattern": "src/shared"
+      },
+      {
+        "type": "lib",
+        "pattern": "src/lib"
+      }
+    ]
+  },
+  "rules": {
+    "boundaries/element-types": [
+      "error",
+      {
+        "default": "disallow",
+        "rules": [
+          {
+            "from": "app",
+            "allow": [
+              "features",
+              "shared",
+              "lib"
+            ]
+          },
+          {
+            "from": "features",
+            "allow": [
+              ["features", { "featureName": "${from.featureName}" }],
+              "shared",
+              "lib"
+            ]
+          },
+          {
+            "from": "shared",
+            "allow": [
+              "shared",
+              "lib"
+            ]
+          },
+          {
+            "from": "lib",
+            "allow": [
+              "lib"
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

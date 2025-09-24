@@ -1,0 +1,167 @@
+{
+  "$schema": "https://raw.githubusercontent.com/Igorkowalski94/eslint-plugin-project-structure/main/docs/schema.json",
+  "structure": {
+    "children": [
+      {
+        "name": "src",
+        "children": [
+          {
+            "name": "app",
+            "children": [
+              {
+                "name": "{PascalCase}",
+                "ruleId": "app-component"
+              }
+            ]
+          },
+          {
+            "name": "features",
+            "children": [
+              {
+                "name": "{kebab-case}",
+                "children": [
+                  {
+                    "name": "components",
+                    "children": [
+                      {
+                        "name": "{PascalCase}.svelte",
+                        "ruleId": "feature-component"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "stores",
+                    "children": [
+                      {
+                        "name": "{camelCase}.ts",
+                        "ruleId": "feature-store"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "utils",
+                    "children": [
+                      {
+                        "name": "{camelCase}.ts",
+                        "ruleId": "feature-util"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "types",
+                    "children": [
+                      {
+                        "name": "{camelCase}.ts",
+                        "ruleId": "feature-type"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "index.ts",
+                    "ruleId": "feature-index"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "shared",
+            "children": [
+              {
+                "name": "components",
+                "children": [
+                  {
+                    "name": "{PascalCase}.svelte",
+                    "ruleId": "shared-component"
+                  }
+                ]
+              },
+              {
+                "name": "stores",
+                "children": [
+                  {
+                    "name": "{camelCase}.ts",
+                    "ruleId": "shared-store"
+                  }
+                ]
+              },
+              {
+                "name": "utils",
+                "children": [
+                  {
+                    "name": "{camelCase}.ts",
+                    "ruleId": "shared-util"
+                  }
+                ]
+              },
+              {
+                "name": "types",
+                "children": [
+                  {
+                    "name": "{camelCase}.ts",
+                    "ruleId": "shared-type"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "lib",
+            "children": [
+              {
+                "name": "{camelCase}.ts",
+                "ruleId": "lib-file"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "rules": [
+    {
+      "ruleId": "app-component",
+      "allowOnlySpecifiedChildren": false
+    },
+    {
+      "ruleId": "feature-component",
+      "allowOnlySpecifiedChildren": false
+    },
+    {
+      "ruleId": "feature-store",
+      "allowOnlySpecifiedChildren": false
+    },
+    {
+      "ruleId": "feature-util",
+      "allowOnlySpecifiedChildren": false
+    },
+    {
+      "ruleId": "feature-type",
+      "allowOnlySpecifiedChildren": false
+    },
+    {
+      "ruleId": "feature-index",
+      "allowOnlySpecifiedChildren": false
+    },
+    {
+      "ruleId": "shared-component",
+      "allowOnlySpecifiedChildren": false
+    },
+    {
+      "ruleId": "shared-store",
+      "allowOnlySpecifiedChildren": false
+    },
+    {
+      "ruleId": "shared-util",
+      "allowOnlySpecifiedChildren": false
+    },
+    {
+      "ruleId": "shared-type",
+      "allowOnlySpecifiedChildren": false
+    },
+    {
+      "ruleId": "lib-file",
+      "allowOnlySpecifiedChildren": false
+    }
+  ]
+}
