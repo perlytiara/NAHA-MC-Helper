@@ -34,16 +34,13 @@ jobs:
     - name: Build Electron app
       run: npm run build:electron
       
-    - name: Create installer
-      run: npm run package
-      
     - name: Upload build artifacts
       uses: actions/upload-artifact@v4
       with:
         name: naha-mc-helper-${{ github.ref_name }}
         path: |
           dist/
-          out/
+          dist-electron-fixed/
         retention-days: 30
         
     - name: Create Release
@@ -51,18 +48,19 @@ jobs:
       uses: softprops/action-gh-release@v1
       with:
         files: |
-          out/NAHA-MC-Helper-Setup-*.exe
-          dist/
+          dist-electron-fixed/*.exe
+          dist-electron-fixed/*.blockmap
         body: |
           ## NAHA MC Helper ${{ github.ref_name }}
           
           ### What's New
+          - Updated to Svelte 5 and Vite 7
           - Auto-updater functionality
           - Improved user interface
           - Bug fixes and performance improvements
           
           ### Installation
-          1. Download the installer
+          1. Download the installer (NSIS) or portable version
           2. Run the setup file
           3. Follow the installation wizard
           

@@ -101,7 +101,8 @@
     "publish": {
       "provider": "github",
       "owner": "perlytiara",
-      "repo": "NAHA-MC-Helper"
+      "repo": "NAHA-MC-Helper",
+      "publishAutoUpdate": false
     },
     "nsis": {
       "oneClick": false,
