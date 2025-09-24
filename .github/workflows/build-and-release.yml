@@ -30,7 +30,12 @@ jobs:
         
     - name: Install dependencies
       run: |
-        rm -rf node_modules package-lock.json
+        if [ "$RUNNER_OS" == "Windows" ]; then
+          if exist node_modules rmdir /s /q node_modules
+          if exist package-lock.json del package-lock.json
+        else
+          rm -rf node_modules package-lock.json
+        fi
         npm install
       
     - name: Build application
