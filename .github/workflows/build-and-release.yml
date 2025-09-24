@@ -38,6 +38,9 @@ jobs:
         fi
         npm install
       
+    - name: Build minecraft-installer
+      run: npm run build:installer
+      
     - name: Build application
       run: npm run build
       
