@@ -98,12 +98,6 @@
       "forceCodeSigning": false,
       "signAndEditExecutable": false
     },
-    "publish": {
-      "provider": "github",
-      "owner": "perlytiara",
-      "repo": "NAHA-MC-Helper",
-      "publishAutoUpdate": false
-    },
     "nsis": {
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
