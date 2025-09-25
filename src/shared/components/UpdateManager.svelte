@@ -121,7 +121,8 @@
     if (!isInitialized) return;
     
     try {
-      await window.electronAPI?.invoke('auto-updater:check-for-updates');
+      console.log('UpdateManager: Manual update check requested');
+      await window.electronAPI?.invoke('auto-updater:manual-update-check');
     } catch (error) {
       console.error('Failed to check for updates:', error);
       updateActions.setError({

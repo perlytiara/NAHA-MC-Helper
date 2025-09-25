@@ -1,7 +1,12 @@
 import electron from 'electron';
 import electronUpdater from 'electron-updater';
 import { writeFileSync, readFileSync, existsSync } from 'fs';
-import { join } from 'path';
+import { join, dirname } from 'path';
+import { fileURLToPath } from 'url';
+
+// ES module equivalent of __dirname
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const { app, dialog, shell } = electron;
 const { autoUpdater } = electronUpdater;
@@ -28,6 +33,8 @@ class AutoUpdaterService {
     // Disable auto-download to show custom UI
     autoUpdater.autoDownload = false;
     autoUpdater.autoInstallOnAppQuit = false;
+    
+    console.log('Auto-updater: Configured for GitHub repository perlytiara/NAHA-MC-Helper');
 
     // Event listeners
     autoUpdater.on('checking-for-update', () => {
@@ -80,11 +87,108 @@ class AutoUpdaterService {
 
   async checkForUpdates() {
     try {
+      console.log('Auto-updater: Starting update check...');
+      console.log('Auto-updater: App packaged:', app.isPackaged);
+      console.log('Auto-updater: Current version:', this.currentVersion);
+      
+      // In development mode, always use GitHub API directly
+      if (!app.isPackaged) {
+        console.log('Auto-updater: Development mode detected, using GitHub API directly');
+        await this.checkGitHubAPI();
+        return;
+      }
+      
+      // In production, use electron-updater
       await autoUpdater.checkForUpdates();
+      console.log('Auto-updater: Update check completed');
     } catch (error) {
-      console.error('Error checking for updates:', error);
+      console.error('Auto-updater: Error checking for updates:', error);
+      
+      // Fallback to GitHub API if electron-updater fails
+      if (!app.isPackaged) {
+        console.log('Auto-updater: Falling back to direct GitHub API check');
+        await this.checkGitHubAPI();
+      } else {
+        this.sendToRenderer('update-error', {
+          message: 'Failed to check for updates',
+          details: error.message
+        });
+      }
+    }
+  }
+
+  // Direct GitHub API check as fallback
+  async checkGitHubAPI() {
+    try {
+      console.log('Auto-updater: Checking GitHub API directly...');
+      
+      // Use Node.js https module to make direct API call
+      const https = await import('https');
+      
+      const options = {
+        hostname: 'api.github.com',
+        port: 443,
+        path: '/repos/perlytiara/NAHA-MC-Helper/releases/latest',
+        method: 'GET',
+        headers: {
+          'User-Agent': 'NAHA-MC-Helper-Update-Checker',
+          'Accept': 'application/vnd.github.v3+json'
+        }
+      };
+
+      const response = await new Promise((resolve, reject) => {
+        const req = https.default.request(options, (res) => {
+          let data = '';
+          res.on('data', (chunk) => {
+            data += chunk;
+          });
+          res.on('end', () => {
+            try {
+              resolve(JSON.parse(data));
+            } catch (error) {
+              reject(error);
+            }
+          });
+        });
+
+        req.on('error', reject);
+        req.end();
+      });
+
+      const latestVersion = response.tag_name.replace('v', '');
+      console.log('Auto-updater: GitHub API - Latest version:', latestVersion);
+      console.log('Auto-updater: GitHub API - Current version:', this.currentVersion);
+
+      if (latestVersion !== this.currentVersion) {
+        console.log('Auto-updater: Update available via GitHub API');
+        
+        // Simulate electron-updater events
+        const updateInfo = {
+          version: latestVersion,
+          releaseNotes: response.body || 'Update available',
+          releaseName: response.name || response.tag_name,
+          releaseDate: response.published_at
+        };
+
+        this.updateAvailable = true;
+        this.updateInfo = updateInfo;
+        
+        console.log('Auto-updater: Sending update-available event to renderer:', updateInfo);
+        
+        // Send events to renderer
+        this.sendToRenderer('update-available', updateInfo);
+      } else {
+        console.log('Auto-updater: No updates available via GitHub API');
+        this.sendToRenderer('update-not-available', {
+          version: this.currentVersion,
+          releaseNotes: 'You are running the latest version'
+        });
+      }
+
+    } catch (error) {
+      console.error('Auto-updater: GitHub API check failed:', error);
       this.sendToRenderer('update-error', {
-        message: 'Failed to check for updates',
+        message: 'Failed to check for updates via GitHub API',
         details: error.message
       });
     }
@@ -146,18 +250,28 @@ class AutoUpdaterService {
     return {
       currentVersion: this.currentVersion,
       updateAvailable: this.updateAvailable,
-      updateDownloaded: this.updateDownloaded
+      updateDownloaded: this.updateDownloaded,
+      updateInfo: this.updateInfo
     };
   }
 
   // Manual update check with user feedback
   async manualUpdateCheck() {
     try {
-      await this.checkForUpdates();
+      console.log('Auto-updater: Manual update check requested');
+      
+      // Always use GitHub API for manual checks in development
+      if (!app.isPackaged) {
+        console.log('Auto-updater: Manual check - using GitHub API directly');
+        await this.checkGitHubAPI();
+      } else {
+        await this.checkForUpdates();
+      }
       
       // If no update is available, show a dialog
       setTimeout(() => {
         if (!this.updateAvailable) {
+          console.log('Auto-updater: No updates available, showing dialog');
           dialog.showMessageBox(this.mainWindow, {
             type: 'info',
             title: 'No Updates Available',
@@ -169,6 +283,7 @@ class AutoUpdaterService {
       }, 2000);
       
     } catch (error) {
+      console.error('Auto-updater: Manual update check failed:', error);
       dialog.showErrorBox(
         'Update Check Failed',
         `Unable to check for updates: ${error.message}`

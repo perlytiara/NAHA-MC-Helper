@@ -21,6 +21,7 @@ interface DownloadProgress {
 
 interface AutoUpdater {
   checkForUpdates: () => Promise<void>;
+  manualUpdateCheck: () => Promise<void>;
   downloadUpdate: () => Promise<void>;
   installUpdate: () => Promise<void>;
   getCurrentVersion: () => Promise<string>;

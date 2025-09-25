@@ -4,10 +4,53 @@ import { currentPage, debug, onboardingCompleted } from '../../../shared/stores/
 import { resetOnboarding } from '../../../shared/utils/onboardingUtils';
 import NavigationBar from '../../../shared/components/ui/navigation/NavigationBar.svelte';
 
+// Update check state
+let isCheckingUpdate = false;
+let updateStatus = null;
+
 function startSetupFlow() {
   resetOnboarding();
   onboardingCompleted.set(false);
   currentPage.set('onboarding');
+}
+
+// Update check function
+async function handleCheckForUpdates() {
+  try {
+    isCheckingUpdate = true;
+    updateStatus = null;
+    
+    console.log('HomePage: Checking for updates...');
+    
+    // Call the global update check function
+    if (window.manualUpdateCheck) {
+      await window.manualUpdateCheck();
+      
+      // Show success message
+      updateStatus = {
+        type: 'success',
+        message: '✅ Update check completed! Check the modal for results.'
+      };
+    } else {
+      updateStatus = {
+        type: 'error',
+        message: '❌ Update check not available'
+      };
+    }
+  } catch (error) {
+    console.error('HomePage: Update check failed:', error);
+    updateStatus = {
+      type: 'error',
+      message: `❌ Update check failed: ${error.message}`
+    };
+  } finally {
+    isCheckingUpdate = false;
+    
+    // Clear status after 5 seconds
+    setTimeout(() => {
+      updateStatus = null;
+    }, 5000);
+  }
 }
 
 // Debug logging
@@ -68,14 +111,10 @@ const features = [
     
     <!-- Hero section -->
     <div class="hero-section">
-      <div class="hero-content">
-        <div class="logo">
-          <div class="logo-icon">⚡</div>
-          <span class="logo-text">NAHA</span>
+        <div class="hero-content">
+            <h1 class="hero-title">Minecraft Helper</h1>
+            <p class="hero-subtitle">Your complete toolkit for managing Minecraft modpacks and launchers</p>
         </div>
-        <h1 class="hero-title">Minecraft Helper</h1>
-        <p class="hero-subtitle">Your complete toolkit for managing Minecraft modpacks and launchers</p>
-      </div>
     </div>
     
     <!-- Features grid -->
@@ -99,9 +138,42 @@ const features = [
       </button>
     </div>
     
+    <!-- Update Status Section -->
+    <div class="update-section">
+      <div class="update-card">
+        <div class="update-header">
+          <div class="update-icon">🔄</div>
+          <div class="update-info">
+            <h3 class="update-title">Stay Updated</h3>
+            <p class="update-subtitle">Current version: v1.0.2</p>
+          </div>
+        </div>
+        <div class="update-actions">
+          <button 
+            class="update-button" 
+            on:click={handleCheckForUpdates}
+            disabled={isCheckingUpdate}
+          >
+            {#if isCheckingUpdate}
+              <span class="loading loading-spinner loading-sm"></span>
+              Checking...
+            {:else}
+              <span class="update-button-icon">📡</span>
+              Check for Updates
+            {/if}
+          </button>
+        </div>
+        {#if updateStatus}
+          <div class="update-status {updateStatus.type}">
+            {updateStatus.message}
+          </div>
+        {/if}
+      </div>
+    </div>
+    
     <!-- Version info -->
     <div class="version-info">
-      <p>NAHA MC Helper v1.0.0 - Ready for full release</p>
+      <p>NAHA MC Helper v1.0.2 - Always improving</p>
     </div>
     
     <!-- Hidden onboarding reset (for debugging/testing) -->
@@ -214,11 +286,12 @@ const features = [
         z-index: 1;
         max-width: 900px;
         margin: 0 auto;
-        padding: 1rem;
+        padding: 0.5rem;
         height: 100vh;
         display: flex;
         flex-direction: column;
-        justify-content: space-between;
+        justify-content: center;
+        align-items: center;
         gap: 0.5rem;
     }
     
@@ -234,44 +307,30 @@ const features = [
     /* Hero Section */
     .hero-section {
         text-align: center;
-        margin: 1rem 0;
+        margin: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
     }
     
     .hero-content {
         background: rgba(255, 255, 255, 0.08);
-        border-radius: 20px;
-        padding: 1.5rem;
+        border-radius: 16px;
+        padding: 1rem;
         border: 2px solid rgba(255, 255, 255, 0.15);
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
         backdrop-filter: blur(10px);
-    }
-    
-    .logo {
         display: flex;
-        align-items: center;
+        flex-direction: column;
         justify-content: center;
-        gap: 0.5rem;
-        margin-bottom: 0.75rem;
+        align-items: center;
     }
     
-    .logo-icon {
-        font-size: 1.5rem;
-        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
-    }
-    
-    .logo-text {
-        font-size: 1.5rem;
-        font-weight: 800;
-        background: linear-gradient(135deg, #ffd93d, #a78bfa, #06b6d4);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-    }
     
     .hero-title {
-        font-size: 1.75rem;
+        font-size: 1.5rem;
         font-weight: 800;
-        margin: 0 0 0.5rem 0;
+        margin: 0 0 0.25rem 0;
         background: linear-gradient(45deg, #a78bfa, #06b6d4);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
@@ -279,24 +338,25 @@ const features = [
     }
     
     .hero-subtitle {
-        font-size: 0.9rem;
+        font-size: 0.8rem;
         color: rgba(255, 255, 255, 0.8);
         margin: 0;
-        line-height: 1.4;
+        line-height: 1.3;
     }
     
     /* Features Section */
     .features-section {
-        flex: 1;
         display: flex;
         align-items: center;
         justify-content: center;
+        margin: 0;
+        width: 100%;
     }
     
     .features-grid {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
-        gap: 0.75rem;
+        gap: 0.5rem;
         width: 100%;
         max-width: 600px;
     }
@@ -304,8 +364,8 @@ const features = [
     .feature-card {
         background: rgba(255, 255, 255, 0.08);
         border: 2px solid rgba(255, 255, 255, 0.15);
-        border-radius: 16px;
-        padding: 1rem;
+        border-radius: 12px;
+        padding: 0.75rem;
         text-align: center;
         backdrop-filter: blur(10px);
         transition: all 0.3s ease;
@@ -318,45 +378,49 @@ const features = [
     }
     
     .feature-icon {
-        font-size: 1.5rem;
-        margin-bottom: 0.5rem;
+        font-size: 1.25rem;
+        margin-bottom: 0.4rem;
         filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
     }
     
     .feature-title {
-        font-size: 1rem;
+        font-size: 0.9rem;
         font-weight: 700;
-        margin: 0 0 0.25rem 0;
+        margin: 0 0 0.2rem 0;
         color: white;
     }
     
     .feature-description {
-        font-size: 0.75rem;
+        font-size: 0.7rem;
         color: rgba(255, 255, 255, 0.7);
         margin: 0;
-        line-height: 1.3;
+        line-height: 1.2;
     }
     
     /* Call to Action */
     .cta-section {
         text-align: center;
-        margin: 0.5rem 0;
+        margin: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
     }
     
     .cta-button {
         background: linear-gradient(135deg, #3b82f6, #8b5cf6);
         color: white;
         border: none;
-        border-radius: 16px;
-        padding: 1rem 2rem;
-        font-size: 1rem;
+        border-radius: 12px;
+        padding: 0.75rem 1.5rem;
+        font-size: 0.9rem;
         font-weight: 700;
         cursor: pointer;
         transition: all 0.3s ease;
         display: inline-flex;
         align-items: center;
-        gap: 0.5rem;
-        box-shadow: 0 4px 16px rgba(59, 130, 246, 0.3);
+        gap: 0.4rem;
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
         backdrop-filter: blur(10px);
     }
     
@@ -378,6 +442,117 @@ const features = [
         font-size: 1rem;
     }
     
+    /* Update Section */
+    .update-section {
+        text-align: center;
+        margin: 0;
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    
+    .update-card {
+        background: rgba(255, 255, 255, 0.08);
+        border: 2px solid rgba(255, 255, 255, 0.15);
+        border-radius: 12px;
+        padding: 0.75rem;
+        backdrop-filter: blur(10px);
+        transition: all 0.3s ease;
+    }
+    
+    .update-card:hover {
+        border-color: rgba(255, 255, 255, 0.25);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+    }
+    
+    .update-header {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .update-icon {
+        font-size: 1.5rem;
+        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+    }
+    
+    .update-info {
+        text-align: left;
+    }
+    
+    .update-title {
+        font-size: 1rem;
+        font-weight: 700;
+        margin: 0 0 0.25rem 0;
+        color: white;
+    }
+    
+    .update-subtitle {
+        font-size: 0.8rem;
+        color: rgba(255, 255, 255, 0.7);
+        margin: 0;
+    }
+    
+    .update-actions {
+        margin-bottom: 0.5rem;
+    }
+    
+    .update-button {
+        background: linear-gradient(135deg, #10b981, #059669);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        padding: 0.75rem 1.5rem;
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        backdrop-filter: blur(10px);
+    }
+    
+    .update-button:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
+        background: linear-gradient(135deg, #059669, #047857);
+    }
+    
+    .update-button:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+        transform: none;
+    }
+    
+    .update-button-icon {
+        font-size: 1rem;
+    }
+    
+    .update-status {
+        font-size: 0.8rem;
+        padding: 0.5rem;
+        border-radius: 8px;
+        margin-top: 0.5rem;
+        font-weight: 600;
+    }
+    
+    .update-status.success {
+        background: rgba(16, 185, 129, 0.2);
+        color: #10b981;
+        border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+    
+    .update-status.error {
+        background: rgba(239, 68, 68, 0.2);
+        color: #ef4444;
+        border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
     /* Version info */
     .version-info {
         text-align: center;
@@ -425,9 +600,6 @@ const features = [
             padding: 1rem;
         }
         
-        .logo-icon, .logo-text {
-            font-size: 1.25rem;
-        }
         
         .hero-title {
             font-size: 1.5rem;
@@ -461,13 +633,6 @@ const features = [
             padding: 0.75rem;
         }
         
-        .logo {
-            gap: 0.25rem;
-        }
-        
-        .logo-icon, .logo-text {
-            font-size: 1rem;
-        }
         
         .hero-title {
             font-size: 1.25rem;

@@ -21,7 +21,7 @@
   let isChecking: boolean = false;
   let isDownloading: boolean = false;
   let updateError: string | null = null;
-  let currentVersion: string = '1.0.3';
+  let currentVersion: string = '1.0.2';
 
   // Auto-updater event handlers
   function handleUpdateChecking(): void {
@@ -31,10 +31,12 @@
   }
 
   function handleUpdateAvailable(event: any, data: UpdateInfo): void {
+    console.log('App: handleUpdateAvailable called with:', data);
     updateInfo = data;
     isChecking = false;
     showUpdateModal = true;
     updateError = null;
+    console.log('App: Update modal should now be visible:', showUpdateModal);
   }
 
   function handleUpdateNotAvailable(event: any, data: UpdateInfo): void {
@@ -94,6 +96,130 @@
     updateInfo = null;
   }
 
+  // Manual update check function that can be called from UI
+  async function handleManualUpdateCheck(): Promise<void> {
+    try {
+      console.log('🎯 App: handleManualUpdateCheck function called!');
+      console.log('App: Manual update check requested');
+      
+      // Set checking state immediately
+      isChecking = true;
+      showUpdateModal = true;
+      console.log('App: Modal state set - showUpdateModal:', showUpdateModal, 'isChecking:', isChecking);
+      
+      // Try direct GitHub API call first (most reliable)
+      console.log('App: Trying direct GitHub API call first...');
+      await checkGitHubAPIDirectly();
+      
+      // If that fails, try the backend approach
+      if (!updateInfo && !updateError) {
+        console.log('App: Direct API failed, trying backend approach...');
+        if (window.prism?.autoUpdater?.manualUpdateCheck) {
+          await window.prism.autoUpdater.manualUpdateCheck();
+        }
+        
+        // Fallback to IPC check
+        setTimeout(() => {
+          if (!updateInfo && !updateError) {
+            console.log('App: Checking for updates via IPC fallback...');
+            checkForUpdatesViaIPC();
+          }
+        }, 2000);
+      }
+      
+    } catch (error) {
+      console.error('Manual update check failed:', error);
+      isChecking = false;
+      updateError = error.message;
+    }
+  }
+
+  // Fallback method to check for updates via IPC
+  async function checkForUpdatesViaIPC(): Promise<void> {
+    try {
+      console.log('App: Checking for updates via IPC...');
+      // Try to get update info directly
+      const updateInfoResult = await window.prism?.autoUpdater?.getUpdateInfo?.();
+      if (updateInfoResult?.success && updateInfoResult.updateInfo) {
+        console.log('App: Found update via IPC:', updateInfoResult.updateInfo);
+        updateInfo = updateInfoResult.updateInfo;
+        showUpdateModal = true;
+        isChecking = false;
+        return;
+      }
+      
+      // If IPC doesn't work, try direct GitHub API call
+      console.log('App: IPC failed, trying direct GitHub API...');
+      await checkGitHubAPIDirectly();
+      
+    } catch (error) {
+      console.error('App: IPC update check failed:', error);
+      // Try direct GitHub API as last resort
+      await checkGitHubAPIDirectly();
+    }
+  }
+
+  // Direct GitHub API call from renderer
+  async function checkGitHubAPIDirectly(): Promise<void> {
+    try {
+      console.log('App: Making direct GitHub API call...');
+      
+      const response = await fetch('https://api.github.com/repos/perlytiara/NAHA-MC-Helper/releases/latest', {
+        headers: {
+          'User-Agent': 'NAHA-MC-Helper-Update-Checker',
+          'Accept': 'application/vnd.github.v3+json'
+        }
+      });
+      
+      console.log('App: GitHub API response status:', response.status);
+      
+      if (!response.ok) {
+        throw new Error(`GitHub API error: ${response.status} ${response.statusText}`);
+      }
+      
+      const release = await response.json();
+      const latestVersion = release.tag_name.replace('v', '');
+      
+      console.log('App: GitHub API - Latest version:', latestVersion);
+      console.log('App: GitHub API - Current version:', currentVersion);
+      console.log('App: GitHub API - Release tag:', release.tag_name);
+      
+      if (latestVersion !== currentVersion) {
+        console.log('App: ✅ UPDATE AVAILABLE via direct GitHub API!');
+        
+        updateInfo = {
+          version: latestVersion,
+          releaseNotes: release.body || 'Update available',
+          releaseName: release.name || release.tag_name,
+          releaseDate: release.published_at
+        };
+        
+        showUpdateModal = true;
+        isChecking = false;
+        
+        console.log('App: 🎉 Update modal should now be visible with version', latestVersion);
+        console.log('App: Final modal state - showUpdateModal:', showUpdateModal, 'isChecking:', isChecking, 'updateInfo:', updateInfo);
+      } else {
+        console.log('App: ℹ️ No updates available via direct GitHub API');
+        isChecking = false;
+        showUpdateModal = false;
+      }
+      
+    } catch (error) {
+      console.error('App: ❌ Direct GitHub API check failed:', error);
+      console.error('App: Error details:', error.message);
+      isChecking = false;
+      updateError = `Network error: ${error.message}`;
+    }
+  }
+
+  // Expose manual update check function globally for UI components
+  if (typeof window !== 'undefined') {
+    window.manualUpdateCheck = handleManualUpdateCheck;
+    console.log('App: manualUpdateCheck function exposed to window object');
+    console.log('App: window.manualUpdateCheck available:', typeof window.manualUpdateCheck);
+  }
+
   onMount(() => {
     // Check if this is the first time the user is opening the app
     const completed = isOnboardingCompleted();
@@ -109,8 +235,25 @@
       return removeAboutListener;
     }
 
+    // Listen for menu check-for-updates request
+    const handleMenuCheckForUpdates = () => {
+      console.log('App: Menu check-for-updates requested');
+      handleManualUpdateCheck();
+    };
+
+    // Add IPC listener for menu events
+    if (window.electronAPI) {
+      window.electronAPI.on('menu:check-for-updates', handleMenuCheckForUpdates);
+      
+      // Return cleanup function
+      return () => {
+        window.electronAPI.off('menu:check-for-updates', handleMenuCheckForUpdates);
+      };
+    }
+
     // Setup auto-updater event listeners
     if (window.prism?.autoUpdater) {
+      console.log('App: Setting up auto-updater event listeners');
       const removeListeners = [
         window.prism.autoUpdater.onUpdateChecking?.(handleUpdateChecking),
         window.prism.autoUpdater.onUpdateAvailable?.(handleUpdateAvailable),
@@ -119,6 +262,7 @@
         window.prism.autoUpdater.onUpdateDownloaded?.(handleUpdateDownloaded),
         window.prism.autoUpdater.onUpdateError?.(handleUpdateError)
       ];
+      console.log('App: Event listeners set up:', removeListeners.length);
 
       // Auto-check for updates on startup (but don't show modal unless update available)
       setTimeout(() => {
@@ -203,6 +347,7 @@
     on:viewReleaseNotes={handleViewReleaseNotes}
     on:close={handleUpdateModalClose}
   />
+
 </main>
 
 <style>

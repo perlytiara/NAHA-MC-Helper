@@ -194,9 +194,11 @@
         <button 
           class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-medium transition-colors"
           on:click={() => {
-            // This would trigger a manual update check
-            if (window.updateManager) {
-              window.updateManager.checkForUpdates();
+            // Trigger manual update check
+            if (window.manualUpdateCheck) {
+              window.manualUpdateCheck();
+            } else {
+              console.error('Manual update check function not available');
             }
           }}
         >

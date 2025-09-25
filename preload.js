@@ -75,6 +75,7 @@ contextBridge.exposeInMainWorld('prism', {
   // Auto-Updater functions
   autoUpdater: {
     checkForUpdates: () => ipcRenderer.invoke('auto-updater:check-for-updates'),
+    manualUpdateCheck: () => ipcRenderer.invoke('auto-updater:manual-update-check'),
     downloadUpdate: () => ipcRenderer.invoke('auto-updater:download-update'),
     installUpdate: () => ipcRenderer.invoke('auto-updater:install-update'),
     getCurrentVersion: () => ipcRenderer.invoke('auto-updater:get-current-version'),

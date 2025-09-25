@@ -336,10 +336,10 @@
     position: relative;
     background: linear-gradient(
       135deg,
-      #1a201a 0%,
-      #2d3a2d 25%,
-      #1a201a 50%,
-      #2d3a2d 100%
+      #0f172a 0%,
+      #1e293b 25%,
+      #334155 50%,
+      #475569 100%
     );
     overflow: hidden;
     display: flex;
@@ -360,8 +360,8 @@
     position: absolute;
     inset: -200px;
     background-image:
-      linear-gradient(rgba(34, 197, 94, 0.03) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(34, 197, 94, 0.03) 1px, transparent 1px);
+      linear-gradient(rgba(59, 130, 246, 0.02) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(59, 130, 246, 0.02) 1px, transparent 1px);
     background-size: 40px 40px;
     background-position: 0 0;
     animation: gridDrift 30s linear infinite;
@@ -512,8 +512,8 @@
 
     .decoration-grid {
       background-image:
-        linear-gradient(rgba(34, 197, 94, 0.05) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(34, 197, 94, 0.05) 1px, transparent 1px);
+        linear-gradient(rgba(59, 130, 246, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(59, 130, 246, 0.03) 1px, transparent 1px);
       background-size: 40px 40px;
       background-position: 0 0;
     }

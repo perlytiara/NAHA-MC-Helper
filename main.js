@@ -72,8 +72,9 @@ const createMenu = () => {
         {
           label: "Check for Updates",
           click: async () => {
-            if (autoUpdater) {
-              await autoUpdater.manualUpdateCheck();
+            // Send message to renderer to trigger update check
+            if (mainWindow && !mainWindow.isDestroyed()) {
+              mainWindow.webContents.send('menu:check-for-updates');
             }
           },
         },
@@ -1396,6 +1397,20 @@ ipcMain.handle("auto-updater:check-for-updates", async () => {
   }
 });
 
+// Manual update check with user feedback
+ipcMain.handle("auto-updater:manual-update-check", async () => {
+  try {
+    if (autoUpdater) {
+      await autoUpdater.manualUpdateCheck();
+      return { success: true };
+    }
+    return { success: false, error: "Auto-updater not initialized" };
+  } catch (error) {
+    console.error("Error in manual update check:", error);
+    return { success: false, error: error.message };
+  }
+});
+
 // Download update
 ipcMain.handle("auto-updater:download-update", async () => {
   try {
@@ -1441,7 +1456,8 @@ ipcMain.handle("auto-updater:get-current-version", async () => {
 ipcMain.handle("auto-updater:get-update-info", async () => {
   try {
     if (autoUpdater) {
-      return { success: true, info: autoUpdater.getUpdateInfo() };
+      const info = autoUpdater.getUpdateInfo();
+      return { success: true, updateInfo: info.updateInfo, ...info };
     }
     return { success: false, error: "Auto-updater not initialized" };
   } catch (error) {

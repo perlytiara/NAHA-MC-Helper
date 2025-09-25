@@ -262,8 +262,15 @@ window.manualReset = manualReset;
     width: 100%;
     display: flex;
     justify-content: center;
-    flex-wrap: wrap;
-    gap: 4px;
+    flex-wrap: nowrap;
+    gap: 2px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  
+  .nav-links::-webkit-scrollbar {
+    display: none;
   }
   
   .navbar::before {
@@ -323,18 +330,20 @@ window.manualReset = manualReset;
   .nav-btn {
     display: flex;
     align-items: center;
-    gap: 4px;
-    padding: 6px 10px;
+    gap: 3px;
+    padding: 4px 8px;
     background: none;
     border: none;
-    border-radius: 8px;
+    border-radius: 6px;
     color: var(--text);
     font-weight: 500;
-    font-size: 13px;
+    font-size: 12px;
     cursor: pointer;
     transition: all 0.2s ease;
     position: relative;
     overflow: hidden;
+    white-space: nowrap;
+    flex-shrink: 0;
   }
   
   .nav-btn::before {
@@ -387,8 +396,8 @@ window.manualReset = manualReset;
   }
   
   .nav-text {
-    font-size: 13px;
-    letter-spacing: 0.2px;
+    font-size: 11px;
+    letter-spacing: 0.1px;
   }
   
   .nav-divider {
