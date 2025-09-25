@@ -72,9 +72,13 @@ const createMenu = () => {
         {
           label: "Check for Updates",
           click: async () => {
+            console.log('🚀 MAIN: Menu "Check for Updates" clicked!');
             // Send message to renderer to trigger update check
             if (mainWindow && !mainWindow.isDestroyed()) {
+              console.log('🚀 MAIN: Sending menu:check-for-updates event to renderer');
               mainWindow.webContents.send('menu:check-for-updates');
+            } else {
+              console.error('🚀 MAIN: mainWindow is null or destroyed');
             }
           },
         },

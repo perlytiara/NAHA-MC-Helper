@@ -1,6 +1,6 @@
 {
   "name": "naha-mc-helper",
-  "version": "1.0.4",
+  "version": "1.0.6",
   "type": "module",
   "main": "main.js",
   "engines": {
@@ -16,7 +16,7 @@
     "build:all": "npm run build:installer && npm run build",
     "start": "electron .",
     "make": "electron-forge make",
-    "dist": "npm run build:all && electron-builder",
+    "dist": "npm run build && electron-builder --win",
     "dist:win": "npm run build:all && electron-builder --win",
     "dist:portable": "npm run build:all && electron-builder --win portable",
     "dist:setup": "npm run build:all && electron-builder --win nsis",

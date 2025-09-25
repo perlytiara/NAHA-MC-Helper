@@ -91,29 +91,16 @@ class AutoUpdaterService {
       console.log('Auto-updater: App packaged:', app.isPackaged);
       console.log('Auto-updater: Current version:', this.currentVersion);
       
-      // In development mode, always use GitHub API directly
-      if (!app.isPackaged) {
-        console.log('Auto-updater: Development mode detected, using GitHub API directly');
-        await this.checkGitHubAPI();
-        return;
-      }
-      
-      // In production, use electron-updater
-      await autoUpdater.checkForUpdates();
+      // Always use GitHub API directly (more reliable than electron-updater)
+      console.log('Auto-updater: Using GitHub API directly for update check');
+      await this.checkGitHubAPI();
       console.log('Auto-updater: Update check completed');
     } catch (error) {
       console.error('Auto-updater: Error checking for updates:', error);
-      
-      // Fallback to GitHub API if electron-updater fails
-      if (!app.isPackaged) {
-        console.log('Auto-updater: Falling back to direct GitHub API check');
-        await this.checkGitHubAPI();
-      } else {
-        this.sendToRenderer('update-error', {
-          message: 'Failed to check for updates',
-          details: error.message
-        });
-      }
+      this.sendToRenderer('update-error', {
+        message: 'Failed to check for updates',
+        details: error.message
+      });
     }
   }
 
@@ -122,52 +109,37 @@ class AutoUpdaterService {
     try {
       console.log('Auto-updater: Checking GitHub API directly...');
       
-      // Use Node.js https module to make direct API call
-      const https = await import('https');
-      
-      const options = {
-        hostname: 'api.github.com',
-        port: 443,
-        path: '/repos/perlytiara/NAHA-MC-Helper/releases/latest',
-        method: 'GET',
+      // Use fetch API which is more reliable than Node.js https
+      const response = await fetch('https://api.github.com/repos/perlytiara/NAHA-MC-Helper/releases/latest', {
         headers: {
           'User-Agent': 'NAHA-MC-Helper-Update-Checker',
           'Accept': 'application/vnd.github.v3+json'
         }
-      };
-
-      const response = await new Promise((resolve, reject) => {
-        const req = https.default.request(options, (res) => {
-          let data = '';
-          res.on('data', (chunk) => {
-            data += chunk;
-          });
-          res.on('end', () => {
-            try {
-              resolve(JSON.parse(data));
-            } catch (error) {
-              reject(error);
-            }
-          });
-        });
-
-        req.on('error', reject);
-        req.end();
       });
 
-      const latestVersion = response.tag_name.replace('v', '');
+      if (!response.ok) {
+        throw new Error(`GitHub API error: ${response.status} ${response.statusText}`);
+      }
+
+      const data = await response.json();
+
+      const latestVersion = data.tag_name.replace('v', '');
       console.log('Auto-updater: GitHub API - Latest version:', latestVersion);
       console.log('Auto-updater: GitHub API - Current version:', this.currentVersion);
 
-      if (latestVersion !== this.currentVersion) {
+      // Compare versions properly
+      const isUpdateAvailable = this.isVersionNewer(latestVersion, this.currentVersion);
+      console.log('Auto-updater: Is update available?', isUpdateAvailable);
+
+      if (isUpdateAvailable) {
         console.log('Auto-updater: Update available via GitHub API');
         
         // Simulate electron-updater events
         const updateInfo = {
           version: latestVersion,
-          releaseNotes: response.body || 'Update available',
-          releaseName: response.name || response.tag_name,
-          releaseDate: response.published_at
+          releaseNotes: data.body || 'Update available',
+          releaseName: data.name || data.tag_name,
+          releaseDate: data.published_at
         };
 
         this.updateAvailable = true;
@@ -195,9 +167,23 @@ class AutoUpdaterService {
   }
 
   async downloadUpdate() {
-    if (this.updateAvailable) {
+    if (this.updateAvailable && this.updateInfo) {
       try {
-        await autoUpdater.downloadUpdate();
+        console.log('Auto-updater: Download update requested');
+        
+        // For now, just open the GitHub releases page since we can't download/install in development
+        const releaseUrl = `https://github.com/perlytiara/NAHA-MC-Helper/releases/tag/v${this.updateInfo.version}`;
+        console.log('Auto-updater: Opening release page:', releaseUrl);
+        
+        // Open the release page in the default browser
+        shell.openExternal(releaseUrl);
+        
+        // Send success message to renderer
+        this.sendToRenderer('update-downloaded', {
+          version: this.updateInfo.version,
+          releaseNotes: 'Please download and install the update from the opened page.'
+        });
+        
       } catch (error) {
         console.error('Error downloading update:', error);
         this.sendToRenderer('update-error', {
@@ -209,17 +195,16 @@ class AutoUpdaterService {
   }
 
   async installUpdate() {
-    if (this.updateDownloaded) {
-      try {
-        autoUpdater.quitAndInstall();
-      } catch (error) {
-        console.error('Error installing update:', error);
-        this.sendToRenderer('update-error', {
-          message: 'Failed to install update',
-          details: error.message
-        });
-      }
-    }
+    console.log('Auto-updater: Install update requested');
+    
+    // Show a message that the user needs to download and install manually
+    dialog.showMessageBox(this.mainWindow, {
+      type: 'info',
+      title: 'Manual Installation Required',
+      message: 'Please download and install the update manually.',
+      detail: 'The update has been downloaded. Please run the installer to complete the update.',
+      buttons: ['OK']
+    });
   }
 
   startPeriodicUpdateCheck() {
@@ -255,29 +240,40 @@ class AutoUpdaterService {
     };
   }
 
+  // Compare version strings to determine if one is newer
+  isVersionNewer(version1, version2) {
+    const v1Parts = version1.split('.').map(Number);
+    const v2Parts = version2.split('.').map(Number);
+    
+    // Ensure both arrays have the same length
+    const maxLength = Math.max(v1Parts.length, v2Parts.length);
+    while (v1Parts.length < maxLength) v1Parts.push(0);
+    while (v2Parts.length < maxLength) v2Parts.push(0);
+    
+    for (let i = 0; i < maxLength; i++) {
+      if (v1Parts[i] > v2Parts[i]) return true;
+      if (v1Parts[i] < v2Parts[i]) return false;
+    }
+    
+    return false; // Versions are equal
+  }
+
   // Manual update check with user feedback
   async manualUpdateCheck() {
     try {
       console.log('Auto-updater: Manual update check requested');
       
-      // Always use GitHub API for manual checks in development
-      if (!app.isPackaged) {
-        console.log('Auto-updater: Manual check - using GitHub API directly');
-        await this.checkGitHubAPI();
-      } else {
-        await this.checkForUpdates();
-      }
+      // Always use GitHub API for manual checks (more reliable)
+      console.log('Auto-updater: Manual check - using GitHub API directly');
+      await this.checkGitHubAPI();
       
-      // If no update is available, show a dialog
+      // If no update is available after a delay, send to renderer
       setTimeout(() => {
         if (!this.updateAvailable) {
-          console.log('Auto-updater: No updates available, showing dialog');
-          dialog.showMessageBox(this.mainWindow, {
-            type: 'info',
-            title: 'No Updates Available',
-            message: 'You are running the latest version of NAHA MC Helper.',
-            detail: `Current version: ${this.currentVersion}`,
-            buttons: ['OK']
+          console.log('Auto-updater: No updates available, sending to renderer');
+          this.sendToRenderer('update-not-available', {
+            message: 'You are already running the latest version.',
+            currentVersion: this.currentVersion
           });
         }
       }, 2000);

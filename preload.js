@@ -116,3 +116,15 @@ contextBridge.exposeInMainWorld('prism', {
     off: (channel, callback) => ipcRenderer.off(channel, callback)
   }
 });
+
+// Expose menu event handling
+contextBridge.exposeInMainWorld('electronAPI', {
+  on: (event, callback) => {
+    console.log('🔧 PRELOAD: Setting up listener for event:', event);
+    ipcRenderer.on(event, callback);
+  },
+  off: (event, callback) => {
+    console.log('🔧 PRELOAD: Removing listener for event:', event);
+    ipcRenderer.off(event, callback);
+  }
+});

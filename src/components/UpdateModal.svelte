@@ -7,7 +7,7 @@
   export let isDownloading = false;
   export let isChecking = false;
   export let error = null;
-  export let currentVersion = '1.0.2';
+  export let currentVersion = '1.0.6';
   
   const dispatch = createEventDispatcher();
   
@@ -97,7 +97,9 @@
               Later
             </button>
             <button class="btn btn-primary" on:click={handleDownload}>
-              <span class="loading loading-spinner loading-sm mr-2"></span>
+              {#if isDownloading}
+                <span class="loading loading-spinner loading-sm mr-2"></span>
+              {/if}
               Download Update
             </button>
           </div>

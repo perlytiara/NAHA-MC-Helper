@@ -46,7 +46,16 @@ interface Window {
     onShowAboutDialog: (callback: () => void) => () => void;
     getFileHash: (filePath: string, algorithm?: string) => Promise<string>;
     autoUpdater: AutoUpdater;
+    ipcRenderer: {
+      on: (channel: string, callback: (...args: any[]) => void) => void;
+      off: (channel: string, callback: (...args: any[]) => void) => void;
+    };
   };
+  electronAPI?: {
+    on: (event: string, callback: (...args: any[]) => void) => void;
+    off: (event: string, callback: (...args: any[]) => void) => void;
+  };
+  manualUpdateCheck?: () => Promise<void>;
 }
 
 // Node.js globals for renderer process
