@@ -10,28 +10,33 @@ import fs from 'fs';
 
 export class MinecraftInstallerService {
     constructor() {
-        // Path to the minecraft-installer.exe
-        // In production, it will be in extraResources
-        // In development, it will be in the tools directory
+        // Determine platform-specific executable name
+        this.platform = process.platform;
+        this.arch = process.arch;
+        this.executableName = this.getPlatformExecutableName();
+        
+        // Path to the platform-specific minecraft-installer executable
+        // In production, it will be in extraResources/installer/
+        // In development, it will be in the tools/minecraft-installer-releases/ directory
         if (app.isPackaged) {
             // Production: executable is in extraResources/installer/
             this.installerPath = path.join(
                 process.resourcesPath,
                 'installer',
-                'minecraft-installer.exe'
+                this.executableName
             );
         } else {
-            // Development: executable is in tools directory
+            // Development: executable is in tools/minecraft-installer-releases/ directory
             this.installerPath = path.join(
                 app.getAppPath(),
                 'tools',
-                'minecraft-installer',
-                'target',
-                'release',
-                'minecraft-installer.exe'
+                'minecraft-installer-releases',
+                this.executableName
             );
         }
         
+        console.log('MinecraftInstallerService: Platform:', this.platform, 'Architecture:', this.arch);
+        console.log('MinecraftInstallerService: Executable name:', this.executableName);
         console.log('MinecraftInstallerService: Looking for executable at:', this.installerPath);
         console.log('MinecraftInstallerService: App is packaged:', app.isPackaged);
         console.log('MinecraftInstallerService: Resources path:', process.resourcesPath);
@@ -45,9 +50,11 @@ export class MinecraftInstallerService {
             
             // Try alternative paths for debugging
             const altPaths = [
-                path.join(process.resourcesPath, 'minecraft-installer.exe'),
-                path.join(process.resourcesPath, 'installer', 'minecraft-installer.exe'),
-                path.join(app.getAppPath(), 'tools', 'minecraft-installer', 'target', 'release', 'minecraft-installer.exe')
+                path.join(process.resourcesPath, this.executableName),
+                path.join(process.resourcesPath, 'installer', this.executableName),
+                path.join(app.getAppPath(), 'tools', 'minecraft-installer-releases', this.executableName),
+                // Fallback to old path for backward compatibility
+                path.join(app.getAppPath(), 'tools', 'minecraft-installer', 'target', 'release', this.executableName)
             ];
             
             console.log('MinecraftInstallerService: Checking alternative paths:');
@@ -55,6 +62,46 @@ export class MinecraftInstallerService {
                 const altExists = fs.existsSync(altPath);
                 console.log(`  ${index + 1}. ${altPath} - ${altExists ? 'EXISTS' : 'NOT FOUND'}`);
             });
+        }
+    }
+
+    /**
+     * Get the platform-specific executable name
+     */
+    getPlatformExecutableName() {
+        const platform = this.platform;
+        const arch = this.arch;
+        
+        // Map platform and architecture to executable names
+        if (platform === 'win32') {
+            // Windows executables
+            if (arch === 'x64') {
+                return 'minecraft-installer-windows-x86_64.exe';
+            } else {
+                return 'minecraft-installer-windows-gnu-x86_64.exe';
+            }
+        } else if (platform === 'darwin') {
+            // macOS executables
+            if (arch === 'arm64') {
+                return 'minecraft-installer-macos-apple-silicon-aarch64';
+            } else if (arch === 'x64') {
+                return 'minecraft-installer-macos-intel-x86_64';
+            } else {
+                // Fallback to Intel x64
+                return 'minecraft-installer-macos-intel-x86_64';
+            }
+        } else if (platform === 'linux') {
+            // Linux executable
+            if (arch === 'x64') {
+                return 'minecraft-installer-linux-x86_64';
+            } else {
+                // Fallback to x86_64
+                return 'minecraft-installer-linux-x86_64';
+            }
+        } else {
+            // Fallback to Windows x64 for unknown platforms
+            console.warn(`MinecraftInstallerService: Unknown platform ${platform}, falling back to Windows x64 executable`);
+            return 'minecraft-installer-windows-x86_64.exe';
         }
     }
 

@@ -9,77 +9,78 @@
   import AboutDialog from '../shared/components/ui/dialogs/AboutDialog.svelte';
   import UpdateModal from '../components/UpdateModal.svelte';
   import { isOnboardingCompleted } from '../shared/utils/onboardingUtils';
+  // Types are now available globally from src/types/global.d.ts
 
   // Additional page imports would go here as features are added
   // import UpdatePage from '../features/update/UpdatePage.svelte';
 
-  let showAboutDialog = false;
-  let showUpdateModal = false;
-  let updateInfo = null;
-  let downloadProgress = null;
-  let isChecking = false;
-  let isDownloading = false;
-  let updateError = null;
-  let currentVersion = '1.0.2';
+  let showAboutDialog: boolean = false;
+  let showUpdateModal: boolean = false;
+  let updateInfo: UpdateInfo | null = null;
+  let downloadProgress: DownloadProgress | null = null;
+  let isChecking: boolean = false;
+  let isDownloading: boolean = false;
+  let updateError: string | null = null;
+  let currentVersion: string = '1.0.3';
 
   // Auto-updater event handlers
-  function handleUpdateChecking() {
+  function handleUpdateChecking(): void {
     isChecking = true;
     showUpdateModal = true;
     updateError = null;
   }
 
-  function handleUpdateAvailable(event, data) {
+  function handleUpdateAvailable(event: any, data: UpdateInfo): void {
     updateInfo = data;
     isChecking = false;
     showUpdateModal = true;
     updateError = null;
   }
 
-  function handleUpdateNotAvailable(event, data) {
+  function handleUpdateNotAvailable(event: any, data: UpdateInfo): void {
     isChecking = false;
     updateError = null;
     // Don't show modal for "no updates" unless manually checking
   }
 
-  function handleDownloadProgress(event, data) {
+  function handleDownloadProgress(event: any, data: DownloadProgress): void {
     downloadProgress = data;
     isDownloading = true;
   }
 
-  function handleUpdateDownloaded(event, data) {
+  function handleUpdateDownloaded(event: any, data: UpdateInfo): void {
     downloadProgress = null;
     isDownloading = false;
     updateInfo = { ...updateInfo, ...data };
     // Show install option
   }
 
-  function handleUpdateError(event, data) {
+  function handleUpdateError(event: any, data: string): void {
     updateError = data;
     isChecking = false;
     isDownloading = false;
     showUpdateModal = true;
   }
 
-  function handleDownload() {
+  function handleDownload(): void {
     if (window.prism?.autoUpdater?.downloadUpdate) {
       window.prism.autoUpdater.downloadUpdate();
     }
   }
 
-  function handleInstall() {
+  function handleInstall(): void {
     if (window.prism?.autoUpdater?.installUpdate) {
       window.prism.autoUpdater.installUpdate();
     }
   }
 
-  function handleViewReleaseNotes() {
+  function handleViewReleaseNotes(): void {
     if (updateInfo?.version) {
       window.open(`https://github.com/perlytiara/NAHA-MC-Helper/releases/tag/v${updateInfo.version}`, '_blank');
     }
   }
 
-  function handleUpdateModalClose() {
+  function handleUpdateModalClose(): void {
     showUpdateModal = false;
     updateInfo = null;
     downloadProgress = null;
@@ -88,7 +89,7 @@
     isDownloading = false;
   }
 
-  function handleUpdateLater() {
+  function handleUpdateLater(): void {
     showUpdateModal = false;
     updateInfo = null;
   }

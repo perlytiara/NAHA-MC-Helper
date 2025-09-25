@@ -1,5 +1,42 @@
 // Global type declarations for the application
 
+interface UpdateInfo {
+  version: string;
+  releaseNotes?: string;
+  releaseName?: string;
+  releaseDate?: string;
+  files?: Array<{
+    url: string;
+    sha512: string;
+    size: number;
+  }>;
+}
+
+interface DownloadProgress {
+  bytesPerSecond: number;
+  percent: number;
+  transferred: number;
+  total: number;
+}
+
+interface AutoUpdater {
+  checkForUpdates: () => Promise<void>;
+  downloadUpdate: () => Promise<void>;
+  installUpdate: () => Promise<void>;
+  getCurrentVersion: () => Promise<string>;
+  getUpdateInfo: () => Promise<UpdateInfo | null>;
+  startPeriodicCheck: () => Promise<void>;
+  stopPeriodicCheck: () => Promise<void>;
+  onUpdateChecking: (callback: () => void) => () => void;
+  onUpdateAvailable: (callback: (event: any, updateInfo: UpdateInfo) => void) => () => void;
+  onUpdateNotAvailable: (callback: (event: any, updateInfo: UpdateInfo) => void) => () => void;
+  onDownloadProgress: (callback: (event: any, progress: DownloadProgress) => void) => () => void;
+  onUpdateDownloaded: (callback: (event: any, updateInfo: UpdateInfo) => void) => () => void;
+  onUpdateError: (callback: (event: any, error: string) => void) => () => void;
+  on: (event: string, callback: (...args: any[]) => void) => () => void;
+  off: (event: string, callback: (...args: any[]) => void) => void;
+}
+
 interface Window {
   prism: {
     detectLaunchers: () => Promise<{ success: boolean; launchers: any[]; error?: string }>;
@@ -7,6 +44,7 @@ interface Window {
     openFileDialog: (options: { properties: string[] }) => Promise<string[]>;
     onShowAboutDialog: (callback: () => void) => () => void;
     getFileHash: (filePath: string, algorithm?: string) => Promise<string>;
+    autoUpdater: AutoUpdater;
   };
 }
 

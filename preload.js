@@ -81,6 +81,30 @@ contextBridge.exposeInMainWorld('prism', {
     getUpdateInfo: () => ipcRenderer.invoke('auto-updater:get-update-info'),
     startPeriodicCheck: () => ipcRenderer.invoke('auto-updater:start-periodic-check'),
     stopPeriodicCheck: () => ipcRenderer.invoke('auto-updater:stop-periodic-check'),
+    onUpdateChecking: (callback) => {
+      ipcRenderer.on('auto-updater:update-checking', callback);
+      return () => ipcRenderer.off('auto-updater:update-checking', callback);
+    },
+    onUpdateAvailable: (callback) => {
+      ipcRenderer.on('auto-updater:update-available', callback);
+      return () => ipcRenderer.off('auto-updater:update-available', callback);
+    },
+    onUpdateNotAvailable: (callback) => {
+      ipcRenderer.on('auto-updater:update-not-available', callback);
+      return () => ipcRenderer.off('auto-updater:update-not-available', callback);
+    },
+    onDownloadProgress: (callback) => {
+      ipcRenderer.on('auto-updater:download-progress', callback);
+      return () => ipcRenderer.off('auto-updater:download-progress', callback);
+    },
+    onUpdateDownloaded: (callback) => {
+      ipcRenderer.on('auto-updater:update-downloaded', callback);
+      return () => ipcRenderer.off('auto-updater:update-downloaded', callback);
+    },
+    onUpdateError: (callback) => {
+      ipcRenderer.on('auto-updater:update-error', callback);
+      return () => ipcRenderer.off('auto-updater:update-error', callback);
+    },
     on: (event, callback) => ipcRenderer.on(`auto-updater:${event}`, callback),
     off: (event, callback) => ipcRenderer.off(`auto-updater:${event}`, callback)
   },

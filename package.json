@@ -1,6 +1,6 @@
 {
   "name": "naha-mc-helper",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "type": "module",
   "main": "main.js",
   "engines": {
@@ -79,7 +79,7 @@
     ],
     "extraResources": [
       {
-        "from": "tools/minecraft-installer/target/release/",
+        "from": "tools/minecraft-installer-releases/",
         "to": "installer/",
         "filter": ["**/*"]
       }

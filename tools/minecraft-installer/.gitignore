@@ -1,7 +1,7 @@
 # Rust
 /target/
 **/*.rs.bk
-*.pdb
+Cargo.lock
 
 # IDE
 .vscode/
@@ -13,13 +13,25 @@
 .DS_Store
 Thumbs.db
 
-# Logs
+# Build artifacts
+dist/
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Temporary files
+*.tmp
+*.temp
 *.log
 
-# Local test installations
-test-install/
-minecraft-test/
+# Test files
+test-custom-install/
+temp-*/
 
+# Environment
+.env
+.env.local
 
-
-
+# Documentation build
+docs/_build/

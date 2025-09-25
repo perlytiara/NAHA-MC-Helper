@@ -1,225 +1,94 @@
 # Minecraft Installer
 
-A standalone Minecraft installer extracted from AstralRinth, designed to download and install Minecraft versions independently.
+A standalone Minecraft modpack installer that supports multiple launchers and can install modpacks directly from `.mrpack` files or download them from APIs.
 
-## Features
+## ✨ Features
 
-- ✅ Download and install any Minecraft version
-- ✅ Automatic Java installation (correct version for each Minecraft version)
-- ✅ Download game assets, libraries, and client files
-- ✅ **Multi-launcher integration** (Official, PrismLauncher, XMCL, AstralRinth, MultiMC)
-- ✅ **Automatic instance creation** in detected launchers
-- ✅ **Mrpack (Modrinth modpack) support** with full installation
-- ✅ Cross-platform support (Windows, macOS, Linux)
-- ✅ Progress bars and detailed logging
-- ✅ SHA1 verification for all downloads
-- 🚧 Mod loader support (planned: Forge, Fabric, Quilt, NeoForge)
+- **Multi-Launcher Support**: Works with AstralRinth, ModrinthApp, XMCL, PrismLauncher, Official Minecraft Launcher, MultiMC, and custom paths
+- **Custom Path Installation**: Install directly to any directory (perfect for Legacy Launcher)
+- **API Integration**: Download modpacks directly from NAHA API
+- **Automodpack Setup**: Automatic server fingerprint and client configuration
+- **Cross-Platform**: Builds for Windows, Linux, and macOS
 
-## Installation
+## 🚀 Quick Start
 
-### From Source
+### Download
+Get the latest release from the [Releases](https://github.com/perlytiara/minecraft-installer/releases) page.
 
-1. Install Rust: https://rustup.rs/
-2. Clone or download this repository
-3. Build the installer:
-   ```bash
-   cargo build --release
-   ```
-4. The executable will be in `target/release/minecraft-installer`
-
-### Pre-built Binaries
-
-Download the latest release from the releases page.
-
-## Usage
-
-### Basic Installation
-
-Install the latest Minecraft release:
-
+### Basic Usage
 ```bash
-minecraft-installer --version 1.20.1
+# Install from mrpack file
+minecraft-installer.exe --mrpack "modpack.mrpack" --create-instance
+
+# Install to specific launcher
+minecraft-installer.exe --mrpack "modpack.mrpack" --target-launcher xmcl --create-instance
+
+# Install to custom path (NEW!)
+minecraft-installer.exe --mrpack "modpack.mrpack" --target-launcher other --custom-path "C:\Games\Minecraft" --create-instance
 ```
 
-Install to a custom directory:
-
+### API Downloads
 ```bash
-minecraft-installer --version 1.20.1 --install-dir /path/to/minecraft
+# Download NeoForge modpack from API
+minecraft-installer.exe --download-neoforge --create-instance
+
+# Download Fabric modpack from API
+minecraft-installer.exe --download-fabric --create-instance
 ```
 
-### Launcher Integration
+## 📋 Supported Launchers
 
-Install Minecraft and automatically create instances in detected launchers:
+| Launcher | Status | Features |
+|----------|--------|----------|
+| **AstralRinth** | ✅ Full Support | Profile creation, database integration, automodpack |
+| **ModrinthApp** | ✅ Full Support | Profile creation, database integration, automodpack |
+| **XMCL** | ✅ Full Support | Instance creation, proper file structure |
+| **PrismLauncher** | ✅ Full Support | Instance creation, mmc-pack.json |
+| **Official Minecraft** | ✅ Full Support | Profile creation, launcher_profiles.json |
+| **MultiMC** | ✅ Full Support | Instance creation, multimc.cfg |
+| **Other/Custom** | ✅ **NEW** | Direct path installation, no subdirectories |
 
+## 🛠️ Building from Source
+
+### Prerequisites
+- Rust 1.90+ 
+- Git
+
+### Build
 ```bash
-minecraft-installer --version 1.20.1 --create-instance
-```
-
-List detected launchers:
-
-```bash
-minecraft-installer --list-launchers
-```
-
-### Modpack Installation
-
-Install Modrinth modpack (.mrpack file):
-
-```bash
-minecraft-installer --mrpack modpack.mrpack --create-instance
-```
-
-### Advanced Options
-
-Install with a mod loader (coming soon):
-
-```bash
-minecraft-installer --version 1.20.1 --loader fabric --loader-version stable
-```
-
-Force reinstall even if already installed:
-
-```bash
-minecraft-installer --version 1.20.1 --force
-```
-
-Enable verbose logging:
-
-```bash
-minecraft-installer --version 1.20.1 --verbose
-```
-
-### List Available Versions
-
-List all available versions:
-
-```bash
-minecraft-installer --list-versions
-```
-
-List only release versions:
-
-```bash
-minecraft-installer --list-versions --type release
-```
-
-## Directory Structure
-
-The installer creates the following directory structure:
-
-```
-installation-directory/
-├── minecraft/
-│   ├── versions/
-│   │   └── 1.20.1/
-│   │       ├── 1.20.1.jar
-│   │       ├── 1.20.1.json
-│   │       └── natives/
-│   ├── libraries/
-│   ├── assets/
-│   │   ├── indexes/
-│   │   └── objects/
-│   └── launcher_profiles.json
-├── java/
-│   ├── java-8/
-│   ├── java-17/
-│   └── java-21/
-├── instances/
-└── logs/
-```
-
-## Supported Minecraft Versions
-
-- All Minecraft versions from 1.6+ are supported
-- Automatic Java version detection:
-  - Java 8 for Minecraft 1.6 - 1.16
-  - Java 17 for Minecraft 1.17 - 1.20.4
-  - Java 21 for Minecraft 1.20.5+
-
-## Platform Support
-
-- **Windows**: x64, ARM64
-- **macOS**: x64, ARM64 (Apple Silicon)
-- **Linux**: x64, ARM64
-
-## Integration with Existing Launchers
-
-The installer creates standard Minecraft launcher profiles that can be imported into:
-
-- Official Minecraft Launcher
-- MultiMC
-- PolyMC
-- Prism Launcher
-- Other compatible launchers
-
-## Troubleshooting
-
-### Java Installation Issues
-
-If Java installation fails, you can:
-
-1. Install Java manually from https://adoptium.net/
-2. Set the `JAVA_HOME` environment variable
-3. Ensure Java is in your system PATH
-
-### Download Issues
-
-If downloads fail:
-
-1. Check your internet connection
-2. Try again with `--force` flag
-3. Check firewall/antivirus settings
-4. Use `--verbose` for detailed error information
-
-### Permission Issues
-
-On Unix systems, you may need to make the installer executable:
-
-```bash
-chmod +x minecraft-installer
-```
-
-## Development
-
-### Building from Source
-
-```bash
-# Debug build
-cargo build
-
-# Release build
+git clone https://github.com/perlytiara/minecraft-installer.git
+cd minecraft-installer
 cargo build --release
-
-# Run tests
-cargo test
-
-# Run with logging
-RUST_LOG=minecraft_installer=debug cargo run -- --version 1.20.1
 ```
 
-### Project Structure
+### Cross-Platform Builds
+See [CROSS_COMPILE.md](CROSS_COMPILE.md) for detailed instructions on building for different platforms.
 
-- `src/main.rs` - Command-line interface and main entry point
-- `src/installer.rs` - Main installer logic
-- `src/download.rs` - Download manager for Minecraft files
-- `src/java.rs` - Java installation manager
-- `src/directories.rs` - Directory structure management
-- `src/error.rs` - Error types and handling
+## 📖 Documentation
 
-## License
+- [Quick Start Guide](QUICK_START.md) - Get up and running quickly
+- [Release Notes](RELEASE_NOTES.md) - Detailed feature overview
+- [Cross-Compilation Guide](CROSS_COMPILE.md) - Build for multiple platforms
+- [Usage Examples](USAGE.md) - Advanced usage examples
 
-This project is based on code from AstralRinth and follows the same licensing terms.
-
-## Contributing
+## 🤝 Contributing
 
 1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
-## Acknowledgments
+## 📄 License
 
-- Based on the excellent work from the AstralRinth project
-- Uses Mojang's official Minecraft APIs
-- Java runtime provided by Eclipse Adoptium
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- Built with Rust for performance and reliability
+- Supports the Minecraft modding community
+- Compatible with major Minecraft launchers
+
+---
+
+**Made with ❤️ for the Minecraft community**

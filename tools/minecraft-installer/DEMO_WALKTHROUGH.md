@@ -306,3 +306,5 @@ The installer bridges the gap between manual Minecraft installation and launcher
 
 
 
+
+

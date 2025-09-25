@@ -1,0 +1,213 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*' # Trigger on version tags like v1.0.0, v0.1.0, etc.
+  workflow_dispatch: # Allow manual triggering
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+    name: Build for ${{ matrix.target }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          # Windows builds
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+            artifact_name: minecraft-installer-windows-x86_64.exe
+            binary_name: minecraft-installer.exe
+          - os: windows-latest
+            target: x86_64-pc-windows-gnu
+            artifact_name: minecraft-installer-windows-gnu-x86_64.exe
+            binary_name: minecraft-installer.exe
+
+          # Linux builds
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+            artifact_name: minecraft-installer-linux-x86_64
+            binary_name: minecraft-installer
+
+          # macOS builds
+          - os: macos-latest
+            target: x86_64-apple-darwin
+            artifact_name: minecraft-installer-macos-intel-x86_64
+            binary_name: minecraft-installer
+          - os: macos-latest
+            target: aarch64-apple-darwin
+            artifact_name: minecraft-installer-macos-apple-silicon-aarch64
+            binary_name: minecraft-installer
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          target: ${{ matrix.target }}
+          override: true
+          components: rustfmt, clippy
+
+      - name: Cache cargo registry
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-${{ matrix.target }}-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-${{ matrix.target }}-
+
+      - name: Install dependencies (Linux)
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y pkg-config libssl-dev
+
+      - name: Install dependencies (macOS)
+        if: matrix.os == 'macos-latest'
+        run: |
+          brew install openssl
+          export OPENSSL_ROOT_DIR=$(brew --prefix openssl)
+          export OPENSSL_LIB_DIR=$(brew --prefix openssl)/lib
+          export OPENSSL_INCLUDE_DIR=$(brew --prefix openssl)/include
+
+      - name: Build
+        run: cargo build --release --target ${{ matrix.target }}
+
+      - name: Run tests
+        run: cargo test --lib --target ${{ matrix.target }}
+
+      - name: Strip binary (Linux/macOS)
+        if: matrix.os != 'windows-latest'
+        run: strip target/${{ matrix.target }}/release/${{ matrix.binary_name }}
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact_name }}
+          path: target/${{ matrix.target }}/release/${{ matrix.binary_name }}
+          retention-days: 30
+
+  create-release:
+    name: Create Release
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Get version from tag
+        id: get_version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: ./artifacts
+
+      - name: Create checksums and flatten structure
+        run: |
+          cd artifacts
+          echo "Current directory structure:"
+          find . -type f -name "minecraft-installer*" | head -10
+          echo "Creating checksums and flattening structure..."
+
+          # Create a flat directory for uploads
+          mkdir -p ../upload
+
+          find . -type f -name "minecraft-installer*" | while read -r file; do
+            filename=$(basename "$file")
+            dirname=$(dirname "$file")
+
+            # Use the directory name as the platform identifier to avoid conflicts
+            platform_name=$(basename "$dirname")
+
+            # Copy the binary to upload directory with platform-specific name
+            cp "$file" "../upload/$platform_name"
+            echo "Copied: $file -> ../upload/$platform_name"
+
+            # Create checksum in upload directory
+            shasum -a 256 "$file" > "../upload/${platform_name}.sha256"
+            echo "Created checksum: ../upload/${platform_name}.sha256"
+          done
+
+          echo "All files in upload directory:"
+          find ../upload -type f | sort
+
+      - name: Create release notes
+        id: release_notes
+        run: |
+          cat > release_notes.md << 'EOF'
+          # Minecraft Installer ${{ steps.get_version.outputs.VERSION }}
+
+          ## 🎉 New Release
+
+          This release includes builds for all major platforms:
+
+          ### 📦 Downloads
+
+          **Windows:**
+          - `minecraft-installer-windows-x86_64.exe` - Windows x64 (MSVC)
+          - `minecraft-installer-windows-gnu-x86_64.exe` - Windows x64 (GNU)
+
+          **Linux:**
+          - `minecraft-installer-linux-x86_64` - Linux x64
+
+          **macOS:**
+          - `minecraft-installer-macos-intel-x86_64` - macOS Intel
+          - `minecraft-installer-macos-apple-silicon-aarch64` - macOS Apple Silicon
+
+          ### ✨ Features
+
+          - **Multi-Launcher Support**: AstralRinth, ModrinthApp, XMCL, PrismLauncher, Official Minecraft, MultiMC
+          - **Custom Path Installation**: Install directly to any directory (perfect for Legacy Launcher)
+          - **API Integration**: Download modpacks from NAHA API
+          - **Automodpack Setup**: Automatic server configuration
+
+          ### 🚀 Quick Start
+
+          ```bash
+          # Install from mrpack file
+          ./minecraft-installer --mrpack "modpack.mrpack" --create-instance
+
+          # Install to custom path
+          ./minecraft-installer --mrpack "modpack.mrpack" --target-launcher other --custom-path "/path/to/install" --create-instance
+
+          # Download from API
+          ./minecraft-installer --download-neoforge --create-instance
+          ```
+
+          ### 📋 Checksums
+
+          All files include SHA256 checksums for verification.
+
+          ---
+
+          **Full Changelog**: https://github.com/perlytiara/minecraft-installer/compare/${{ github.event.before }}...${{ github.ref_name }}
+          EOF
+
+          echo "RELEASE_NOTES<<EOF" >> $GITHUB_OUTPUT
+          cat release_notes.md >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          token: ${{ secrets.GH_TOKEN }}
+          tag_name: ${{ github.ref_name }}
+          name: Minecraft Installer ${{ steps.get_version.outputs.VERSION }}
+          body: ${{ steps.release_notes.outputs.RELEASE_NOTES }}
+          files: |
+            upload/*
+          draft: false
+          prerelease: ${{ contains(github.ref_name, 'alpha') || contains(github.ref_name, 'beta') || contains(github.ref_name, 'rc') }}
