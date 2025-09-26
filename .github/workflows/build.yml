@@ -24,23 +24,38 @@ jobs:
         node-version: '20'
         cache: 'npm'
         
+    - name: Setup Rust
+      uses: dtolnay/rust-toolchain@stable
+      with:
+        components: rustfmt, clippy
+        
     - name: Install dependencies
       run: npm ci
       
-    - name: Build minecraft-installer
+    - name: Build minecraft-installer (Windows)
+      if: runner.os == 'Windows'
       run: |
         cd tools/minecraft-installer
-        if [ "$RUNNER_OS" = "Windows" ]; then
-          cargo build --release
-        else
-          cargo build --release
-        fi
+        cargo build --release
+        
+    - name: Build minecraft-installer (Unix)
+      if: runner.os != 'Windows'
+      run: |
+        cd tools/minecraft-installer
+        cargo build --release
         
     - name: Build Electron app
       run: npm run build
       
-    - name: Build distributables
+    - name: Build distributables (Windows)
+      if: runner.os == 'Windows'
       run: npm run dist
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        
+    - name: Build distributables (Unix)
+      if: runner.os != 'Windows'
+      run: npx electron-builder
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         
