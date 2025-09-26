@@ -148,7 +148,7 @@ const features = [
           <div class="update-icon">🔄</div>
           <div class="update-info">
             <h3 class="update-title">Stay Updated</h3>
-            <p class="update-subtitle">Current version: v1.0.7</p>
+            <p class="update-subtitle">Current version: v1.0.8</p>
           </div>
         </div>
         <div class="update-actions">
@@ -176,7 +176,7 @@ const features = [
     
     <!-- Version info -->
     <div class="version-info">
-      <p>NAHA MC Helper v1.0.7 - Always improving</p>
+      <p>NAHA MC Helper v1.0.8 - Always improving</p>
     </div>
     
     <!-- Hidden onboarding reset (for debugging/testing) -->

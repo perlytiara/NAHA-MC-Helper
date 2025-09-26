@@ -7,7 +7,7 @@
   export let isDownloading = false;
   export let isChecking = false;
   export let error = null;
-  export let currentVersion = '1.0.7';
+  export let currentVersion = '1.0.8';
   
   const dispatch = createEventDispatcher();
   
@@ -79,6 +79,13 @@
             <p class="text-base-content/70 mb-2">
               You're currently running version <strong>{currentVersion}</strong>
             </p>
+            <!-- Development mode notice -->
+            <div class="alert alert-info text-sm mb-3">
+              <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-4 w-4" fill="none" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+              <span>In development mode, the download will open GitHub releases page for manual installation.</span>
+            </div>
             {#if updateInfo.releaseNotes}
               <div class="collapse collapse-arrow bg-base-100">
                 <input type="checkbox" />
@@ -99,8 +106,10 @@
             <button class="btn btn-primary" on:click={handleDownload}>
               {#if isDownloading}
                 <span class="loading loading-spinner loading-sm mr-2"></span>
+                Downloading...
+              {:else}
+                📥 Download Update
               {/if}
-              Download Update
             </button>
           </div>
           

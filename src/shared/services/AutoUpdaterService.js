@@ -134,7 +134,7 @@ class AutoUpdaterService {
       if (isUpdateAvailable) {
         console.log('Auto-updater: Update available via GitHub API');
         
-        // Simulate electron-updater events
+        // Create update info object
         const updateInfo = {
           version: latestVersion,
           releaseNotes: data.body || 'Update available',
@@ -146,6 +146,16 @@ class AutoUpdaterService {
         this.updateInfo = updateInfo;
         
         console.log('Auto-updater: Sending update-available event to renderer:', updateInfo);
+        
+        // In production, also trigger electron-updater to check
+        if (app.isPackaged) {
+          console.log('Auto-updater: Production mode - also checking with electron-updater');
+          try {
+            await autoUpdater.checkForUpdates();
+          } catch (error) {
+            console.log('Auto-updater: electron-updater check failed, continuing with GitHub API info');
+          }
+        }
         
         // Send events to renderer
         this.sendToRenderer('update-available', updateInfo);
@@ -171,18 +181,23 @@ class AutoUpdaterService {
       try {
         console.log('Auto-updater: Download update requested');
         
-        // For now, just open the GitHub releases page since we can't download/install in development
-        const releaseUrl = `https://github.com/perlytiara/NAHA-MC-Helper/releases/tag/v${this.updateInfo.version}`;
-        console.log('Auto-updater: Opening release page:', releaseUrl);
-        
-        // Open the release page in the default browser
-        shell.openExternal(releaseUrl);
-        
-        // Send success message to renderer
-        this.sendToRenderer('update-downloaded', {
-          version: this.updateInfo.version,
-          releaseNotes: 'Please download and install the update from the opened page.'
-        });
+        if (!app.isPackaged) {
+          console.log('Auto-updater: Development mode - opening release page');
+          // In development, open the GitHub releases page
+          const releaseUrl = `https://github.com/perlytiara/NAHA-MC-Helper/releases/tag/v${this.updateInfo.version}`;
+          console.log('Auto-updater: Opening release page:', releaseUrl);
+          shell.openExternal(releaseUrl);
+          
+          // Send success message to renderer
+          this.sendToRenderer('update-downloaded', {
+            version: this.updateInfo.version,
+            releaseNotes: 'Please download and install the update from the opened page.'
+          });
+        } else {
+          console.log('Auto-updater: Production mode - using electron-updater');
+          // In production, use electron-updater to download
+          await autoUpdater.downloadUpdate();
+        }
         
       } catch (error) {
         console.error('Error downloading update:', error);
@@ -197,14 +212,29 @@ class AutoUpdaterService {
   async installUpdate() {
     console.log('Auto-updater: Install update requested');
     
-    // Show a message that the user needs to download and install manually
-    dialog.showMessageBox(this.mainWindow, {
-      type: 'info',
-      title: 'Manual Installation Required',
-      message: 'Please download and install the update manually.',
-      detail: 'The update has been downloaded. Please run the installer to complete the update.',
-      buttons: ['OK']
-    });
+    if (!app.isPackaged) {
+      console.log('Auto-updater: Development mode - showing manual install message');
+      // In development, show manual install message
+      dialog.showMessageBox(this.mainWindow, {
+        type: 'info',
+        title: 'Manual Installation Required',
+        message: 'Please download and install the update manually.',
+        detail: 'In development mode, updates must be installed manually from the GitHub releases page.',
+        buttons: ['OK']
+      });
+    } else {
+      console.log('Auto-updater: Production mode - using electron-updater to install');
+      // In production, use electron-updater to quit and install
+      try {
+        autoUpdater.quitAndInstall();
+      } catch (error) {
+        console.error('Error installing update:', error);
+        this.sendToRenderer('update-error', {
+          message: 'Failed to install update',
+          details: error.message
+        });
+      }
+    }
   }
 
   startPeriodicUpdateCheck() {
