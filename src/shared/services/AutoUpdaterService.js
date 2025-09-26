@@ -182,17 +182,8 @@ class AutoUpdaterService {
         console.log('Auto-updater: Download update requested');
         
         if (!app.isPackaged) {
-          console.log('Auto-updater: Development mode - opening release page');
-          // In development, open the GitHub releases page
-          const releaseUrl = `https://github.com/perlytiara/NAHA-MC-Helper/releases/tag/v${this.updateInfo.version}`;
-          console.log('Auto-updater: Opening release page:', releaseUrl);
-          shell.openExternal(releaseUrl);
-          
-          // Send success message to renderer
-          this.sendToRenderer('update-downloaded', {
-            version: this.updateInfo.version,
-            releaseNotes: 'Please download and install the update from the opened page.'
-          });
+          console.log('Auto-updater: Development mode - downloading installer directly');
+          await this.downloadInstallerInDev();
         } else {
           console.log('Auto-updater: Production mode - using electron-updater');
           // In production, use electron-updater to download
@@ -209,18 +200,109 @@ class AutoUpdaterService {
     }
   }
 
+  async downloadInstallerInDev() {
+    try {
+      const platform = process.platform;
+      const arch = process.arch;
+      let fileName = '';
+      
+      // Determine the correct installer file based on platform
+      if (platform === 'win32') {
+        fileName = `NAHA.MC.Helper.Setup.${this.updateInfo.version}.exe`;
+      } else if (platform === 'darwin') {
+        if (arch === 'arm64') {
+          fileName = `NAHA.MC.Helper-${this.updateInfo.version}-arm64.dmg`;
+        } else {
+          fileName = `NAHA.MC.Helper-${this.updateInfo.version}.dmg`;
+        }
+      } else if (platform === 'linux') {
+        fileName = `NAHA.MC.Helper-${this.updateInfo.version}.AppImage`;
+      }
+      
+      if (!fileName) {
+        throw new Error(`Unsupported platform: ${platform} ${arch}`);
+      }
+      
+      const downloadUrl = `https://github.com/perlytiara/NAHA-MC-Helper/releases/download/v${this.updateInfo.version}/${fileName}`;
+      console.log('Auto-updater: Downloading installer:', downloadUrl);
+      
+      // Send download started event
+      this.sendToRenderer('update-downloading', {
+        version: this.updateInfo.version,
+        progress: 0
+      });
+      
+      // Download the installer
+      const response = await fetch(downloadUrl);
+      if (!response.ok) {
+        throw new Error(`Failed to download installer: ${response.status} ${response.statusText}`);
+      }
+      
+      const contentLength = response.headers.get('content-length');
+      const total = parseInt(contentLength, 10);
+      let downloaded = 0;
+      
+      const reader = response.body.getReader();
+      const chunks = [];
+      
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        
+        chunks.push(value);
+        downloaded += value.length;
+        
+        const progress = Math.round((downloaded / total) * 100);
+        this.sendToRenderer('update-downloading', {
+          version: this.updateInfo.version,
+          progress: progress
+        });
+      }
+      
+      // Combine chunks into a single buffer
+      const buffer = new Uint8Array(downloaded);
+      let position = 0;
+      for (const chunk of chunks) {
+        buffer.set(chunk, position);
+        position += chunk.length;
+      }
+      
+      // Save the installer to a temporary file
+      const tempDir = require('os').tmpdir();
+      const tempPath = require('path').join(tempDir, fileName);
+      require('fs').writeFileSync(tempPath, buffer);
+      
+      console.log('Auto-updater: Installer downloaded to:', tempPath);
+      
+      // Send download completed event
+      this.sendToRenderer('update-downloaded', {
+        version: this.updateInfo.version,
+        installerPath: tempPath,
+        releaseNotes: `Update ${this.updateInfo.version} downloaded successfully. The installer will open automatically.`
+      });
+      
+      // Open the installer
+      console.log('Auto-updater: Opening installer...');
+      shell.openPath(tempPath);
+      
+    } catch (error) {
+      console.error('Auto-updater: Error downloading installer:', error);
+      this.sendToRenderer('update-error', {
+        message: 'Failed to download installer',
+        details: error.message
+      });
+    }
+  }
+
   async installUpdate() {
     console.log('Auto-updater: Install update requested');
     
     if (!app.isPackaged) {
-      console.log('Auto-updater: Development mode - showing manual install message');
-      // In development, show manual install message
-      dialog.showMessageBox(this.mainWindow, {
-        type: 'info',
-        title: 'Manual Installation Required',
-        message: 'Please download and install the update manually.',
-        detail: 'In development mode, updates must be installed manually from the GitHub releases page.',
-        buttons: ['OK']
+      console.log('Auto-updater: Development mode - installer should already be running');
+      // In development, the installer should already be opened by downloadInstallerInDev
+      this.sendToRenderer('update-installed', {
+        version: this.updateInfo.version,
+        message: 'The installer has been opened. Please follow the installation wizard to complete the update.'
       });
     } else {
       console.log('Auto-updater: Production mode - using electron-updater to install');
