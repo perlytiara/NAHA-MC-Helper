@@ -21,7 +21,7 @@
   let isChecking: boolean = false;
   let isDownloading: boolean = false;
   let updateError: string | null = null;
-  let currentVersion: string = '1.1.4';
+  let currentVersion: string = '1.1.5';
 
   // Auto-updater event handlers
   function handleUpdateChecking(): void {
