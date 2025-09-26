@@ -54,18 +54,24 @@ jobs:
         cd tools/minecraft-installer
         cargo build --release
         
-    - name: Build Electron app
+    - name: Build web assets
       run: npm run build
       
     - name: Build distributables (Windows)
       if: runner.os == 'Windows'
-      run: npm run dist
+      run: npx electron-builder --win
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         
-    - name: Build distributables (Unix)
-      if: runner.os != 'Windows'
-      run: npx electron-builder
+    - name: Build distributables (macOS)
+      if: runner.os == 'macOS'
+      run: npx electron-builder --mac
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        
+    - name: Build distributables (Linux)
+      if: runner.os == 'Linux'
+      run: npx electron-builder --linux
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         
