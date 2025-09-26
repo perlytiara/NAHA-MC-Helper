@@ -68,7 +68,7 @@
     "appId": "com.naha.mc-helper",
     "productName": "NAHA MC Helper",
     "directories": {
-      "output": "dist-electron-fixed"
+      "output": "dist"
     },
     "files": [
       "dist/**/*",

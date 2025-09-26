@@ -63,7 +63,8 @@ jobs:
         echo "=== Building Windows distributables ==="
         npx electron-builder --win --publish=never
         echo "=== Windows build completed ==="
-        ls -la dist/
+        echo "=== Contents of dist ==="
+        dir dist
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         
