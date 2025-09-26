@@ -78,6 +78,8 @@ jobs:
   release:
     needs: build
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     
     steps:
     - name: Checkout code
@@ -86,13 +88,25 @@ jobs:
     - name: Download all artifacts
       uses: actions/download-artifact@v4
       
+    - name: List downloaded files
+      run: |
+        echo "=== Listing all downloaded files ==="
+        find . -name "dist-*" -type d | head -10
+        find . -name "*.exe" -o -name "*.dmg" -o -name "*.AppImage" -o -name "*.deb" -o -name "*.rpm" | head -20
+        
     - name: Create Release
       uses: softprops/action-gh-release@v1
       with:
         files: |
-          dist-windows/**/*
-          dist-macos/**/*
-          dist-ubuntu/**/*
+          */dist/*.exe
+          */dist/*.dmg
+          */dist/*.AppImage
+          */dist/*.deb
+          */dist/*.rpm
+          */dist/*.zip
+          */dist/*.blockmap
         generate_release_notes: true
+        draft: false
+        prerelease: false
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
