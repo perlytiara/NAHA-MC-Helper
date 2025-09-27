@@ -7,7 +7,7 @@
   export let isDownloading = false;
   export let isChecking = false;
   export let error = null;
-  export let currentVersion = '1.1.6';
+  export let currentVersion = '1.1.8';
   
   const dispatch = createEventDispatcher();
   
