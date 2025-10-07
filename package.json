@@ -1,6 +1,6 @@
 {
   "name": "naha-mc-helper",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "type": "module",
   "main": "main.js",
   "engines": {
@@ -48,6 +48,7 @@
     "daisyui": "^5.1.13",
     "electron": "^32.0.0",
     "electron-builder": "^25.1.8",
+    "electron-icon-builder": "^2.0.1",
     "eslint": "^9.15.0",
     "eslint-plugin-boundaries": "^5.0.1",
     "eslint-plugin-project-structure": "^3.13.3",
@@ -77,12 +78,14 @@
       "src/shared/services/**/*",
       "node_modules/**/*"
     ],
-    "icon": "public/naha-mc-helper-logo.png",
+    "icon": "public/icons/win/icon.ico",
     "extraResources": [
       {
         "from": "tools/minecraft-installer-releases/",
         "to": "installer/",
-        "filter": ["**/*"]
+        "filter": [
+          "**/*"
+        ]
       }
     ],
     "win": {
@@ -102,7 +105,7 @@
       ],
       "forceCodeSigning": false,
       "signAndEditExecutable": false,
-      "icon": "public/naha-mc-helper-logo.png"
+      "icon": "public/icons/win/icon.ico"
     },
     "nsis": {
       "oneClick": false,
@@ -114,36 +117,50 @@
       "target": [
         {
           "target": "dmg",
-          "arch": ["x64", "arm64"]
+          "arch": [
+            "x64",
+            "arm64"
+          ]
         },
         {
           "target": "zip",
-          "arch": ["x64", "arm64"]
+          "arch": [
+            "x64",
+            "arm64"
+          ]
         }
       ],
       "category": "public.app-category.games",
       "hardenedRuntime": false,
       "gatekeeperAssess": false,
-      "signIgnore": ["node_modules/@electron/"],
-      "icon": "public/naha-mc-helper-logo.png"
+      "signIgnore": [
+        "node_modules/@electron/"
+      ],
+      "icon": "public/icons/mac/icon.icns"
     },
     "linux": {
       "target": [
         {
           "target": "AppImage",
-          "arch": ["x64"]
+          "arch": [
+            "x64"
+          ]
         },
         {
           "target": "deb",
-          "arch": ["x64"]
+          "arch": [
+            "x64"
+          ]
         },
         {
           "target": "rpm",
-          "arch": ["x64"]
+          "arch": [
+            "x64"
+          ]
         }
       ],
       "category": "Game",
-      "icon": "public/naha-mc-helper-logo.png"
+      "icon": "public/icons/png/256x256.png"
     },
     "publish": null
   }
