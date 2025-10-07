@@ -179,15 +179,10 @@ class AutoUpdaterService {
         console.log('🚀 Auto-updater: Download update requested');
         console.log('🚀 Auto-updater: Update info:', this.updateInfo);
         
-        if (!app.isPackaged) {
-          console.log('🚀 Auto-updater: Development mode - downloading installer directly');
-          await this.downloadInstallerInDev();
-          console.log('🚀 Auto-updater: downloadInstallerInDev completed!');
-        } else {
-          console.log('🚀 Auto-updater: Production mode - using electron-updater');
-          // In production, use electron-updater to download
-          await autoUpdater.downloadUpdate();
-        }
+        // Always use direct download for reliability
+        console.log('🚀 Auto-updater: Downloading installer directly');
+        await this.downloadInstallerInDev();
+        console.log('🚀 Auto-updater: downloadInstallerInDev completed!');
         
       } catch (error) {
         console.error('❌ Auto-updater: Error downloading update:', error);

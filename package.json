@@ -1,6 +1,6 @@
 {
   "name": "naha-mc-helper",
-  "version": "1.2.2",
+  "version": "1.0.0",
   "type": "module",
   "main": "main.js",
   "engines": {
@@ -77,6 +77,7 @@
       "src/shared/services/**/*",
       "node_modules/**/*"
     ],
+    "icon": "public/naha-mc-helper-logo.jpg",
     "extraResources": [
       {
         "from": "tools/minecraft-installer-releases/",
@@ -100,7 +101,8 @@
         }
       ],
       "forceCodeSigning": false,
-      "signAndEditExecutable": false
+      "signAndEditExecutable": false,
+      "icon": "public/naha-mc-helper-logo.jpg"
     },
     "nsis": {
       "oneClick": false,
@@ -122,7 +124,8 @@
       "category": "public.app-category.games",
       "hardenedRuntime": false,
       "gatekeeperAssess": false,
-      "signIgnore": ["node_modules/@electron/"]
+      "signIgnore": ["node_modules/@electron/"],
+      "icon": "public/naha-mc-helper-logo.jpg"
     },
     "linux": {
       "target": [
@@ -139,7 +142,8 @@
           "arch": ["x64"]
         }
       ],
-      "category": "Game"
+      "category": "Game",
+      "icon": "public/naha-mc-helper-logo.jpg"
     },
     "publish": null
   }

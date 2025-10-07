@@ -115,6 +115,7 @@ const features = [
     <!-- Hero section -->
     <div class="hero-section">
         <div class="hero-content">
+            <img src="/naha-mc-helper-logo.jpg" alt="NAHA MC Helper Logo" class="hero-logo" />
             <h1 class="hero-title">Minecraft Helper</h1>
             <p class="hero-subtitle">Your complete toolkit for managing Minecraft modpacks and launchers</p>
         </div>
@@ -148,7 +149,7 @@ const features = [
           <div class="update-icon">🔄</div>
           <div class="update-info">
             <h3 class="update-title">Stay Updated</h3>
-            <p class="update-subtitle">Current version: v1.2.2</p>
+            <p class="update-subtitle">Current version: v1.2.0</p>
           </div>
         </div>
         <div class="update-actions">
@@ -329,6 +330,19 @@ const features = [
         align-items: center;
     }
     
+    .hero-logo {
+        width: 80px;
+        height: 80px;
+        border-radius: 12px;
+        margin-bottom: 0.75rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .hero-logo:hover {
+        transform: scale(1.05);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+    }
     
     .hero-title {
         font-size: 1.5rem;
@@ -603,6 +617,11 @@ const features = [
             padding: 1rem;
         }
         
+        .hero-logo {
+            width: 64px;
+            height: 64px;
+            margin-bottom: 0.5rem;
+        }
         
         .hero-title {
             font-size: 1.5rem;
@@ -636,6 +655,11 @@ const features = [
             padding: 0.75rem;
         }
         
+        .hero-logo {
+            width: 56px;
+            height: 56px;
+            margin-bottom: 0.5rem;
+        }
         
         .hero-title {
             font-size: 1.25rem;
