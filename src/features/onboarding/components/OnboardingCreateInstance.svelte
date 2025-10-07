@@ -224,8 +224,8 @@
             isDetecting = true;
             status.set('Detecting installed launchers...');
             
-            if (typeof window.prism !== 'undefined') {
-                const result = await window.prism.detectLaunchers();
+            if (typeof window.nahaAPI !== 'undefined') {
+                const result = await window.nahaAPI.detectLaunchers();
                 console.log('Launcher detection result:', result);
                 
                 if (result.success) {
@@ -265,10 +265,10 @@
     
     async function checkInstallerAvailability() {
         try {
-            if (typeof window.prism !== 'undefined' && window.prism.installer) {
-                installerAvailable = await window.prism.installer.isAvailable();
+            if (typeof window.nahaAPI !== 'undefined' && window.nahaAPI.installer) {
+                installerAvailable = await window.nahaAPI.installer.isAvailable();
                 if (installerAvailable) {
-                    const versionInfo = await window.prism.installer.getVersion();
+                    const versionInfo = await window.nahaAPI.installer.getVersion();
                     installerVersion = versionInfo;
                     addDebugLog(`✅ Minecraft Installer available: ${versionInfo.version || 'Unknown version'}`, 'success');
             } else {
@@ -350,7 +350,7 @@
     // Minecraft path functions
     async function browseMinecraftPath() {
         try {
-            const result = await window.prism?.showOpenDialog({
+            const result = await window.nahaAPI?.showOpenDialog({
                 properties: ['openDirectory'],
                 title: 'Select Minecraft Installation Folder',
                 defaultPath: getDefaultMinecraftPath()
@@ -401,7 +401,7 @@
 
         try {
             // Check if the folder exists and contains Minecraft files
-            const isValid = await window.prism?.validateMinecraftInstallation?.(path);
+            const isValid = await window.nahaAPI?.validateMinecraftInstallation?.(path);
             
             if (isValid) {
                 isMinecraftPathValid = true;

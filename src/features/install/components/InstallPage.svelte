@@ -124,7 +124,7 @@
             let latest = null;
             
             try {
-                latest = await window.prism?.fetchLatest?.(mode);
+                latest = await window.nahaAPI?.fetchLatest?.(mode);
             } catch (prismError) {
                 console.warn('Prism API failed, falling back to GitHub API:', prismError);
             }
@@ -341,7 +341,7 @@
         try {
             status.set('Querying latest modpack...');
             mrpackStatus.set('Querying latest modpack...');
-            const latest = await window.prism.fetchLatestPack?.(loader);
+            const latest = await window.nahaAPI.fetchLatestPack?.(loader);
             if (!latest || latest.ok !== true) throw new Error(latest?.error || 'Query failed');
             const pick = latest.picks?.mrpack || latest.picks?.all?.find(a => /\.mrpack$/i.test(a.name) || /mrpack/i.test(a.content_type));
             if (!pick) {
@@ -353,7 +353,7 @@
             let defaultName = pick.name || `${loader}-client-pack.mrpack`;
             if (!/\.mrpack$/i.test(defaultName)) defaultName += '.mrpack';
             defaultName = defaultName.replace(/[<>:"/\\|?*]/g, '-');
-            const out = await window.prism.openSaveDialog?.({
+            const out = await window.nahaAPI.openSaveDialog?.({
                 defaultPath: defaultName,
                 filters: [{ name: 'Modrinth Pack', extensions: ['mrpack'] }]
             });
@@ -383,10 +383,10 @@
                 } catch {}
             };
             try {
-                window.prism?.onPacksDownload?.(handler);
+                window.nahaAPI?.onPacksDownload?.(handler);
             } catch {}
 
-            const dl = await window.prism.downloader?.({ url: pick.url, outPath: out });
+            const dl = await window.nahaAPI.downloader?.({ url: pick.url, outPath: out });
             if (!dl || dl.ok !== true) throw new Error(dl?.error || 'Download failed');
             progress.set(100);
             status.set('Saved to: ' + out);
@@ -618,8 +618,8 @@
             const defaultName = asset.name || 'launcher-installer';
             
             // Check if we're in Electron environment
-            if (typeof window.prism === 'undefined') {
-                console.error('window.prism not available - this should run in Electron desktop app');
+            if (typeof window.nahaAPI === 'undefined') {
+                console.error('window.nahaAPI not available - this should run in Electron desktop app');
                 error.set('This installer requires the desktop app environment');
                 details = 'Please run this application as a desktop app, not in a web browser.';
                 return;
@@ -628,7 +628,7 @@
             // Get cache directory from main process
             let savePath;
             try {
-                const cacheDir = await window.prism.getCacheDir();
+                const cacheDir = await window.nahaAPI.getCacheDir();
                 const sanitizedName = defaultName.replace(/[<>:"/\\|?*]/g, '-');
                 
                 // Build path manually since we don't have path module in renderer
@@ -640,7 +640,7 @@
                 // Ensure the directory exists (get parent directory)
                 const lastSeparatorIndex = Math.max(savePath.lastIndexOf('\\'), savePath.lastIndexOf('/'));
                 const parentDir = savePath.substring(0, lastSeparatorIndex);
-                await window.prism.ensureDir(parentDir);
+                await window.nahaAPI.ensureDir(parentDir);
                 
             } catch (cacheError) {
                 console.warn('Cache directory setup failed:', cacheError);
@@ -683,7 +683,7 @@
             
             // Register progress handler
             try {
-                window.prism.onDownloadProgress?.(progressHandler);
+                window.nahaAPI.onDownloadProgress?.(progressHandler);
             } catch (err) {
                 console.warn('Could not register progress handler:', err);
             }
@@ -692,7 +692,7 @@
             console.log('Download URL:', asset.browser_download_url);
             
             // Perform the download using Electron's download API
-            const downloadResult = await window.prism.downloader({
+            const downloadResult = await window.nahaAPI.downloader({
                 url: asset.browser_download_url,
                 outPath: savePath
             });
@@ -731,7 +731,7 @@
             }
             
             // Execute installer via main process in background
-            const installResult = await window.prism.execInstaller({
+            const installResult = await window.nahaAPI.execInstaller({
                 filePath: savePath,
                 command: installCmd.command,
                 args: installCmd.args,
@@ -779,7 +779,7 @@
             
             // Optional: Clean up downloaded installer file after successful installation
             try {
-                await window.prism.deleteFile(savePath);
+                await window.nahaAPI.deleteFile(savePath);
                 console.log('Cleaned up installer file:', savePath);
             } catch (cleanupErr) {
                 console.warn('Could not clean up installer file:', cleanupErr);
@@ -811,22 +811,22 @@
     }
 
     onMount(async () => {
-        // Check if window.prism is available
-        console.log('window.prism available:', typeof window.prism !== 'undefined');
-        console.log('window.prism object:', window.prism);
+        // Check if window.nahaAPI is available
+        console.log('window.nahaAPI available:', typeof window.nahaAPI !== 'undefined');
+        console.log('window.nahaAPI object:', window.nahaAPI);
         
-        if (typeof window.prism !== 'undefined') {
-            console.log('Available prism methods:', Object.keys(window.prism));
+        if (typeof window.nahaAPI !== 'undefined') {
+            console.log('Available prism methods:', Object.keys(window.nahaAPI));
         }
         
         // Theme and debug setup
         try {
-            const t = await window.prism?.getTheme?.();
+            const t = await window.nahaAPI?.getTheme?.();
             if (t && t !== 'system') {
                 theme.set(t);
                 document.documentElement.dataset.theme = t;
             }
-            window.prism?.onThemeChanged?.((val) => {
+            window.nahaAPI?.onThemeChanged?.((val) => {
                 theme.set(val || 'system');
                 if (!val || val === 'system') {
                     delete document.documentElement.dataset.theme;
@@ -842,7 +842,7 @@
         await fetchLatestRelease();
 
         // Task listener (placeholder for task updates)
-        window.prism?.onTaskUpdate?.((update) => {
+        window.nahaAPI?.onTaskUpdate?.((update) => {
             if (update?.details) details = update.details;
         });
     });

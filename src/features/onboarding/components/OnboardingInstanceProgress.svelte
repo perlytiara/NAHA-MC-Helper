@@ -31,21 +31,21 @@
     
     // Set up installer progress listener via IPC
     let progressHandler;
-    if (typeof window !== 'undefined' && window.prism && window.prism.ipcRenderer) {
+    if (typeof window !== 'undefined' && window.nahaAPI && window.nahaAPI.ipcRenderer) {
         console.log('Setting up installer progress listener via IPC');
         progressHandler = (event, progressData) => {
             console.log('Progress received in UI:', progressData);
             handleInstallerProgress(progressData);
         };
-        window.prism.ipcRenderer.on('installer-progress', progressHandler);
+        window.nahaAPI.ipcRenderer.on('installer-progress', progressHandler);
     } else {
         console.log('IPC renderer not available for progress listener');
     }
     
     // Cleanup event listener on component destroy
     onDestroy(() => {
-        if (progressHandler && window.prism && window.prism.ipcRenderer) {
-            window.prism.ipcRenderer.off('installer-progress', progressHandler);
+        if (progressHandler && window.nahaAPI && window.nahaAPI.ipcRenderer) {
+            window.nahaAPI.ipcRenderer.off('installer-progress', progressHandler);
         }
     });
     
@@ -70,10 +70,10 @@
             switch (selectedServer) {
                 case 'neoforge-create':
                     console.log('Calling downloadNeoForge with customPath:', customPath);
-                    result = await window.prism.installer.downloadNeoForge(targetLauncher, true, null, customPath);
+                    result = await window.nahaAPI.installer.downloadNeoForge(targetLauncher, true, null, customPath);
                     break;
                 case 'fabric':
-                    result = await window.prism.installer.downloadFabric(targetLauncher, true, null, customPath);
+                    result = await window.nahaAPI.installer.downloadFabric(targetLauncher, true, null, customPath);
                     break;
                 default:
                     throw new Error(`Unsupported server type: ${selectedServer}`);

@@ -1416,9 +1416,15 @@ ipcMain.handle("auto-updater:manual-update-check", async () => {
 });
 
 // Download update
-ipcMain.handle("auto-updater:download-update", async () => {
+ipcMain.handle("auto-updater:download-update", async (event, updateInfo) => {
   try {
     if (autoUpdater) {
+      // If updateInfo is provided, set it on the service
+      if (updateInfo) {
+        console.log('Main: Setting updateInfo on service:', updateInfo);
+        autoUpdater.updateAvailable = true;
+        autoUpdater.updateInfo = updateInfo;
+      }
       await autoUpdater.downloadUpdate();
       return { success: true };
     }

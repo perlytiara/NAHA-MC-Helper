@@ -57,7 +57,7 @@
             let latest = null;
             
             try {
-                latest = await window.prism?.fetchLatest?.(mode);
+                latest = await window.nahaAPI?.fetchLatest?.(mode);
             } catch (prismError) {
                 console.warn('Prism API failed, falling back to GitHub API:', prismError);
             }
@@ -323,8 +323,8 @@
             const defaultName = selectedAsset.name || 'launcher-installer';
             
             // Check if we're in Electron environment
-            if (typeof window.prism === 'undefined') {
-                console.error('window.prism not available - this should run in Electron desktop app');
+            if (typeof window.nahaAPI === 'undefined') {
+                console.error('window.nahaAPI not available - this should run in Electron desktop app');
                 error.set('This installer requires the desktop app environment');
                 details = 'Please run this application as a desktop app, not in a web browser.';
                 return;
@@ -333,7 +333,7 @@
             // Get cache directory from main process
             let savePath;
             try {
-                const cacheDir = await window.prism.getCacheDir();
+                const cacheDir = await window.nahaAPI.getCacheDir();
                 const sanitizedName = defaultName.replace(/[<>:"/\\|?*]/g, '-');
                 
                 // Build path manually since we don't have path module in renderer
@@ -345,7 +345,7 @@
                 // Ensure the directory exists (get parent directory)
                 const lastSeparatorIndex = Math.max(savePath.lastIndexOf('\\'), savePath.lastIndexOf('/'));
                 const parentDir = savePath.substring(0, lastSeparatorIndex);
-                await window.prism.ensureDir(parentDir);
+                await window.nahaAPI.ensureDir(parentDir);
                 
             } catch (cacheError) {
                 console.warn('Cache directory setup failed:', cacheError);
@@ -388,7 +388,7 @@
             
             // Register progress handler
             try {
-                window.prism.onDownloadProgress?.(progressHandler);
+                window.nahaAPI.onDownloadProgress?.(progressHandler);
             } catch (err) {
                 console.warn('Could not register progress handler:', err);
             }
@@ -397,7 +397,7 @@
             console.log('Download URL:', selectedAsset.browser_download_url);
             
             // Perform the download using Electron's download API
-            const downloadResult = await window.prism.downloader({
+            const downloadResult = await window.nahaAPI.downloader({
                 url: selectedAsset.browser_download_url,
                 outPath: savePath
             });
@@ -444,7 +444,7 @@
             }
             
             // Execute installer via main process in background
-            const installResult = await window.prism.execInstaller({
+            const installResult = await window.nahaAPI.execInstaller({
                 filePath: savePath,
                 command: installCmd.command,
                 args: installCmd.args,
@@ -492,7 +492,7 @@
             
             // Optional: Clean up downloaded installer file after successful installation
             try {
-                await window.prism.deleteFile(savePath);
+                await window.nahaAPI.deleteFile(savePath);
                 console.log('Cleaned up installer file:', savePath);
             } catch (cleanupErr) {
                 console.warn('Could not clean up installer file:', cleanupErr);

@@ -9,9 +9,9 @@
   let loading = true;
   
   onMount(async () => {
-    if (window.prism?.getAppInfo) {
+    if (window.nahaAPI?.getAppInfo) {
       try {
-        appInfo = await window.prism.getAppInfo();
+        appInfo = await window.nahaAPI.getAppInfo();
       } catch (error) {
         console.error('Failed to get app info:', error);
         appInfo = {

@@ -7,11 +7,13 @@
   export let isDownloading = false;
   export let isChecking = false;
   export let error = null;
-  export let currentVersion = '1.2.0';
+  export let currentVersion = '1.2.2';
   
   const dispatch = createEventDispatcher();
   
   function handleDownload() {
+    console.log('🔥 UpdateModal: handleDownload called!');
+    console.log('🔥 UpdateModal: Current state - updateInfo:', !!updateInfo, 'isDownloading:', isDownloading, 'isChecking:', isChecking);
     dispatch('download');
   }
   

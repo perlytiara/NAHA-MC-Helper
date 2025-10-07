@@ -428,7 +428,7 @@ export async function validateDownload(filePath: string, expectedHash?: string):
     
     try {
         // This would require the main process to compute file hash
-        const actualHash = await window.prism?.getFileHash?.(filePath, 'sha256');
+        const actualHash = await window.nahaAPI?.getFileHash?.(filePath, 'sha256');
         return actualHash === expectedHash;
     } catch (error) {
         console.warn('Could not validate download hash:', error);

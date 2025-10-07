@@ -4,7 +4,7 @@ console.log('Preload script loaded successfully');
 
 // Expose protected methods that allow the renderer process to use
 // the ipcRenderer without exposing the entire object
-contextBridge.exposeInMainWorld('prism', {
+contextBridge.exposeInMainWorld('nahaAPI', {
   // Download functionality
   downloader: (options) => ipcRenderer.invoke('download-file', options),
   onDownloadProgress: (callback) => ipcRenderer.on('download-progress', callback),
@@ -76,7 +76,7 @@ contextBridge.exposeInMainWorld('prism', {
   autoUpdater: {
     checkForUpdates: () => ipcRenderer.invoke('auto-updater:check-for-updates'),
     manualUpdateCheck: () => ipcRenderer.invoke('auto-updater:manual-update-check'),
-    downloadUpdate: () => ipcRenderer.invoke('auto-updater:download-update'),
+    downloadUpdate: (updateInfo) => ipcRenderer.invoke('auto-updater:download-update', updateInfo),
     installUpdate: () => ipcRenderer.invoke('auto-updater:install-update'),
     getCurrentVersion: () => ipcRenderer.invoke('auto-updater:get-current-version'),
     getUpdateInfo: () => ipcRenderer.invoke('auto-updater:get-update-info'),

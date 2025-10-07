@@ -148,7 +148,7 @@ const features = [
           <div class="update-icon">🔄</div>
           <div class="update-info">
             <h3 class="update-title">Stay Updated</h3>
-            <p class="update-subtitle">Current version: v1.2.0</p>
+            <p class="update-subtitle">Current version: v1.2.2</p>
           </div>
         </div>
         <div class="update-actions">

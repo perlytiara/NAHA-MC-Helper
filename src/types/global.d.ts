@@ -19,10 +19,15 @@ interface DownloadProgress {
   total: number;
 }
 
+interface UpdateError {
+  message: string;
+  details?: string;
+}
+
 interface AutoUpdater {
   checkForUpdates: () => Promise<void>;
   manualUpdateCheck: () => Promise<void>;
-  downloadUpdate: () => Promise<void>;
+  downloadUpdate: (updateInfo?: UpdateInfo | null) => Promise<void>;
   installUpdate: () => Promise<void>;
   getCurrentVersion: () => Promise<string>;
   getUpdateInfo: () => Promise<UpdateInfo | null>;
@@ -39,7 +44,7 @@ interface AutoUpdater {
 }
 
 interface Window {
-  prism: {
+  nahaAPI: {
     detectLaunchers: () => Promise<{ success: boolean; launchers: any[]; error?: string }>;
     validateMinecraftInstallation: (path: string) => Promise<boolean>;
     openFileDialog: (options: { properties: string[] }) => Promise<string[]>;

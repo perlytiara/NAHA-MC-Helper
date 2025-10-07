@@ -8,6 +8,7 @@
   import StatusBanner from '../shared/components/ui/feedback/StatusBanner.svelte';
   import AboutDialog from '../shared/components/ui/dialogs/AboutDialog.svelte';
   import UpdateModal from '../components/UpdateModal.svelte';
+  import RestartAnimation from '../components/RestartAnimation.svelte';
   import { isOnboardingCompleted } from '../shared/utils/onboardingUtils';
   // Types are now available globally from src/types/global.d.ts
 
@@ -20,8 +21,9 @@
   let downloadProgress: DownloadProgress | null = null;
   let isChecking: boolean = false;
   let isDownloading: boolean = false;
-  let updateError: string | null = null;
-  let currentVersion: string = '1.2.0';
+  let updateError: UpdateError | null = null;
+  let currentVersion: string = '1.2.2';
+  let showRestartAnimation: boolean = false;
 
   // Auto-updater event handlers
   function handleUpdateChecking(): void {
@@ -63,33 +65,60 @@
   }
 
   function handleDownloadProgress(event: any, data: DownloadProgress): void {
+    console.log('🔥 App: handleDownloadProgress called with:', data);
     downloadProgress = data;
     isDownloading = true;
+    showUpdateModal = true; // Ensure modal is visible during download
   }
 
   function handleUpdateDownloaded(event: any, data: UpdateInfo): void {
+    console.log('🎉 App: Update downloaded!', data);
     downloadProgress = null;
     isDownloading = false;
     updateInfo = { ...updateInfo, ...data };
-    // Show install option
+    showUpdateModal = false; // Hide the update modal
+    showRestartAnimation = true; // Show the quirky restart animation
   }
 
-  function handleUpdateError(event: any, data: string): void {
-    updateError = data;
+  function handleUpdateError(event: any, data: string | UpdateError): void {
+    updateError = typeof data === 'string' ? { message: data } : data;
     isChecking = false;
     isDownloading = false;
     showUpdateModal = true;
   }
 
   function handleDownload(): void {
-    if (window.prism?.autoUpdater?.downloadUpdate) {
-      window.prism.autoUpdater.downloadUpdate();
+    console.log('🔥 App: handleDownload called!');
+    console.log('🔥 App: window.nahaAPI available:', !!window.nahaAPI);
+    console.log('🔥 App: window.nahaAPI.autoUpdater available:', !!window.nahaAPI?.autoUpdater);
+    console.log('🔥 App: downloadUpdate function available:', !!window.nahaAPI?.autoUpdater?.downloadUpdate);
+    
+    if (window.nahaAPI?.autoUpdater?.downloadUpdate) {
+      console.log('🔥 App: Calling downloadUpdate with updateInfo:', updateInfo);
+      isDownloading = true;
+      window.nahaAPI.autoUpdater.downloadUpdate(updateInfo)
+        .then(() => {
+          console.log('🔥 App: downloadUpdate completed successfully!');
+        })
+        .catch((error: any) => {
+          console.error('🔥 App: downloadUpdate failed:', error);
+          updateError = { message: 'Download failed', details: error.message };
+          isDownloading = false;
+        });
+    } else {
+      console.error('🔥 App: downloadUpdate function not available!');
+      console.error('🔥 App: window object:', window);
+      console.error('🔥 App: window.nahaAPI object:', window.nahaAPI);
+      updateError = { 
+        message: 'Auto-updater not available', 
+        details: 'The auto-updater service is not initialized. Please restart the app and try again.' 
+      };
     }
   }
 
   function handleInstall(): void {
-    if (window.prism?.autoUpdater?.installUpdate) {
-      window.prism.autoUpdater.installUpdate();
+    if (window.nahaAPI?.autoUpdater?.installUpdate) {
+      window.nahaAPI.autoUpdater.installUpdate();
     }
   }
 
@@ -111,6 +140,17 @@
   function handleUpdateLater(): void {
     showUpdateModal = false;
     updateInfo = null;
+  }
+
+  function handleRestartApp(): void {
+    console.log('🔄 App: Closing app for update installation...');
+    // Close the app to let the user install the update
+    if (window.nahaAPI?.autoUpdater?.installUpdate) {
+      window.nahaAPI.autoUpdater.installUpdate();
+    } else {
+      // Fallback: just close the window
+      window.close();
+    }
   }
 
   // Compare version strings to determine if one is newer
@@ -144,9 +184,9 @@
     
     // Wait for prism to be available
     const setupMenuListener = () => {
-      if (window.prism?.ipcRenderer) {
+      if (window.nahaAPI?.ipcRenderer) {
         console.log('🎯 App: prism.ipcRenderer is available, setting up listener');
-        window.prism.ipcRenderer.on('menu:check-for-updates', (event, ...args) => {
+        window.nahaAPI.ipcRenderer.on('menu:check-for-updates', (event, ...args) => {
           console.log('🎯 App: RECEIVED menu:check-for-updates event!', args);
           handleMenuCheckForUpdates();
         });
@@ -172,7 +212,7 @@
       console.log('App: Current version:', currentVersion);
       console.log('App: Window object available:', !!window);
       console.log('App: electronAPI available:', !!window.electronAPI);
-      console.log('App: prism.autoUpdater available:', !!window.prism?.autoUpdater);
+      console.log('App: prism.autoUpdater available:', !!window.nahaAPI?.autoUpdater);
 
       // Set checking state immediately
       isChecking = true;
@@ -186,8 +226,8 @@
       // If that fails, try the backend approach
       if (!updateInfo && !updateError) {
         console.log('App: Direct API failed, trying backend approach...');
-        if (window.prism?.autoUpdater?.manualUpdateCheck) {
-          await window.prism.autoUpdater.manualUpdateCheck();
+        if (window.nahaAPI?.autoUpdater?.manualUpdateCheck) {
+          await window.nahaAPI.autoUpdater.manualUpdateCheck();
         }
         
         // Fallback to IPC check
@@ -202,7 +242,7 @@
     } catch (error) {
       console.error('Manual update check failed:', error);
       isChecking = false;
-      updateError = error instanceof Error ? error.message : 'Unknown error occurred';
+      updateError = { message: error instanceof Error ? error.message : 'Unknown error occurred' };
     }
   }
 
@@ -211,10 +251,10 @@
     try {
       console.log('App: Checking for updates via IPC...');
       // Try to get update info directly
-      const updateInfoResult = await window.prism?.autoUpdater?.getUpdateInfo?.();
+      const updateInfoResult = await window.nahaAPI?.autoUpdater?.getUpdateInfo?.();
       if (updateInfoResult && 'success' in updateInfoResult && updateInfoResult.success && 'updateInfo' in updateInfoResult && updateInfoResult.updateInfo) {
         console.log('App: Found update via IPC:', updateInfoResult.updateInfo);
-        updateInfo = updateInfoResult.updateInfo;
+        updateInfo = updateInfoResult.updateInfo as UpdateInfo;
         showUpdateModal = true;
         isChecking = false;
         return;
@@ -286,7 +326,7 @@
       console.error('App: ❌ Direct GitHub API check failed:', error);
       console.error('App: Error details:', error instanceof Error ? error.message : 'Unknown error');
       isChecking = false;
-      updateError = `Network error: ${error instanceof Error ? error.message : 'Unknown error'}`;
+      updateError = { message: 'Network error', details: error instanceof Error ? error.message : 'Unknown error' };
     }
   }
 
@@ -303,8 +343,8 @@
     onboardingCompleted.set(completed);
     
     // Listen for about dialog request from main process
-    if (window.prism?.onShowAboutDialog) {
-      const removeAboutListener = window.prism.onShowAboutDialog(() => {
+    if (window.nahaAPI?.onShowAboutDialog) {
+      const removeAboutListener = window.nahaAPI.onShowAboutDialog(() => {
         showAboutDialog = true;
       });
       
@@ -315,25 +355,25 @@
     // Menu event listener is now set up globally above
 
     // Setup auto-updater event listeners
-    if (window.prism?.autoUpdater) {
+    if (window.nahaAPI?.autoUpdater) {
       console.log('App: Setting up auto-updater event listeners');
       const removeListeners = [
-        window.prism.autoUpdater.onUpdateChecking?.(handleUpdateChecking),
-        window.prism.autoUpdater.onUpdateAvailable?.(handleUpdateAvailable),
-        window.prism.autoUpdater.onUpdateNotAvailable?.(handleUpdateNotAvailable),
-        window.prism.autoUpdater.onDownloadProgress?.(handleDownloadProgress),
-        window.prism.autoUpdater.onUpdateDownloaded?.(handleUpdateDownloaded),
-        window.prism.autoUpdater.onUpdateError?.(handleUpdateError)
+        window.nahaAPI.autoUpdater.onUpdateChecking?.(handleUpdateChecking),
+        window.nahaAPI.autoUpdater.onUpdateAvailable?.(handleUpdateAvailable),
+        window.nahaAPI.autoUpdater.onUpdateNotAvailable?.(handleUpdateNotAvailable),
+        window.nahaAPI.autoUpdater.onDownloadProgress?.(handleDownloadProgress),
+        window.nahaAPI.autoUpdater.onUpdateDownloaded?.(handleUpdateDownloaded),
+        window.nahaAPI.autoUpdater.onUpdateError?.(handleUpdateError)
       ];
       console.log('🔥 App: Event listeners set up:', removeListeners.length);
-      console.log('🔥 App: onUpdateNotAvailable function available:', !!window.prism.autoUpdater.onUpdateNotAvailable);
+      console.log('🔥 App: onUpdateNotAvailable function available:', !!window.nahaAPI.autoUpdater.onUpdateNotAvailable);
 
       // Auto-check for updates on startup (but don't show modal unless update available)
       setTimeout(() => {
         console.log('App: Starting automatic update check on startup');
-        if (window.prism?.autoUpdater?.checkForUpdates) {
+        if (window.nahaAPI?.autoUpdater?.checkForUpdates) {
           // Don't show modal for automatic checks, only for manual ones
-          window.prism.autoUpdater.checkForUpdates();
+          window.nahaAPI.autoUpdater.checkForUpdates();
         }
       }, 3000); // Wait 3 seconds after app starts
 
@@ -412,6 +452,12 @@
     on:later={handleUpdateLater}
     on:viewReleaseNotes={handleViewReleaseNotes}
     on:close={handleUpdateModalClose}
+  />
+
+  <!-- Restart Animation -->
+  <RestartAnimation 
+    bind:isVisible={showRestartAnimation}
+    onRestart={handleRestartApp}
   />
 
 </main>

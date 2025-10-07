@@ -6,9 +6,9 @@ let brandButton;
 
 onMount(async () => {
   // Initialize debug state from main process
-  if (window.prism?.getDebugMode) {
+  if (window.nahaAPI?.getDebugMode) {
     try {
-      const debugState = await window.prism.getDebugMode();
+      const debugState = await window.nahaAPI.getDebugMode();
       debug.set(debugState);
     } catch (error) {
       console.warn('Failed to get initial debug state:', error);
@@ -16,8 +16,8 @@ onMount(async () => {
   }
   
   // Listen for debug changes from main process (menu)
-  if (window.prism?.onDebugChanged) {
-    const removeDebugListener = window.prism.onDebugChanged((event, debugEnabled) => {
+  if (window.nahaAPI?.onDebugChanged) {
+    const removeDebugListener = window.nahaAPI.onDebugChanged((event, debugEnabled) => {
       debug.set(debugEnabled);
     });
     
@@ -28,14 +28,14 @@ onMount(async () => {
   
   // Listen for reset data confirmation from main process
   
-  if (window.prism?.onResetDataConfirmed) {
-    const removeResetListener = window.prism.onResetDataConfirmed(async () => {
+  if (window.nahaAPI?.onResetDataConfirmed) {
+    const removeResetListener = window.nahaAPI.onResetDataConfirmed(async () => {
       try {
         // Show loading notification
         notification.set({ type: 'info', message: 'Resetting application data...' });
         
         // Call the reset function
-        const result = await window.prism.resetApplicationData();
+        const result = await window.nahaAPI.resetApplicationData();
         
         // Check if result exists and has the expected structure
         if (result && typeof result === 'object' && result.success) {
@@ -112,7 +112,7 @@ async function manualReset() {
     notification.set({ type: 'info', message: 'Resetting application data...' });
     
     // Call the reset function
-    const result = await window.prism.resetApplicationData();
+    const result = await window.nahaAPI.resetApplicationData();
     
     // Check if result exists and has the expected structure
     if (result && typeof result === 'object' && result.success) {
