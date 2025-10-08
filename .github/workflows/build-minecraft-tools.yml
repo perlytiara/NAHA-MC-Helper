@@ -8,7 +8,7 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
-  RELEASE_TAG: latest # Always use the same tag
+  RELEASE_TAG: minecraft-tools-latest # Always use the same tag for minecraft tools
 
 jobs:
   build:
@@ -213,7 +213,7 @@ jobs:
           cat > release_notes.md << 'NOTES'
           # Minecraft Installer & Updater - Latest Build
 
-          **🔄 Auto-updating Release** | Built: BUILD_DATE_PLACEHOLDER | Commit: COMMIT_SHA_PLACEHOLDER
+          **🔄 Auto-updating Release** | Built: BUILD_DATE_PLACEHOLDER | Commit: COMMIT_SHA_PLACEHOLDER | Tag: `minecraft-tools-latest`
 
           This is an automatically updated release that always contains the **latest builds** from the main branch.
 
@@ -390,7 +390,7 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           tag_name: ${{ env.RELEASE_TAG }}
-          name: Minecraft Tools - Latest Build
+          name: Minecraft Tools - Latest Build (Auto-updated)
           body_path: release_notes.md
           files: |
             upload/*
