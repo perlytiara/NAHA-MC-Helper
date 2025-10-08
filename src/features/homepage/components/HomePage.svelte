@@ -1,17 +1,32 @@
 <script>
 import { onMount } from 'svelte';
-import { currentPage, debug, onboardingCompleted } from '../../../shared/stores/appStore';
+import { currentPage, debug, onboardingCompleted, onboardingStartStep, onboardingCurrentStep, hideUpdateButton, isInOnboarding } from '../../../shared/stores/appStore';
 import { resetOnboarding } from '../../../shared/utils/onboardingUtils';
 import NavigationBar from '../../../shared/components/ui/navigation/NavigationBar.svelte';
+import { t } from '../../../shared/stores/i18nStore';
 
 // Update check state
 let isCheckingUpdate = false;
 let updateStatus = null;
-let appVersion = '1.0.1'; // Default fallback
+let appVersion = '1.0.2'; // Default fallback
 
 function startSetupFlow() {
   resetOnboarding();
   onboardingCompleted.set(false);
+  onboardingStartStep.set(1);
+  onboardingCurrentStep.set(1);
+  hideUpdateButton.set(false);
+  isInOnboarding.set(true);
+  currentPage.set('onboarding');
+}
+
+function startInstallFlow() {
+  console.log('🎮 [HOMEPAGE] Starting install flow - going to step 3 (Minecraft check)');
+  // Don't change onboardingCompleted, just navigate
+  onboardingStartStep.set(3); // Start at step 3 (Minecraft check - after language/welcome)
+  onboardingCurrentStep.set(3); // Also set current step to 3
+  hideUpdateButton.set(true); // Hide the update button
+  isInOnboarding.set(true);
   currentPage.set('onboarding');
 }
 
@@ -75,27 +90,12 @@ onMount(async () => {
 });
 
 // Key features and benefits
-const features = [
-  {
-    icon: '🎮',
-    title: 'Multiple Launchers',
-    description: 'PrismLauncher, AstralRinth, XMCL, and ModRinth support'
-  },
-  {
-    icon: '📦',
-    title: 'Popular Modpacks',
-    description: 'Fabric, NeoForge, and Better Than Wolves ready to install'
-  },
-  {
-    icon: '⚡',
-    title: 'Quick Setup',
-    description: 'Automated installation and configuration in minutes'
-  },
-  {
-    icon: '🛠️',
-    title: 'Custom Paths',
-    description: 'Flexible Minecraft installation directory selection'
-  }
+// Features will use translation keys
+const featureKeys = [
+  { icon: '🎮', key: 'multiLauncher' },
+  { icon: '📦', key: 'easyInstall' },
+  { icon: '⚡', key: 'autoUpdate' },
+  { icon: '🛠️', key: 'serverIntegration' }
 ];
 </script>
 
@@ -126,20 +126,20 @@ const features = [
     <!-- Hero section -->
     <div class="hero-section">
         <div class="hero-content">
-            <img src="/naha-mc-helper-logo.jpg" alt="NAHA MC Helper Logo" class="hero-logo" />
-            <h1 class="hero-title">Minecraft Helper</h1>
-            <p class="hero-subtitle">Your complete toolkit for managing Minecraft modpacks and launchers</p>
+            <img src="/naha-mc-helper-logo.png" alt="NAHA MC Helper Logo" class="hero-logo" />
+            <h1 class="hero-title">{$t('homepage.title')}</h1>
+            <p class="hero-subtitle">{$t('homepage.subtitle')}</p>
         </div>
     </div>
     
     <!-- Features grid -->
     <div class="features-section">
       <div class="features-grid">
-        {#each features as feature}
-          <div class="feature-card">
-            <div class="feature-icon">{feature.icon}</div>
-            <h3 class="feature-title">{feature.title}</h3>
-            <p class="feature-description">{feature.description}</p>
+        {#each featureKeys as feature}
+        <div class="feature-card">
+          <div class="feature-icon">{feature.icon}</div>
+          <h3 class="feature-title">{$t(`homepage.features.${feature.key}.title`)}</h3>
+          <p class="feature-description">{$t(`homepage.features.${feature.key}.description`)}</p>
         </div>
         {/each}
       </div>
@@ -148,17 +148,17 @@ const features = [
         <!-- Call to action -->
         <div class="cta-section">
           <div class="cta-buttons">
-            <button class="cta-button side-button" on:click={() => currentPage.set('minecraft-manager')}>
+            <button class="cta-button side-button" on:click={startInstallFlow}>
               <span class="cta-icon">🎮</span>
-              <span class="cta-text">Install Modpack</span>
+              <span class="cta-text">{$t('homepage.installModpack')}</span>
             </button>
             <button class="cta-button main-button" on:click={startSetupFlow}>
               <span class="cta-icon">🚀</span>
-              <span class="cta-text">Take me through the setup</span>
+              <span class="cta-text">{$t('homepage.takeSetup')}</span>
             </button>
             <button class="cta-button side-button" on:click={() => currentPage.set('update-instance')}>
               <span class="cta-icon">🔄</span>
-              <span class="cta-text">Update Instance</span>
+              <span class="cta-text">{$t('homepage.updateInstance')}</span>
             </button>
           </div>
         </div>

@@ -1,0 +1,305 @@
+{
+  "common": {
+    "yes": "Oui",
+    "no": "Non",
+    "back": "Retour",
+    "next": "Suivant",
+    "continue": "Continuer",
+    "cancel": "Annuler",
+    "close": "Fermer",
+    "retry": "Réessayer",
+    "complete": "Terminer",
+    "skip": "Passer",
+    "loading": "Chargement..."
+  },
+  "navigation": {
+    "home": "Accueil",
+    "install": "Installer",
+    "update": "Mettre à jour",
+    "servers": "Serveurs",
+    "packer": "Empaqueteur",
+    "editor": "Éditeur",
+    "presets": "Préréglages"
+  },
+  "homepage": {
+    "title": "Assistant Minecraft",
+    "subtitle": "Votre boîte à outils complète pour gérer les modpacks et lanceurs Minecraft",
+    "version": "Version",
+    "installModpack": "Installer un Modpack",
+    "takeSetup": "Guider l'installation",
+    "updateInstance": "Mettre à jour l'instance",
+    "features": {
+      "multiLauncher": {
+        "title": "Support Multi-Lanceurs",
+        "description": "Compatible avec AstralRinth, Prism, XMCL et plus"
+      },
+      "easyInstall": {
+        "title": "Installation Facile",
+        "description": "Installation de modpack en un clic"
+      },
+      "autoUpdate": {
+        "title": "Mises à jour Auto",
+        "description": "Gardez vos modpacks à jour automatiquement"
+      },
+      "serverIntegration": {
+        "title": "Intégration Serveur",
+        "description": "Préconfiguré pour les serveurs NAHA"
+      }
+    }
+  },
+  "onboarding": {
+    "welcome": {
+      "title": "Bienvenue dans NAHA Minecraft Helper",
+      "description": "NAHA Minecraft Helper simplifie le processus d'installation et la configuration du serveur pour Minecraft, rendant plus facile que jamais de rejoindre le jeu. Commençons!",
+      "getStarted": "Commencer",
+      "skipSetup": "Passer la Configuration",
+      "tip": "Cette configuration vous aidera à configurer votre expérience Minecraft"
+    },
+    "minecraftCheck": {
+      "title": "Avez-vous Minecraft installé?",
+      "description": "Minecraft est requis pour jouer sur les serveurs NAHA. Si vous ne l'avez pas, nous vous guiderons à travers le processus d'installation simple pour commencer.",
+      "yesHaveIt": "Oui, je l'ai",
+      "noInstallIt": "Non, installez-le",
+      "updateInstances": "Mettre à jour les Instances"
+    },
+    "chooseLauncher": {
+      "title": "Quel lanceur avez-vous?",
+      "description": "Sélectionnez le lanceur que vous utilisez actuellement pour jouer à Minecraft. Cela nous aidera à configurer votre installation correctement.",
+      "detecting": "Détection des lanceurs installés...",
+      "noLaunchers": "Aucun lanceur détecté. Veuillez d'abord installer un lanceur.",
+      "badges": {
+        "cracked": "Cracké",
+        "official": "Officiel"
+      },
+      "descriptions": {
+        "prism": "Un lanceur convivial avec support des mods.",
+        "astralrinth": "Un lanceur avec des fonctionnalités avancées.",
+        "modrinth": "Le lanceur officiel Modrinth.",
+        "xmcl": "Un lanceur léger et rapide.",
+        "other": "J'utilise un autre lanceur."
+      },
+      "features": {
+        "free": "Gratuit",
+        "paid": "Payant",
+        "modSupport": "Support des Mods",
+        "multiPlatform": "Multi-Plateforme",
+        "modrinth": "Modrinth",
+        "modern": "Moderne",
+        "official": "Officiel",
+        "custom": "Personnalisé",
+        "experimental": "Expérimental",
+        "other": "Autre",
+        "automation": "Automation",
+        "building": "Construction",
+        "tech": "Technique",
+        "survival": "Survie",
+        "challenging": "Difficile",
+        "unique": "Unique",
+        "classic": "Classique",
+        "extensive": "Étendu",
+        "stable": "Stable",
+        "fast": "Rapide",
+        "compatible": "Compatible"
+      }
+    },
+    "serverSelection": {
+      "title": "Choisissez Votre Serveur",
+      "description": "Sélectionnez le serveur NAHA que vous souhaitez rejoindre et jouer.",
+      "badges": {
+        "light": "Léger",
+        "create": "Créer",
+        "unavailable": "Indisponible"
+      },
+      "descriptions": {
+        "fabric": "Chargeur de mods moderne avec d'excellentes performances et compatibilité.",
+        "neoforge": "Modpack avancé avec construction créative et automation.",
+        "forge": "Chargeur de mods classique avec support étendu de mods.",
+        "btw": "Expérience de survie hardcore avec mécaniques uniques."
+      },
+      "servers": {
+        "fabric": {
+          "name": "Fabric",
+          "subtitle": "Léger",
+          "description": "Chargeur de mods moderne avec d'excellentes performances et compatibilité."
+        },
+        "neoforge": {
+          "name": "NeoForge",
+          "subtitle": "Créer",
+          "description": "Modpack avancé avec construction créative et automation."
+        },
+        "forge": {
+          "name": "Forge",
+          "subtitle": "Indisponible",
+          "description": "Chargeur de mods classique avec support étendu de mods."
+        },
+        "btw": {
+          "name": "Better Than Wolves",
+          "subtitle": "Indisponible",
+          "description": "Expérience de survie hardcore avec mécaniques uniques."
+        }
+      }
+    },
+    "installLauncher": {
+      "title": "Installer un Lanceur Minecraft",
+      "description": "Vous aurez besoin d'un lanceur pour jouer à Minecraft. Nous recommandons l'une de ces options:",
+      "skipInstall": "Je l'installerai moi-même plus tard",
+      "install": "Installer",
+      "subtitle": "Nous téléchargerons et installerons le lanceur automatiquement pour vous.",
+      "installNow": "Installer Maintenant",
+      "installing": "Installation...",
+      "failedToFetch": "Échec de la récupération des versions"
+    },
+    "createInstance": {
+      "title": "Créer une Instance",
+      "description": "Prêt à installer votre modpack sélectionné et la configuration du lanceur.",
+      "modpack": "Modpack",
+      "launcher": "Lanceur",
+      "installerReady": "Installateur Minecraft Prêt",
+      "installerDescription": "L'installateur téléchargera et installera automatiquement votre modpack.",
+      "skipInstallation": "Ignorer l'Installation",
+      "installModpack": "Installer le Modpack",
+      "creating": "Création de l'instance...",
+      "skipCreation": "Ignorer la création d'instance"
+    },
+    "completion": {
+      "title": "Installation Terminée!",
+      "description": "Votre configuration Minecraft a été configurée avec succès et est prête à être utilisée.",
+      "finish": "Terminer",
+      "summary": "Résumé de l'Installation",
+      "nextSteps": "Prochaines Étapes",
+      "steps": {
+        "launchLauncher": "Lancez Votre Lanceur",
+        "launchDescription": "Ouvrez {launcher} depuis votre bureau ou menu démarrer",
+        "signIn": "Se Connecter",
+        "signInDescription": "Connectez-vous avec votre compte Minecraft (si requis par votre lanceur)",
+        "createInstance": "Créer une Instance",
+        "createInstanceDescription": "Créez une nouvelle instance ou importez le modpack {modpack}",
+        "startPlaying": "Commencer à Jouer",
+        "startPlayingDescription": "Lancez votre instance et commencez à jouer avec vos mods préférés!"
+      }
+    },
+    "stepOf": "Étape {{current}} sur {{total}}"
+  },
+  "updateFlow": {
+    "title": "Mettre à jour l'Instance Minecraft",
+    "steps": {
+      "chooseLauncher": "Choisir Votre Lanceur",
+      "selectModpack": "Sélectionner le Type de Modpack",
+      "pickInstance": "Choisir Votre Instance",
+      "updating": "Mise à jour..."
+    },
+    "launcherSelection": {
+      "title": "Sélectionnez Votre Lanceur Minecraft",
+      "description": "Choisissez le lanceur contenant les instances que vous souhaitez mettre à jour",
+      "instance": "instance",
+      "instances": "instances",
+      "launchers": {
+        "prismlauncher": "PrismLauncher",
+        "astralrinth": "AstralRinth",
+        "modrinthapp": "ModrinthApp",
+        "xmcl": "XMCL",
+        "official": "Minecraft Officiel"
+      }
+    },
+    "modpackSelection": {
+      "title": "Choisissez Votre Type de Modpack",
+      "description": "Sélectionnez le type de modpack que vous souhaitez mettre à jour",
+      "neoforge": "NeoForge",
+      "fabric": "Fabric",
+      "descriptions": {
+        "neoforge": "Plateforme de modding moderne",
+        "fabric": "Léger et rapide"
+      }
+    },
+    "instanceSelection": {
+      "title": "Choisissez Votre Instance",
+      "description": "Sélectionnez l'instance que vous souhaitez mettre à jour",
+      "modCount": "{{count}} mods",
+      "version": "Version:",
+      "loader": "Chargeur:",
+      "update": "Mettre à jour"
+    },
+    "progress": {
+      "title": "Mise à jour de l'Instance",
+      "downloading": "Téléchargement du modpack...",
+      "installing": "Installation des mods...",
+      "complete": "Mise à jour terminée!",
+      "failed": "Échec de la mise à jour"
+    },
+    "errors": {
+      "scanFailed": "Échec de l'analyse des lanceurs",
+      "noInstances": "Aucune instance trouvée",
+      "updateFailed": "Échec de la mise à jour"
+    }
+  },
+  "settings": {
+    "language": "Langue",
+    "selectLanguage": "Sélectionner la Langue",
+    "english": "English",
+    "french": "Français"
+  },
+  "menu": {
+    "file": "Fichier",
+    "quit": "Quitter",
+    "edit": "Édition",
+    "undo": "Annuler",
+    "redo": "Rétablir",
+    "cut": "Couper",
+    "copy": "Copier",
+    "paste": "Coller",
+    "view": "Affichage",
+    "reload": "Recharger",
+    "forceReload": "Forcer le Rechargement",
+    "toggleDevTools": "Basculer les Outils de Développement",
+    "resetZoom": "Réinitialiser le Zoom",
+    "zoomIn": "Zoom Avant",
+    "zoomOut": "Zoom Arrière",
+    "toggleFullscreen": "Basculer Plein Écran",
+    "window": "Fenêtre",
+    "minimize": "Réduire",
+    "close": "Fermer",
+    "help": "Aide",
+    "about": "À propos de NAHA MC Helper",
+    "checkUpdates": "Vérifier les Mises à jour",
+    "debugMode": "Mode Débogage",
+    "resetData": "Réinitialiser les Données",
+    "language": "Langue"
+  },
+  "dialogs": {
+    "about": {
+      "title": "À propos de NAHA MC Helper",
+      "version": "Version",
+      "description": "Outil de gestion de modpacks et lanceurs Minecraft"
+    },
+    "resetData": {
+      "title": "Réinitialiser les Données de l'Application",
+      "message": "Êtes-vous sûr de vouloir réinitialiser toutes les données de l'application aux paramètres d'usine?",
+      "detail": "Cela effacera tous les paramètres, le cache et les données utilisateur. Cette action ne peut pas être annulée.",
+      "confirm": "Réinitialiser les Données"
+    }
+  },
+  "notifications": {
+    "updateAvailable": "Mise à jour disponible",
+    "noUpdates": "Aucune mise à jour disponible",
+    "downloadingUpdate": "Téléchargement de la mise à jour...",
+    "updateDownloaded": "Mise à jour téléchargée",
+    "installReady": "Prêt à installer",
+    "error": "Erreur",
+    "success": "Succès"
+  },
+  "updateModal": {
+    "checking": "Vérification des mises à jour...",
+    "updateError": "Erreur de mise à jour",
+    "updateAvailable": "Mise à jour disponible",
+    "noUpdates": "Aucune mise à jour disponible",
+    "lookingForLatest": "Recherche de la dernière version...",
+    "failedToCheck": "Échec de la vérification des mises à jour:",
+    "downloadingUpdate": "Téléchargement de la mise à jour...",
+    "whatsNew": "Quoi de neuf:",
+    "downloadUpdate": "Télécharger la mise à jour",
+    "installRestart": "Installer et redémarrer",
+    "close": "Fermer",
+    "latestVersion": "Vous utilisez la dernière version"
+  }
+}
+

@@ -167,13 +167,13 @@ Creating launcher instances...
 
 ## 🔧 **Demo Scenario 4 - Version Listing and Information**
 
-### Command
+### Version Query
 
 ```bash
 minecraft-installer --list-versions --version-type release
 ```
 
-### Output
+### Available Versions
 
 ```text
 🎮 Available Minecraft Versions

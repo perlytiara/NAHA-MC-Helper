@@ -1,6 +1,8 @@
 <!-- src/features/onboarding/components/OnboardingMinecraftCheck.svelte -->
 <script>
     import { createEventDispatcher } from 'svelte';
+    import { hideUpdateButton } from '../../../shared/stores/appStore';
+    import { t } from '../../../shared/stores/i18nStore';
     
     const dispatch = createEventDispatcher();
     
@@ -32,31 +34,42 @@
     
     <!-- Main content -->
     <div class="main-content">
-        <h1 class="question-title">Do you have Minecraft installed?</h1>
+        <h1 class="question-title">{$t('onboarding.minecraftCheck.title')}</h1>
         
         <div class="response-buttons">
-            <button class="response-button yes-button" on:click={handleYes}>
-                Yes, I have Minecraft
-            </button>
+            <!-- Top row - two buttons -->
+            <div class="button-row top-row">
+                <button class="response-button yes-button" on:click={handleYes}>
+                    <span class="button-icon">✅</span>
+                    <span class="button-text">{$t('onboarding.minecraftCheck.yesHaveIt')}</span>
+                </button>
+                
+                <button class="response-button no-button" on:click={handleNo}>
+                    <span class="button-icon">📥</span>
+                    <span class="button-text">{$t('onboarding.minecraftCheck.noInstallIt')}</span>
+                </button>
+            </div>
             
-            <button class="response-button update-button" on:click={handleUpdate}>
-                I want to update existing instances
-            </button>
-            
-            <button class="response-button no-button" on:click={handleNo}>
-                No, help me install it
-            </button>
+            <!-- Bottom row - centered update button -->
+            {#if !$hideUpdateButton}
+            <div class="button-row bottom-row">
+                <button class="response-button update-button" on:click={handleUpdate}>
+                    <span class="button-icon">🔄</span>
+                    <span class="button-text">{$t('onboarding.minecraftCheck.updateInstances')}</span>
+                </button>
+            </div>
+            {/if}
         </div>
         
         <p class="description-text">
-            Minecraft is required to play on NAHA servers. If you don't have it, we'll guide you through the simple installation process to get you started.
+            {$t('onboarding.minecraftCheck.description')}
         </p>
     </div>
     
     <!-- Navigation -->
     <div class="navigation-section">
         <button class="back-button" on:click={handleBack}>
-            ← Back
+            ← {$t('common.back')}
         </button>
     </div>
 </div>
@@ -127,12 +140,30 @@
     .response-buttons {
         display: flex;
         flex-direction: column;
+        gap: 1.5rem;
+        width: 100%;
+        max-width: 550px;
+    }
+    
+    .button-row {
+        display: flex;
         gap: 1rem;
         width: 100%;
-        max-width: 350px;
+    }
+    
+    .top-row {
+        justify-content: center;
+    }
+    
+    .bottom-row {
+        justify-content: center;
     }
     
     .response-button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.75rem;
         border: none;
         padding: 1rem 1.5rem;
         border-radius: 12px;
@@ -141,6 +172,25 @@
         cursor: pointer;
         transition: all 0.3s ease;
         text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+        flex: 1;
+        min-width: 0;
+    }
+    
+    .top-row .response-button {
+        max-width: 250px;
+    }
+    
+    .bottom-row .response-button {
+        max-width: 300px;
+    }
+    
+    .button-icon {
+        font-size: 1.5rem;
+        flex-shrink: 0;
+    }
+    
+    .button-text {
+        white-space: nowrap;
     }
     
     .yes-button {
@@ -226,7 +276,6 @@
     @media (max-width: 768px) {
         .minecraft-check-content {
             gap: 1.5rem;
-            max-width: 400px;
         }
         
         .question-title {
@@ -234,7 +283,18 @@
         }
         
         .response-buttons {
+            max-width: 100%;
+        }
+        
+        .button-row {
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .top-row .response-button,
+        .bottom-row .response-button {
             max-width: 300px;
+            width: 100%;
         }
         
         .response-button {
@@ -250,7 +310,6 @@
     @media (max-width: 640px) {
         .minecraft-check-content {
             gap: 1.25rem;
-            max-width: 350px;
         }
         
         .logo {
@@ -272,13 +331,18 @@
             font-size: 1.5rem;
         }
         
-        .response-buttons {
+        .top-row .response-button,
+        .bottom-row .response-button {
             max-width: 250px;
         }
         
         .response-button {
             padding: 0.75rem 1rem;
             font-size: 0.9rem;
+        }
+        
+        .button-text {
+            font-size: 0.875rem;
         }
         
         .description-text {

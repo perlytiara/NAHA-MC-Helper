@@ -1,7 +1,6 @@
 <script lang="ts">
   import { createEventDispatcher } from 'svelte';
-  
-  export let launcher: string | null;
+  import { t } from '../../../shared/stores/i18nStore';
   
   const dispatch = createEventDispatcher();
 
@@ -10,14 +9,14 @@
       type: 'neoforge',
       name: 'NeoForge',
       icon: '⚒️',
-      description: 'Modern modding platform',
+      descriptionKey: 'neoforge',
       color: '#f97316'
     },
     {
       type: 'fabric',
       name: 'Fabric',
       icon: '🧵',
-      description: 'Lightweight and fast',
+      descriptionKey: 'fabric',
       color: '#8b5cf6'
     }
   ];
@@ -32,8 +31,8 @@
 </script>
 
 <div class="modpack-selection">
-  <h2 class="title">Choose Your Modpack Type</h2>
-  <p class="subtitle">Select the type of modpack you want to update in {launcher}</p>
+  <h2 class="title">{$t('updateFlow.modpackSelection.title')}</h2>
+  <p class="subtitle">{$t('updateFlow.modpackSelection.description')}</p>
 
   <div class="modpack-grid">
     {#each modpacks as modpack}
@@ -43,11 +42,11 @@
         on:click={() => selectModpack(modpack.type)}
       >
         <div class="modpack-icon">{modpack.icon}</div>
-        <h3 class="modpack-name">{modpack.name}</h3>
-        <p class="modpack-description">{modpack.description}</p>
+        <h3 class="modpack-name">{$t(`updateFlow.modpackSelection.${modpack.type}`)}</h3>
+        <p class="modpack-description">{$t(`updateFlow.modpackSelection.descriptions.${modpack.descriptionKey}`)}</p>
         <div class="select-indicator">
           <span class="arrow">→</span>
-          <span>Select</span>
+          <span>{$t('common.continue')}</span>
         </div>
       </button>
     {/each}
@@ -55,7 +54,7 @@
 
   <div class="actions">
     <button class="back-button" on:click={goBack}>
-      ← Back
+      ← {$t('common.back')}
     </button>
   </div>
 </div>

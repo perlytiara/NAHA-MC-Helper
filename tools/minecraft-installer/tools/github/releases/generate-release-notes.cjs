@@ -1,109 +1,152 @@
 #!/usr/bin/env node
+/* eslint-env node */
 
 /**
- * Release Notes Generator for NAHA MC Helper
- * 
- * This script generates formatted release notes with file listings and SHA256 checksums.
- * Usage: node generate-release-notes.js <version> <changes>
- * Example: node generate-release-notes.js 1.0.0 "Auto-updater feature,Upgraded to Svelte 5,Bug fixes"
+ * Unified Release Notes Generator for Minecraft Installer & Updater
+ * Generates a single release notes file for both executables
  */
 
 const fs = require('fs');
-const path = require('path');
-const crypto = require('crypto');
+const { execSync } = require('child_process');
 
-// Configuration
-const GITHUB_REPO = 'perlytiara/NAHA-MC-Helper';
-const DIST_DIR = path.join(__dirname, '..', 'dist');
+function generateReleaseNotes() {
+  const buildDate = new Date().toISOString().replace('T', ' ').split('.')[0] + ' UTC';
+  const commitSha = execSync('git rev-parse --short HEAD').toString().trim();
 
-/**
- * Calculate SHA256 checksum for a file
- */
-function calculateSHA256(filePath) {
-  try {
-    const fileBuffer = fs.readFileSync(filePath);
-    const hashSum = crypto.createHash('sha256');
-    hashSum.update(fileBuffer);
-    return hashSum.digest('hex');
-  } catch (error) {
-    console.error(`Error calculating SHA256 for ${filePath}:`, error.message);
-    return 'N/A';
-  }
-}
+  const releaseNotes = `# Minecraft Installer & Updater - Latest Build
 
-/**
- * Format file size to human-readable format
- */
-function formatFileSize(bytes) {
-  const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-  if (bytes === 0) return '0 Bytes';
-  const i = Math.floor(Math.log(bytes) / Math.log(1024));
-  return Math.round(bytes / Math.pow(1024, i)) + ' ' + sizes[i];
-}
+**🔄 Auto-updating Release** | Built: ${buildDate} | Commit: ${commitSha}
 
-/**
- * Get file info (size and SHA256)
- */
-function getFileInfo(filePath) {
-  try {
-    const stats = fs.statSync(filePath);
-    return {
-      size: formatFileSize(stats.size),
-      sha256: calculateSHA256(filePath)
-    };
-  } catch (error) {
-    return { size: 'N/A', sha256: 'N/A' };
-  }
-}
+This is an automatically updated release that always contains the **latest builds** from the main branch.
 
-/**
- * Generate release notes
- */
-function generateReleaseNotes(version, changes) {
-  const changesList = Array.isArray(changes) ? changes : changes.split(',').map(c => c.trim());
-  
-  const releaseNotes = `# 🎉 NAHA MC Helper v${version} Release Notes 🚀
+## 🎉 Dual-Executable Release
 
-Welcome to the latest update of **NAHA MC Helper**! We've packed this release with exciting new features, smoother performance, and a polished look to enhance your experience. Here's what's new! 🌟
+This release includes **two separate executables** for all major platforms:
 
-## ✨ What's New in v${version}
-
-${changesList.map(change => `- **${change}**: Enhanced functionality for better user experience. 💎`).join('\n')}
-
-## 📥 Installation Instructions
-
-Download the appropriate version for your system below:
-
-### 🖥️ Windows
-- **Installer**: [NAHA.MC.Helper.Setup.${version}.exe](https://github.com/${GITHUB_REPO}/releases/download/v${version}/NAHA.MC.Helper.Setup.${version}.exe) 📦
-- **Portable**: [NAHA.MC.Helper.${version}.exe](https://github.com/${GITHUB_REPO}/releases/download/v${version}/NAHA.MC.Helper.${version}.exe) 💼
-
-### 🍎 macOS
-- **Intel Macs**: [NAHA.MC.Helper-${version}.dmg](https://github.com/${GITHUB_REPO}/releases/download/v${version}/NAHA.MC.Helper-${version}.dmg) 🖱️
-- **Intel Macs (Zip)**: [NAHA.MC.Helper-${version}-mac.zip](https://github.com/${GITHUB_REPO}/releases/download/v${version}/NAHA.MC.Helper-${version}-mac.zip) 📎
-- **Apple Silicon Macs**: [NAHA.MC.Helper-${version}-arm64.dmg](https://github.com/${GITHUB_REPO}/releases/download/v${version}/NAHA.MC.Helper-${version}-arm64.dmg) 🍏
-- **Apple Silicon Macs (Zip)**: [NAHA.MC.Helper-${version}-arm64-mac.zip](https://github.com/${GITHUB_REPO}/releases/download/v${version}/NAHA.MC.Helper-${version}-arm64-mac.zip) 📎
-
-### 🐧 Linux
-- **Universal**: [NAHA.MC.Helper-${version}.AppImage](https://github.com/${GITHUB_REPO}/releases/download/v${version}/NAHA.MC.Helper-${version}.AppImage) 🐧
-- **Debian/Ubuntu**: [naha-mc-helper_${version}_amd64.deb](https://github.com/${GITHUB_REPO}/releases/download/v${version}/naha-mc-helper_${version}_amd64.deb) 📀
-- **Red Hat/Fedora**: [naha-mc-helper-${version}.x86_64.rpm](https://github.com/${GITHUB_REPO}/releases/download/v${version}/naha-mc-helper-${version}.x86_64.rpm) 🔧
-
-### 📂 Source Code
-- [Source code (zip)](https://github.com/${GITHUB_REPO}/archive/refs/tags/v${version}.zip) 📜
-- [Source code (tar.gz)](https://github.com/${GITHUB_REPO}/archive/refs/tags/v${version}.tar.gz) 📜
-
-## 🔄 Auto-Update Feature
-No need to manually check for updates! NAHA MC Helper now automatically detects new versions and notifies you when they're ready to install. Stay current with minimal effort! 🔔
+1. **minecraft-installer** - Install modpacks to launchers
+2. **minecraft-updater** - Scan and update existing instances
 
 ---
 
-**Thank you for using NAHA MC Helper!** We're thrilled to bring you these improvements. Let us know your feedback, and happy exploring! 😄
+### 📦 Downloads
 
-## 📋 Version Info
-- **Version**: ${version}
-- **Release Date**: ${new Date().toISOString().split('T')[0]}
-- **GitHub Repository**: [${GITHUB_REPO}](https://github.com/${GITHUB_REPO})
+#### Minecraft Installer
+
+**Windows:**
+- \`minecraft-installer-windows-x86_64.exe\` - Windows x64 (MSVC, recommended)
+- \`minecraft-installer-windows-gnu-x86_64.exe\` - Windows x64 (GNU)
+
+**Linux:**
+- \`minecraft-installer-linux-x86_64\` - Linux x64
+
+**macOS:**
+- \`minecraft-installer-macos-intel-x86_64\` - macOS Intel
+- \`minecraft-installer-macos-apple-silicon-aarch64\` - macOS Apple Silicon (M1/M2/M3)
+
+#### Minecraft Updater
+
+**Windows:**
+- \`minecraft-updater-windows-x86_64.exe\` - Windows x64 (MSVC, recommended)
+- \`minecraft-updater-windows-gnu-x86_64.exe\` - Windows x64 (GNU)
+
+**Linux:**
+- \`minecraft-updater-linux-x86_64\` - Linux x64
+
+**macOS:**
+- \`minecraft-updater-macos-intel-x86_64\` - macOS Intel
+- \`minecraft-updater-macos-apple-silicon-aarch64\` - macOS Apple Silicon (M1/M2/M3)
+
+---
+
+### ✨ Key Features
+
+#### Minecraft Installer
+- 🎮 **Multi-Launcher Support**: AstralRinth, ModrinthApp, XMCL, PrismLauncher, Official Minecraft, MultiMC
+- 📁 **Custom Path Installation**: Install directly to any directory
+- 🌐 **GitHub API Integration**: Download modpacks from GitHub Releases
+- ⚙️ **Automodpack Setup**: Automatic server configuration
+- 💾 **Database Integration**: Automatic database injection for AstralRinth/ModrinthApp
+
+#### Minecraft Updater
+- 🔍 **Instance Scanner**: Auto-detects all Minecraft instances across launchers
+- 🧠 **Intelligent Mod Updates**: Compares versions and only updates what's needed
+- 🗑️ **Duplicate Removal**: Automatically removes old mod versions
+- 🔒 **User Mod Protection**: Preserves mods not in the modpack
+- 🎯 **Version Selection**: Update to specific versions or latest
+- 💾 **Database Sync**: Updates launcher databases with new version info
+- 📊 **JSON Output**: Perfect for Electron app integration
+
+---
+
+### 🚀 Quick Start
+
+#### Install a Modpack
+\`\`\`bash
+# From mrpack file
+minecraft-installer --mrpack "modpack.mrpack" --create-instance
+
+# From GitHub API (latest)
+minecraft-installer --download-neoforge --create-instance
+
+# To custom path
+minecraft-installer --mrpack "modpack.mrpack" --target-launcher other --custom-path "C:\\Games\\Minecraft" --create-instance
+\`\`\`
+
+#### Update Existing Instances
+\`\`\`bash
+# Scan all instances
+minecraft-updater scan --format compact
+
+# Interactive update (select from list)
+minecraft-updater interactive --modpack-type neoforge
+
+# Update specific instance to latest
+minecraft-updater update --instance-path "C:\\path\\to\\instance" --modpack-type neoforge
+
+# Update to specific version
+minecraft-updater update --instance-path "C:\\path\\to\\instance" --modpack-type neoforge --version 0.0.18
+
+# Get JSON output for Electron apps
+minecraft-updater scan --format json
+\`\`\`
+
+---
+
+### 📋 Supported Launchers
+
+| Launcher | Installer | Updater | Database Sync |
+|----------|-----------|---------|---------------|
+| AstralRinth | ✅ | ✅ | ✅ |
+| ModrinthApp | ✅ | ✅ | ✅ |
+| XMCL | ✅ | ✅ | ❌ |
+| PrismLauncher | ✅ | ✅ | ❌ |
+| Official Minecraft | ✅ | ✅ | ❌ |
+| MultiMC | ✅ | ✅ | ❌ |
+| Custom Path | ✅ | ❌ | ❌ |
+
+---
+
+### 🔒 Checksums
+
+All binaries include SHA256 checksums (\`.sha256\` files) for verification.
+
+---
+
+### 📚 Documentation
+
+- [Quick Start](https://github.com/perlytiara/NAHA-MC-Helper/blob/main/tools/minecraft-installer/QUICK_START.md)
+- [Updater Guide](https://github.com/perlytiara/NAHA-MC-Helper/blob/main/tools/minecraft-installer/UPDATER_GUIDE.md)
+- [Build Guide](https://github.com/perlytiara/NAHA-MC-Helper/blob/main/tools/minecraft-installer/BUILD_AND_RELEASE.md)
+
+---
+
+**Repository**: https://github.com/perlytiara/NAHA-MC-Helper
+
+**Latest Commit**: ${commitSha}
+
+---
+
+> ⚠️ **Note**: This release is automatically rebuilt and updated on every push to main. Always download the latest version for the most recent features and fixes.
 `;
 
   return releaseNotes;
@@ -111,25 +154,14 @@ No need to manually check for updates! NAHA MC Helper now automatically detects 
 
 // Main execution
 if (require.main === module) {
-  const args = process.argv.slice(2);
+  const releaseNotes = generateReleaseNotes();
+  const outputFile = 'RELEASE_NOTES.md';
   
-  if (args.length < 2) {
-    console.error('Usage: node generate-release-notes.js <version> <changes>');
-    console.error('Example: node generate-release-notes.js 1.0.0 "Auto-updater,Svelte 5 upgrade,Bug fixes"');
-    process.exit(1);
-  }
-  
-  const [version, changesStr] = args;
-  const changes = changesStr.split(',').map(c => c.trim());
-  
-  const releaseNotes = generateReleaseNotes(version, changes);
-  
-  // Write to file
-  const outputFile = path.join(__dirname, `RELEASE_NOTES_v${version}.md`);
   fs.writeFileSync(outputFile, releaseNotes);
-  
+  // eslint-disable-next-line no-undef
   console.log(`✅ Release notes generated: ${outputFile}`);
-  console.log('\n' + releaseNotes);
+  // eslint-disable-next-line no-undef
+  console.log(releaseNotes);
 }
 
 module.exports = { generateReleaseNotes };

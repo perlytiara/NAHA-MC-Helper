@@ -3,6 +3,7 @@
     import { createEventDispatcher, onMount, onDestroy } from 'svelte';
     import { installerStore } from '../../../shared/stores/installerStore.js';
     import { debug } from '../../../shared/stores/appStore.js';
+    import { t } from '../../../shared/stores/i18nStore';
     import OnboardingServerSelection from './OnboardingServerSelection.svelte';
     
     const dispatch = createEventDispatcher();
@@ -480,8 +481,8 @@
         <!-- Instance Creation Mode -->
         <div class="instance-creation-container">
             <div class="instance-header">
-                <h1 class="instance-title">Create Instance</h1>
-                <p class="instance-subtitle">Ready to install your selected modpack and launcher configuration.</p>
+                <h1 class="instance-title">{$t('onboarding.createInstance.title')}</h1>
+                <p class="instance-subtitle">{$t('onboarding.createInstance.description')}</p>
             </div>
             
             <!-- User Choices Summary -->
@@ -591,8 +592,8 @@
                     <div class="status-success">
                         <span class="status-icon">✅</span>
                         <div class="status-content">
-                            <h4 class="status-title">Minecraft Installer Ready</h4>
-                            <p class="status-description">The installer will automatically download and install your modpack.</p>
+                            <h4 class="status-title">{$t('onboarding.createInstance.installerReady')}</h4>
+                            <p class="status-description">{$t('onboarding.createInstance.installerDescription')}</p>
                                     </div>
                                     </div>
                 {:else}
@@ -612,7 +613,7 @@
         <!-- Action Buttons -->
         <div class="action-buttons-container">
             <button class="skip-button" on:click={handleSkipInstallation}>
-                Skip Installation
+                {$t('onboarding.createInstance.skipInstallation')}
             </button>
             
             <button 
@@ -620,7 +621,7 @@
                 disabled={!selectedLauncher || !selectedServer}
                 on:click={handleCreateInstance}
             >
-                🚀 Install Modpack
+                🚀 {$t('onboarding.createInstance.installModpack')}
                                             </button>
                                         </div>
         

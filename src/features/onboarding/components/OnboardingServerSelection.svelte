@@ -1,58 +1,58 @@
 <!-- src/features/onboarding/components/OnboardingServerSelection.svelte -->
 <script>
     import { createEventDispatcher } from 'svelte';
+    import { t } from '../../../shared/stores/i18nStore';
     
     const dispatch = createEventDispatcher();
     
     // Props
-    export let hasMinecraftInstalled = false;
     export let selectedServer = null;
     
     const servers = [
         {
             id: 'fabric',
             name: 'Fabric',
-            description: 'Modern mod loader with excellent performance and compatibility.',
+            descriptionKey: 'fabric',
             icon: '🧵',
             gradient: 'from-purple-500 to-pink-600',
             accent: '#8b5cf6',
-            badge: 'Light',
+            badgeKey: 'light',
             badgeColor: 'purple',
-            features: ['Modern', 'Fast', 'Compatible']
+            featureKeys: ['modern', 'fast', 'compatible']
         },
         {
             id: 'neoforge-create',
             name: 'NeoForge',
-            description: 'Advanced modpack with creative building and automation.',
+            descriptionKey: 'neoforge',
             icon: '⚙️',
             gradient: 'from-blue-500 to-cyan-600',
             accent: '#06b6d4',
-            badge: 'Create',
+            badgeKey: 'create',
             badgeColor: 'blue',
-            features: ['Automation', 'Building', 'Tech']
+            featureKeys: ['automation', 'building', 'tech']
         },
         {
             id: 'better-than-wolves',
             name: 'Better Than Wolves',
-            description: 'Hardcore survival experience with unique mechanics.',
+            descriptionKey: 'btw',
             icon: '🐺',
             gradient: 'from-orange-500 to-red-600',
             accent: '#f97316',
-            badge: 'Unavailable',
+            badgeKey: 'unavailable',
             badgeColor: 'gray',
-            features: ['Survival', 'Challenging', 'Unique'],
+            featureKeys: ['survival', 'challenging', 'unique'],
             disabled: true
         },
         {
             id: 'forge',
             name: 'Forge',
-            description: 'Classic mod loader with extensive mod support.',
+            descriptionKey: 'forge',
             icon: '🔨',
             gradient: 'from-red-500 to-orange-600',
             accent: '#ef4444',
-            badge: 'Unavailable',
+            badgeKey: 'unavailable',
             badgeColor: 'gray',
-            features: ['Classic', 'Extensive', 'Stable'],
+            featureKeys: ['classic', 'extensive', 'stable'],
             disabled: true
         }
     ];
@@ -85,19 +85,11 @@
     <!-- Main content -->
     <div class="main-content">
         <h1 class="server-title">
-            {#if hasMinecraftInstalled}
-                Setup Your Modpack
-            {:else}
-                Choose Your Server
-            {/if}
+            {$t('onboarding.serverSelection.title')}
         </h1>
         
         <p class="server-subtitle">
-            {#if hasMinecraftInstalled}
-                Select which NAHA modpack you'd like to install and configure.
-            {:else}
-                Select which NAHA server you'd like to join and play on.
-            {/if}
+            {$t('onboarding.serverSelection.description')}
         </p>
         
         <div class="server-options">
@@ -131,14 +123,14 @@
                                     <h3 class="option-title">{server.name}</h3>
                                 </div>
                                 <div class="option-badge" class:green={server.badgeColor === 'green'} class:blue={server.badgeColor === 'blue'} class:orange={server.badgeColor === 'orange'} class:purple={server.badgeColor === 'purple'} class:gray={server.badgeColor === 'gray'}>
-                                    {server.badge}
+                                    {$t(`onboarding.serverSelection.badges.${server.badgeKey}`)}
                                 </div>
                             </div>
                             <div class="option-info">
-                                <p class="option-description">{server.description}</p>
+                                <p class="option-description">{$t(`onboarding.serverSelection.descriptions.${server.descriptionKey}`)}</p>
                                 <div class="option-features">
-                                    {#each server.features as feature}
-                                        <span class="feature-tag">{feature}</span>
+                                    {#each server.featureKeys as featureKey}
+                                        <span class="feature-tag">{$t(`onboarding.chooseLauncher.features.${featureKey}`)}</span>
                                     {/each}
                                 </div>
                             </div>
@@ -178,14 +170,14 @@
                                     <h3 class="option-title">{server.name}</h3>
                                 </div>
                                 <div class="option-badge" class:green={server.badgeColor === 'green'} class:blue={server.badgeColor === 'blue'} class:orange={server.badgeColor === 'orange'} class:purple={server.badgeColor === 'purple'} class:gray={server.badgeColor === 'gray'}>
-                                    {server.badge}
+                                    {$t(`onboarding.serverSelection.badges.${server.badgeKey}`)}
                                 </div>
                             </div>
                             <div class="option-info">
-                                <p class="option-description">{server.description}</p>
+                                <p class="option-description">{$t(`onboarding.serverSelection.descriptions.${server.descriptionKey}`)}</p>
                                 <div class="option-features">
-                                    {#each server.features as feature}
-                                        <span class="feature-tag">{feature}</span>
+                                    {#each server.featureKeys as featureKey}
+                                        <span class="feature-tag">{$t(`onboarding.chooseLauncher.features.${featureKey}`)}</span>
                                     {/each}
                                 </div>
                             </div>
@@ -199,7 +191,7 @@
         <!-- Navigation -->
         <div class="navigation-section">
             <button class="back-button" on:click={handleBack}>
-                ← Back
+                ← {$t('common.back')}
             </button>
             <button 
                 class="next-button" 
@@ -207,7 +199,7 @@
                 disabled={!selectedServer}
                 on:click={handleNext}
             >
-                Next
+                {$t('common.next')}
             </button>
         </div>
     </div>
@@ -299,12 +291,11 @@
     .server-options {
         display: flex;
         flex-direction: column;
-        gap: 1rem;
+        gap: 0.75rem;
         width: 100%;
         max-width: none;
         flex: 0 0 auto;
-        overflow-x: visible;
-        overflow-y: visible;
+        overflow: visible;
         justify-content: center;
         align-items: center;
         margin-bottom: 0.5rem;
@@ -334,18 +325,18 @@
         backdrop-filter: blur(15px);
         transition: all 0.3s ease;
         overflow: hidden;
-        height: 160px;
-        width: 280px;
-        flex: 0 0 280px;
+        height: 150px;
+        width: 320px;
+        flex: 0 0 320px;
         display: flex;
         flex-direction: column;
         box-shadow: 0 6px 24px rgba(0, 0, 0, 0.3);
     }
     
     .server-option-large {
-        height: 160px;
-        width: 400px;
-        flex: 0 0 400px;
+        height: 150px;
+        width: 440px;
+        flex: 0 0 440px;
     }
     
     .server-option:hover {
@@ -527,9 +518,9 @@
     .feature-tag {
         background: rgba(255, 255, 255, 0.1);
         color: rgba(255, 255, 255, 0.8);
-        padding: 0.1rem 0.25rem;
+        padding: 0.1rem 0.3rem;
         border-radius: 4px;
-        font-size: 0.6rem;
+        font-size: 0.65rem;
         font-weight: 500;
         border: 1px solid rgba(255, 255, 255, 0.2);
         white-space: nowrap;

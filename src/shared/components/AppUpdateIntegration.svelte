@@ -1,6 +1,6 @@
 <script>
   import { onMount } from 'svelte';
-  import UpdateManager from './UpdateManager.svelte';
+  import UpdateManager from './updates/UpdateManager.svelte';
 
   let updateManager;
 

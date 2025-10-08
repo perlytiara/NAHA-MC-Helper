@@ -85,7 +85,7 @@ The service automatically detects the correct path for the executable:
 
 ## File Structure
 
-```
+```text
 NAHA-MC-Helper/
 ├── tools/
 │   └── minecraft-installer/

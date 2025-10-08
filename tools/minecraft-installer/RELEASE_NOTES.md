@@ -105,9 +105,9 @@ launcher/
 │       └── mmc-pack.json        # PrismLauncher
 ```
 
-### Custom Path Installation (NEW)
+### Custom Path Installation (Direct Installation)
 
-```
+```text
 C:\Custom\Path\
 ├── mods/                        # Direct installation
 ├── config/
@@ -153,11 +153,3 @@ For issues, feature requests, or questions:
 **Build Date**: September 24, 2025
 **Version**: 0.1.0
 **Platform**: Windows x86_64
-
-
-
-
-
-
-
-

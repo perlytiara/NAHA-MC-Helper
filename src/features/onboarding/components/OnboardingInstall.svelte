@@ -1,6 +1,7 @@
 <!-- src/features/onboarding/components/OnboardingInstall.svelte -->
 <script>
     import { createEventDispatcher, onMount } from 'svelte';
+    import { t } from '../../../shared/stores/i18nStore';
     import { writable, get } from 'svelte/store';
     import { 
         getRepoUrl, 
@@ -554,9 +555,9 @@
     
     <!-- Main content -->
     <div class="main-content">
-        <h1 class="install-title">Install {selectedLauncher === 'prism' ? 'Prism Launcher' : selectedLauncher === 'xmcl' ? 'XMCL' : selectedLauncher === 'modrinth' ? 'ModRinth' : 'AstralRinth'}</h1>
+        <h1 class="install-title">{$t('onboarding.installLauncher.install')} {selectedLauncher === 'prism' ? 'Prism Launcher' : selectedLauncher === 'xmcl' ? 'XMCL' : selectedLauncher === 'modrinth' ? 'ModRinth' : 'AstralRinth'}</h1>
         
-        <p class="install-subtitle">We'll download and install the launcher for you automatically.</p>
+        <p class="install-subtitle">{$t('onboarding.installLauncher.subtitle')}</p>
         
         <!-- Release info -->
         {#if $release}
@@ -580,7 +581,7 @@
                 {#if !$status}
                     <div class="action-buttons-inline">
                         <button class="skip-button" on:click={handleSkip}>
-                            Skip Installation
+                            {$t('onboarding.createInstance.skipInstallation')}
                         </button>
                         
                         <button 
@@ -589,7 +590,7 @@
                             disabled={!showInstallButton || $progress > 0}
                             on:click={handleInstall}
                         >
-                            Install Now
+                            {$t('onboarding.installLauncher.installNow')}
                         </button>
                     </div>
                 {/if}
@@ -628,12 +629,12 @@
     {#if $status}
         <div class="navigation-section">
             <button class="back-button" on:click={handleBack}>
-                ← Back
+                ← {$t('common.back')}
             </button>
             
             <div class="action-buttons">
                 <button class="skip-button" on:click={handleSkip}>
-                    Skip Installation
+                    {$t('onboarding.createInstance.skipInstallation')}
                 </button>
                 
                 <button 
@@ -643,11 +644,11 @@
                     on:click={$progress === 100 ? handleContinue : handleInstall}
                 >
                     {#if $progress === 100}
-                        Continue
+                        {$t('common.continue')}
                     {:else if $progress > 0}
-                        Installing... {$progress.toFixed(0)}%
+                        {$t('onboarding.installLauncher.installing')} {$progress.toFixed(0)}%
                     {:else}
-                        Install Now
+                        {$t('onboarding.installLauncher.installNow')}
                     {/if}
                 </button>
             </div>
@@ -656,7 +657,7 @@
         <!-- Just back button when no status -->
         <div class="navigation-section-back-only">
             <button class="back-button" on:click={handleBack}>
-                ← Back
+                ← {$t('common.back')}
             </button>
         </div>
     {/if}

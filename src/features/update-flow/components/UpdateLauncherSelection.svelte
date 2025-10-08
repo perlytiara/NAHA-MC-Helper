@@ -1,5 +1,6 @@
 <script lang="ts">
   import { createEventDispatcher, onMount } from 'svelte';
+  import { t } from '../../../shared/stores/i18nStore';
   
   const dispatch = createEventDispatcher();
   
@@ -79,28 +80,28 @@
 </script>
 
 <div class="launcher-selection">
-  <h2 class="title">Select Your Minecraft Launcher</h2>
-  <p class="subtitle">Choose which launcher contains the instances you want to update</p>
+  <h2 class="title">{$t('updateFlow.launcherSelection.title')}</h2>
+  <p class="subtitle">{$t('updateFlow.launcherSelection.description')}</p>
 
   {#if isLoading}
     <div class="loading-state">
       <div class="spinner"></div>
-      <p>Scanning for launchers...</p>
+      <p>{$t('common.loading')}</p>
     </div>
   {:else if error}
     <div class="error-state">
       <span class="error-icon">⚠️</span>
-      <p>Failed to scan launchers: {error}</p>
+      <p>{$t('updateFlow.errors.scanFailed')}: {error}</p>
       <button class="retry-button" on:click={loadLaunchers}>
-        🔄 Retry
+        🔄 {$t('common.retry')}
       </button>
     </div>
   {:else if launchers.length === 0}
     <div class="empty-state">
       <span class="empty-icon">📭</span>
-      <p>No Minecraft launchers found with instances</p>
+      <p>{$t('updateFlow.errors.noInstances')}</p>
       <button class="back-button" on:click={goBack}>
-        ← Go Back
+        ← {$t('common.back')}
       </button>
     </div>
   {:else}
@@ -109,14 +110,16 @@
         <button class="launcher-card" on:click={() => selectLauncher(launcher)}>
           <div class="launcher-icon">{launcher.icon}</div>
           <h3 class="launcher-name">{launcher.displayName}</h3>
-          <p class="instance-count">{launcher.instanceCount} {launcher.instanceCount === 1 ? 'instance' : 'instances'}</p>
+          <p class="instance-count">
+            {launcher.instanceCount} {launcher.instanceCount === 1 ? $t('updateFlow.launcherSelection.instance') : $t('updateFlow.launcherSelection.instances')}
+          </p>
         </button>
       {/each}
     </div>
 
     <div class="actions">
       <button class="back-button" on:click={goBack}>
-        ← Back
+        ← {$t('common.back')}
       </button>
     </div>
   {/if}

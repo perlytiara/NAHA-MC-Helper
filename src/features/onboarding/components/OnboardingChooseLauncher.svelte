@@ -2,6 +2,7 @@
 <script>
   import { createEventDispatcher } from "svelte";
   import { debug } from "../../../shared/stores/appStore";
+  import { t } from '../../../shared/stores/i18nStore';
 
   const dispatch = createEventDispatcher();
 
@@ -13,57 +14,57 @@
     {
       id: "prism",
       name: "Prism Launcher",
-      description: "A user-friendly launcher with mod support.",
+      descriptionKey: "prism",
       icon: "🎮",
       gradient: "from-blue-500 to-indigo-600",
       accent: "#3b82f6",
-      badge: "Cracked",
+      badgeKey: "cracked",
       badgeColor: "blue",
-      features: ["Free", "Mod Support", "Multi-Platform"],
+      featureKeys: ["free", "modSupport", "multiPlatform"],
     },
     {
       id: "astralrinth",
       name: "AstralRinth",
-      description: "A launcher with advanced features.",
+      descriptionKey: "astralrinth",
       icon: "🌟",
       gradient: "from-orange-500 to-red-600",
       accent: "#f97316",
-      badge: "Cracked",
+      badgeKey: "cracked",
       badgeColor: "orange",
-      features: ["Free", "Modrinth", "Multi-Platform"],
+      featureKeys: ["free", "modrinth", "multiPlatform"],
     },
     {
       id: "modrinth",
       name: "ModRinth",
-      description: "The official Modrinth launcher.",
+      descriptionKey: "modrinth",
       icon: "🔮",
       gradient: "from-green-500 to-teal-600",
       accent: "#10b981",
-      badge: "Official",
+      badgeKey: "official",
       badgeColor: "green",
-      features: ["Paid", "Official", "Modrinth"],
+      featureKeys: ["paid", "official", "modrinth"],
     },
     {
       id: "xmcl",
       name: "XMCL",
-      description: "A lightweight and fast launcher.",
+      descriptionKey: "xmcl",
       icon: "⚡",
       gradient: "from-purple-500 to-pink-600",
       accent: "#8b5cf6",
-      badge: "Official",
+      badgeKey: "official",
       badgeColor: "purple",
-      features: ["Paid", "Modern", "Multi-Platform"],
+      featureKeys: ["paid", "modern", "multiPlatform"],
     },
     {
       id: "other",
       name: "Other (Experimental)",
-      description: "I use a different launcher.",
+      descriptionKey: "other",
       icon: "🔧",
       gradient: "from-gray-500 to-slate-600",
       accent: "#6b7280",
-      badge: "Official / Cracked",
+      badgeKey: "official",
       badgeColor: "gray",
-      features: ["Custom", "Experimental", "Other"],
+      featureKeys: ["custom", "experimental", "other"],
     },
   ];
 
@@ -106,11 +107,10 @@
 
   <!-- Main content -->
   <div class="main-content">
-    <h1 class="choose-title">Which launcher do you have?</h1>
+    <h1 class="choose-title">{$t('onboarding.chooseLauncher.title')}</h1>
 
     <p class="choose-subtitle">
-      Select the launcher you currently use to play Minecraft. This will help us
-      configure your setup correctly.
+      {$t('onboarding.chooseLauncher.description')}
     </p>
 
     <!-- Debug info -->
@@ -149,15 +149,15 @@
                   class:green={launcher.badgeColor === "green"}
                   class:gray={launcher.badgeColor === "gray"}
                 >
-                  {launcher.badge}
+                  {$t(`onboarding.chooseLauncher.badges.${launcher.badgeKey}`)}
                 </div>
               </div>
               <div class="option-info">
                 <h3 class="option-title">{launcher.name}</h3>
-                <p class="option-description">{launcher.description}</p>
+                <p class="option-description">{$t(`onboarding.chooseLauncher.descriptions.${launcher.descriptionKey}`)}</p>
                 <div class="option-features">
-                  {#each launcher.features as feature}
-                    <span class="feature-tag">{feature}</span>
+                  {#each launcher.featureKeys as featureKey}
+                    <span class="feature-tag">{$t(`onboarding.chooseLauncher.features.${featureKey}`)}</span>
                   {/each}
                 </div>
               </div>
@@ -192,15 +192,15 @@
                   class:green={launcher.badgeColor === "green"}
                   class:gray={launcher.badgeColor === "gray"}
                 >
-                  {launcher.badge}
+                  {$t(`onboarding.chooseLauncher.badges.${launcher.badgeKey}`)}
                 </div>
               </div>
               <div class="option-info">
                 <h3 class="option-title">{launcher.name}</h3>
-                <p class="option-description">{launcher.description}</p>
+                <p class="option-description">{$t(`onboarding.chooseLauncher.descriptions.${launcher.descriptionKey}`)}</p>
                 <div class="option-features">
-                  {#each launcher.features as feature}
-                    <span class="feature-tag">{feature}</span>
+                  {#each launcher.featureKeys as featureKey}
+                    <span class="feature-tag">{$t(`onboarding.chooseLauncher.features.${featureKey}`)}</span>
                   {/each}
                 </div>
               </div>
@@ -214,7 +214,7 @@
 
   <!-- Navigation -->
   <div class="navigation-section">
-    <button class="back-button" on:click={handleBack}> ← Back </button>
+    <button class="back-button" on:click={handleBack}> ← {$t('common.back')} </button>
 
     <button
       class="next-button"
@@ -222,7 +222,7 @@
       disabled={!selectedLauncher}
       on:click={handleNext}
     >
-      Next
+      {$t('common.next')}
     </button>
   </div>
 </div>
@@ -233,11 +233,11 @@
     flex-direction: column;
     gap: 0.75rem;
     width: 100%;
-    max-width: 600px;
+    max-width: 650px;
     margin: 0 auto;
     max-height: 100vh;
-    overflow: hidden;
-    padding: 1rem 0.5rem;
+    overflow: visible;
+    padding: 1rem 1rem;
   }
 
   /* Wider content for Minecraft users */
@@ -247,7 +247,7 @@
 
   /* Square content for non-Minecraft users */
   .choose-launcher-content:not(.minecraft-layout) {
-    max-width: 560px;
+    max-width: 650px;
   }
 
   .header-section {
@@ -292,7 +292,8 @@
     gap: 0.75rem;
     align-items: center;
     flex: 1;
-    overflow: hidden;
+    overflow: visible;
+    width: 100%;
   }
 
   .choose-title {
@@ -319,39 +320,34 @@
     flex-direction: column;
     gap: 0.75rem;
     width: 100%;
-    max-width: 580px;
-    flex: 1;
-    overflow-y: auto;
+    max-width: 100%;
+    flex: 0 0 auto;
+    overflow: visible;
     padding: 0.5rem 0;
   }
 
   /* Wider container for Minecraft users (3 launchers per row) */
   .launcher-options.minecraft-layout {
-    max-width: 900px;
+    max-width: 100%;
   }
 
   /* Square container for non-Minecraft users (2x2 grid) */
   .launcher-options:not(.minecraft-layout) {
-    max-width: 510px;
+    max-width: 100%;
   }
 
   .launcher-row {
     display: flex;
+    flex-direction: row;
     justify-content: center;
-    align-items: center;
-    gap: 0.75rem;
+    align-items: stretch;
+    gap: 0.85rem;
     width: 100%;
+    flex-wrap: nowrap;
   }
 
-  .launcher-row.first-row {
-    /* First row: 3 launchers for Minecraft users, 2 for non-Minecraft users */
-    flex-wrap: wrap;
-  }
-
-  .launcher-row.second-row {
-    /* Second row: 2 launchers for Minecraft users, 2 for non-Minecraft users */
-    flex-wrap: wrap;
-  }
+  /* First row: 3 launchers for Minecraft users, 2 for non-Minecraft users */
+  /* Second row: 2 launchers for Minecraft users, 2 for non-Minecraft users */
 
   .launcher-option {
     position: relative;
@@ -367,17 +363,18 @@
     backdrop-filter: blur(10px);
     transition: all 0.3s ease;
     overflow: hidden;
-    min-height: 140px;
+    min-height: 150px;
     display: flex;
     flex-direction: column;
   }
 
-  /* Smaller buttons for non-Minecraft users (2x2 grid) */
+  /* Wider cards for non-Minecraft users (2x2 grid) */
   .launcher-options:not(.minecraft-layout) .launcher-option {
-    width: 240px;
-    height: 140px;
-    min-height: 140px;
-    max-height: 140px;
+    width: 285px;
+    height: 150px;
+    min-height: 150px;
+    max-height: 150px;
+    flex: 0 0 285px;
   }
 
   .launcher-option:hover {
@@ -545,11 +542,12 @@
   .feature-tag {
     background: rgba(255, 255, 255, 0.1);
     color: rgba(255, 255, 255, 0.8);
-    padding: 0.08rem 0.25rem;
+    padding: 0.1rem 0.3rem;
     border-radius: 4px;
-    font-size: 0.6rem;
+    font-size: 0.65rem;
     font-weight: 500;
     border: 1px solid rgba(255, 255, 255, 0.2);
+    white-space: nowrap;
   }
 
   .launcher-option.selected .feature-tag {

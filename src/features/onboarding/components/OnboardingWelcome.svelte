@@ -1,6 +1,7 @@
 <!-- src/features/onboarding/components/OnboardingWelcome.svelte -->
 <script>
     import { createEventDispatcher } from 'svelte';
+    import { t } from '../../../shared/stores/i18nStore';
     
     const dispatch = createEventDispatcher();
     
@@ -24,19 +25,19 @@
     
     <!-- Main content -->
     <div class="main-content">
-        <h1 class="welcome-title">Welcome to NAHA Minecraft Helper</h1>
+        <h1 class="welcome-title">{$t('onboarding.welcome.title')}</h1>
         
         <p class="welcome-description">
-            NAHA Minecraft Helper simplifies the installation process and server setup for Minecraft, making it easier than ever to jump into the game. Let's get started!
+            {$t('onboarding.welcome.description')}
         </p>
         
         <div class="action-buttons">
             <button class="get-started-button" on:click={handleGetStarted}>
-                Get Started
+                {$t('onboarding.welcome.getStarted')}
             </button>
             
             <button class="skip-button" on:click={handleSkip}>
-                Skip Setup
+                {$t('onboarding.welcome.skipSetup')}
             </button>
         </div>
     </div>
@@ -45,7 +46,7 @@
     <div class="footer-section">
         <div class="footer-tip">
             <span class="tip-icon">💡</span>
-            <span class="tip-text">This setup will help you configure your Minecraft experience</span>
+            <span class="tip-text">{$t('onboarding.welcome.tip')}</span>
         </div>
     </div>
 </div>

@@ -208,10 +208,10 @@ jobs:
         run: |
           BUILD_DATE=$(date -u '+%Y-%m-%d %H:%M:%S UTC')
           COMMIT_SHA=$(git rev-parse --short HEAD)
-          cat > release_notes.md << EOF
+          cat > release_notes.md << 'NOTES'
           # Minecraft Installer & Updater - Latest Build
 
-          **🔄 Auto-updating Release** | Built: ${BUILD_DATE} | Commit: ${COMMIT_SHA}
+          **🔄 Auto-updating Release** | Built: BUILD_DATE_PLACEHOLDER | Commit: COMMIT_SHA_PLACEHOLDER
 
           This is an automatically updated release that always contains the **latest builds** from the main branch.
 
@@ -372,14 +372,16 @@ jobs:
 
           **Repository**: https://github.com/perlytiara/NAHA-MC-Helper
           
-          **Latest Commit**: ${COMMIT_SHA}
+          **Latest Commit**: COMMIT_SHA_PLACEHOLDER
           
           ---
           
           > ⚠️ **Note**: This release is automatically rebuilt and updated on every push to main. Always download the latest version for the most recent features and fixes.
-          EOF
-
-          cat release_notes.md > $GITHUB_OUTPUT
+          NOTES
+          
+          # Replace placeholders with actual values
+          sed -i "s/BUILD_DATE_PLACEHOLDER/${BUILD_DATE}/g" release_notes.md
+          sed -i "s/COMMIT_SHA_PLACEHOLDER/${COMMIT_SHA}/g" release_notes.md
 
       - name: Create Release
         uses: softprops/action-gh-release@v1

@@ -11,6 +11,11 @@ import AdmZip from "adm-zip";
 import os from "os";
 import MinecraftInstallerService from "./src/shared/services/MinecraftInstallerService.js";
 import AutoUpdaterService from "./src/shared/services/AutoUpdaterService.js";
+import { 
+  getBinaryPath, 
+  spawnMinecraftBinary,
+  checkBinariesExist
+} from "./src/shared/utils/minecraft-binaries.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -81,6 +86,30 @@ const createMenu = () => {
               console.error('🚀 MAIN: mainWindow is null or destroyed');
             }
           },
+        },
+        { type: "separator" },
+        {
+          label: "Language",
+          submenu: [
+            {
+              label: "English (🇬🇧)",
+              type: "radio",
+              click: () => {
+                if (mainWindow && !mainWindow.isDestroyed()) {
+                  mainWindow.webContents.send('set-language', 'en');
+                }
+              }
+            },
+            {
+              label: "Français (🇫🇷)",
+              type: "radio",
+              click: () => {
+                if (mainWindow && !mainWindow.isDestroyed()) {
+                  mainWindow.webContents.send('set-language', 'fr');
+                }
+              }
+            }
+          ]
         },
         { type: "separator" },
         {
@@ -255,15 +284,9 @@ ipcMain.handle("minecraft-updater:scan-instances", async (event, format = 'json'
   try {
     console.log("🔍 Scanning Minecraft instances...");
     
-    // Try to use the real minecraft-updater binary
-    const { spawn } = await import('child_process');
-    const pathModule = await import('path');
-    const fsModule = await import('fs');
-    
-    const updaterPath = pathModule.join(__dirname, 'tools', 'minecraft-installer-releases', 'minecraft-updater-windows.exe');
-    
     // Check if binary exists
-    if (!fsModule.existsSync(updaterPath)) {
+    const binariesStatus = checkBinariesExist();
+    if (!binariesStatus.updater) {
       console.log("⚠️ minecraft-updater binary not found, using mock data");
       // Return mock data with all launcher types
       const mockInstances = [
@@ -309,7 +332,7 @@ ipcMain.handle("minecraft-updater:scan-instances", async (event, format = 'json'
         args.push('--launcher', launcher);
       }
       
-      const process = spawn(updaterPath, args);
+      const process = spawnMinecraftBinary('minecraft-updater', args);
       let output = '';
       let error = '';
       
@@ -456,14 +479,9 @@ ipcMain.handle("minecraft-updater:update-instance", async (event, instancePath, 
   try {
     console.log(`🔄 Updating instance: ${instancePath}`);
     
-    const { spawn } = await import('child_process');
-    const path = await import('path');
-    const fsModule = await import('fs');
-    
-    const updaterPath = path.join(__dirname, 'tools', 'minecraft-installer-releases', 'minecraft-updater-windows-x86_64.exe');
-    
     // Check if binary exists
-    if (!fsModule.existsSync(updaterPath)) {
+    const binariesStatus = checkBinariesExist();
+    if (!binariesStatus.updater) {
       console.log("⚠️ minecraft-updater binary not found, using mock update");
       await new Promise(resolve => setTimeout(resolve, 2000));
       return { 
@@ -481,7 +499,7 @@ ipcMain.handle("minecraft-updater:update-instance", async (event, instancePath, 
         args.push('--version', version);
       }
       
-      const process = spawn(updaterPath, args);
+      const process = spawnMinecraftBinary('minecraft-updater', args);
       let output = '';
       let errorOutput = '';
       
@@ -558,23 +576,20 @@ ipcMain.handle("minecraft-updater:get-binary-status", async () => {
   try {
     console.log("🔍 Checking minecraft-updater binary status...");
     
-    const pathModule = await import('path');
-    const fsModule = await import('fs');
+    const binariesStatus = checkBinariesExist();
+    const updaterPath = getBinaryPath('minecraft-updater');
+    const installerPath = getBinaryPath('minecraft-installer');
     
-    const updaterPath = pathModule.join(__dirname, 'tools', 'minecraft-installer-releases', 'minecraft-updater-windows.exe');
-    const installerPath = pathModule.join(__dirname, 'tools', 'minecraft-installer-releases', 'minecraft-installer-windows-x86_64.exe');
-    
-    const updaterExists = fsModule.existsSync(updaterPath);
-    const installerExists = fsModule.existsSync(installerPath);
-    
-    console.log(`Updater exists: ${updaterExists} (${updaterPath})`);
-    console.log(`Installer exists: ${installerExists} (${installerPath})`);
+    console.log(`Updater exists: ${binariesStatus.updater} (${updaterPath})`);
+    console.log(`Installer exists: ${binariesStatus.installer} (${installerPath})`);
     
     return {
-      updater: updaterExists,
-      installer: installerExists,
+      updater: binariesStatus.updater,
+      installer: binariesStatus.installer,
       platform: process.platform,
-      binDir: "tools/minecraft-installer-releases"
+      arch: process.arch,
+      updaterPath,
+      installerPath
     };
   } catch (error) {
     console.error("Error getting binary status:", error);

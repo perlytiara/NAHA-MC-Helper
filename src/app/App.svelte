@@ -1,17 +1,19 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { currentPage, notification, onboardingCompleted } from '../shared/stores/appStore';
+  import { get } from 'svelte/store';
+  import { currentPage, notification, onboardingCompleted, onboardingStartStep, onboardingCurrentStep, hideUpdateButton, isInOnboarding } from '../shared/stores/appStore';
   import { HomePage } from '../features/homepage';
   import { OnboardingFlow } from '../features/onboarding';
   import ServersPage from '../features/servers/components/ServersPage.svelte';
   import InstallPage from '../features/install/components/InstallPage.svelte';
-  import MinecraftManager from '../shared/components/MinecraftManager.svelte';
+  import MinecraftManager from '../features/minecraft/components/MinecraftManager.svelte';
   import { UpdateFlow } from '../features/update-flow';
   import StatusBanner from '../shared/components/ui/feedback/StatusBanner.svelte';
   import AboutDialog from '../shared/components/ui/dialogs/AboutDialog.svelte';
-  import UpdateModal from '../components/UpdateModal.svelte';
-  import RestartAnimation from '../components/RestartAnimation.svelte';
+  import UpdateModal from '../shared/components/updates/UpdateModal.svelte';
+  import RestartAnimation from '../shared/components/updates/RestartAnimation.svelte';
   import { isOnboardingCompleted } from '../shared/utils/onboardingUtils';
+  import { loadSavedLanguage } from '../shared/utils/i18n';
   // Types are now available globally from src/types/global.d.ts
 
   // Additional page imports would go here as features are added
@@ -24,7 +26,7 @@
   let isChecking: boolean = false;
   let isDownloading: boolean = false;
   let updateError: UpdateError | null = null;
-  let currentVersion: string = '1.0.1'; // Will be loaded from package.json
+  let currentVersion: string = '1.0.2'; // Will be loaded from package.json
   let showRestartAnimation: boolean = false;
 
   // Auto-updater event handlers
@@ -188,15 +190,23 @@
     const setupMenuListener = () => {
       if (window.nahaAPI?.ipcRenderer) {
         console.log('🎯 App: prism.ipcRenderer is available, setting up listener');
+        
+        // Check for updates listener
         window.nahaAPI.ipcRenderer.on('menu:check-for-updates', (event, ...args) => {
           console.log('🎯 App: RECEIVED menu:check-for-updates event!', args);
           handleMenuCheckForUpdates();
         });
-        console.log('🎯 App: Menu event listener registered successfully');
         
-        // Test the listener immediately
-        console.log('🎯 App: Testing listener by calling handleMenuCheckForUpdates directly');
-        handleMenuCheckForUpdates();
+        // Language change listener
+        window.nahaAPI.ipcRenderer.on('set-language', (event, lang) => {
+          console.log('🌍 App: RECEIVED set-language event:', lang);
+          import('../shared/utils/i18n').then(({ setLanguage }) => {
+            setLanguage(lang);
+            console.log('🌍 App: Language changed to:', lang);
+          });
+        });
+        
+        console.log('🎯 App: Menu event listeners registered successfully');
       } else {
         console.log('🎯 App: prism.ipcRenderer not ready, retrying in 100ms');
         setTimeout(setupMenuListener, 100);
@@ -339,32 +349,35 @@
     console.log('App: window.manualUpdateCheck available:', typeof window.manualUpdateCheck);
   }
 
-  onMount(async () => {
-    // Load app version from package.json
+  onMount(() => {
+    // Load saved language preference
+    loadSavedLanguage();
+    
+    // Load app version from package.json (async)
     if (window.nahaAPI?.getAppVersion) {
-      try {
-        currentVersion = await window.nahaAPI.getAppVersion();
-        console.log('App: Loaded version:', currentVersion);
-      } catch (error) {
-        console.error('App: Failed to load version:', error);
-      }
+      window.nahaAPI.getAppVersion()
+        .then(version => {
+          currentVersion = version;
+          console.log('App: Loaded version:', currentVersion);
+        })
+        .catch(error => {
+          console.error('App: Failed to load version:', error);
+        });
     }
     
     // Check if this is the first time the user is opening the app
     const completed = isOnboardingCompleted();
     onboardingCompleted.set(completed);
     
+    const cleanupFunctions: Array<(() => void) | undefined> = [];
+    
     // Listen for about dialog request from main process
     if (window.nahaAPI?.onShowAboutDialog) {
       const removeAboutListener = window.nahaAPI.onShowAboutDialog(() => {
         showAboutDialog = true;
       });
-      
-      // Cleanup function
-      return removeAboutListener;
+      cleanupFunctions.push(removeAboutListener);
     }
-
-    // Menu event listener is now set up globally above
 
     // Setup auto-updater event listeners
     if (window.nahaAPI?.autoUpdater) {
@@ -380,6 +393,8 @@
       console.log('🔥 App: Event listeners set up:', removeListeners.length);
       console.log('🔥 App: onUpdateNotAvailable function available:', !!window.nahaAPI.autoUpdater.onUpdateNotAvailable);
 
+      cleanupFunctions.push(...removeListeners);
+
       // Auto-check for updates on startup (but don't show modal unless update available)
       setTimeout(() => {
         console.log('App: Starting automatic update check on startup');
@@ -388,12 +403,12 @@
           window.nahaAPI.autoUpdater.checkForUpdates();
         }
       }, 3000); // Wait 3 seconds after app starts
-
-      // Cleanup function
-      return () => {
-        removeListeners.forEach(remove => remove?.());
-      };
     }
+    
+    // Cleanup function
+    return () => {
+      cleanupFunctions.forEach(remove => remove?.());
+    };
   });
 </script>
 
@@ -414,7 +429,33 @@
     </div>
   {/if}
 
-  {#if !$onboardingCompleted}
+  {#if $currentPage === 'update-instance'}
+    <UpdateFlow 
+      on:complete={() => {
+        onboardingStartStep.set(1);
+        onboardingCurrentStep.set(1);
+        hideUpdateButton.set(false);
+        isInOnboarding.set(false);
+        currentPage.set('homepage');
+      }} 
+      on:back={() => {
+        // If currently in onboarding flow, go back to onboarding at step 2
+        if (get(isInOnboarding)) {
+          console.log('🔙 Going back to onboarding (3-button page at step 2)');
+          // Don't change onboardingCurrentStep - it's already preserved at 2
+          currentPage.set('onboarding');
+        } else {
+          // Otherwise go to homepage
+          console.log('🔙 Going back to homepage');
+          onboardingStartStep.set(1);
+          onboardingCurrentStep.set(1);
+          hideUpdateButton.set(false);
+          isInOnboarding.set(false);
+          currentPage.set('homepage');
+        }
+      }} 
+    />
+  {:else if !$onboardingCompleted || $currentPage === 'onboarding'}
     <OnboardingFlow />
   {:else if $currentPage === 'homepage'}
     <HomePage />
@@ -431,11 +472,6 @@
           <div class="p-8">
             <MinecraftManager on:skip={() => currentPage.set('homepage')} />
           </div>
-        {:else if $currentPage === 'update-instance'}
-          <UpdateFlow 
-            on:complete={() => currentPage.set('homepage')} 
-            on:back={() => currentPage.set('homepage')} 
-          />
   {:else if $currentPage === 'packer'}
     <div class="p-8">
       <h1>Packer Tool - Coming Soon</h1>
@@ -461,23 +497,20 @@
   
   <!-- Update Modal -->
   <UpdateModal 
-    bind:isVisible={showUpdateModal}
+    bind:show={showUpdateModal}
     {updateInfo}
     {downloadProgress}
     {isChecking}
-    {isDownloading}
     error={updateError}
     {currentVersion}
     on:download={handleDownload}
     on:install={handleInstall}
-    on:later={handleUpdateLater}
-    on:viewReleaseNotes={handleViewReleaseNotes}
     on:close={handleUpdateModalClose}
   />
 
   <!-- Restart Animation -->
   <RestartAnimation 
-    bind:isVisible={showRestartAnimation}
+    isVisible={showRestartAnimation}
     onRestart={handleRestartApp}
   />
 
@@ -514,4 +547,5 @@
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
   }
+  
 </style>

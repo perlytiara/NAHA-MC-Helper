@@ -4,18 +4,21 @@ This project uses GitHub Actions to automatically build and release the Minecraf
 
 ## 🎯 How It Works
 
-### 1. **Tag-Based Releases**
+### 1. Tag-Based Releases
+
 - Create a version tag (e.g., `v0.1.0`, `v1.0.0-beta.1`)
 - GitHub Actions automatically triggers the build process
 - All platforms are built in parallel
 - A GitHub release is created with all binaries
 
-### 2. **Supported Platforms**
+### 2. Supported Platforms
+
 - **Windows**: x64 (MSVC + GNU toolchains)
 - **Linux**: x64 + ARM64
 - **macOS**: Intel + Apple Silicon
 
-### 3. **Automatic Features**
+### 3. Automatic Features
+
 - ✅ Cross-platform compilation
 - ✅ Running tests on all platforms
 - ✅ Binary optimization (stripping)
@@ -28,11 +31,13 @@ This project uses GitHub Actions to automatically build and release the Minecraf
 ### Option 1: Using the Release Scripts
 
 **Windows:**
+
 ```cmd
 create-release.bat 0.1.0
 ```
 
 **Linux/macOS:**
+
 ```bash
 chmod +x create-release.sh
 ./create-release.sh 0.1.0
@@ -66,7 +71,8 @@ Use [Semantic Versioning](https://semver.org/):
 - **Pre-release**: `1.0.0-beta.1`, `0.1.0-alpha.2`
 - **Build metadata**: `1.0.0+20240101`
 
-### Examples:
+### Examples
+
 - `v0.1.0` - First stable release
 - `v1.0.0` - Major stable release
 - `v0.2.0-beta.1` - Beta release
@@ -74,8 +80,9 @@ Use [Semantic Versioning](https://semver.org/):
 
 ## 🎉 What Happens After You Create a Tag
 
-### 1. **Build Process** (5-10 minutes)
-```
+### 1. Build Process (5-10 minutes)
+
+```text
 🔄 Building for Windows x64 (MSVC)...
 🔄 Building for Windows x64 (GNU)...
 🔄 Building for Linux x64...
@@ -84,18 +91,22 @@ Use [Semantic Versioning](https://semver.org/):
 🔄 Building for macOS Apple Silicon...
 ```
 
-### 2. **Testing**
+### 2. Testing
+
 - All builds run the test suite
 - Ensures quality across platforms
 
-### 3. **Release Creation**
+### 3. Release Creation
+
 - Downloads all built binaries
 - Generates SHA256 checksums
 - Creates professional release notes
 - Publishes to GitHub Releases
 
-### 4. **Final Result**
+### 4. Final Result
+
 You get a GitHub release with:
+
 - 6 platform-specific binaries
 - SHA256 checksums for verification
 - Detailed release notes
@@ -106,25 +117,30 @@ You get a GitHub release with:
 Each release includes:
 
 ### Windows
+
 - `minecraft-installer-windows-x86_64.exe` (MSVC)
 - `minecraft-installer-windows-gnu-x86_64.exe` (GNU)
 
 ### Linux
+
 - `minecraft-installer-linux-x86_64` (Intel/AMD)
 - `minecraft-installer-linux-aarch64` (ARM64)
 
 ### macOS
+
 - `minecraft-installer-macos-intel-x86_64` (Intel Macs)
 - `minecraft-installer-macos-apple-silicon-aarch64` (M1/M2 Macs)
 
 ## 🔍 Monitoring Builds
 
 ### Check Build Status
-1. Go to: https://github.com/perlytiara/minecraft-installer/actions
+
+1. Go to: <https://github.com/perlytiara/minecraft-installer/actions>
 2. Click on your release build
 3. Monitor progress in real-time
 
 ### Build Logs
+
 - Each platform shows detailed build logs
 - Test results are visible
 - Any failures are clearly marked
@@ -132,7 +148,9 @@ Each release includes:
 ## 🚨 Troubleshooting
 
 ### Build Failures
+
 If a build fails:
+
 1. Check the build logs in GitHub Actions
 2. Common issues:
    - Dependency installation problems
@@ -140,11 +158,13 @@ If a build fails:
    - Platform-specific compilation errors
 
 ### Missing Binaries
+
 - All platforms must build successfully for the release to be created
 - If one platform fails, the entire release is cancelled
 - Fix the issue and create a new tag
 
 ### Release Not Created
+
 - Ensure the tag starts with `v` (e.g., `v0.1.0`)
 - Check that GitHub Actions has permission to create releases
 - Verify the workflow file is in `.github/workflows/`
@@ -152,18 +172,22 @@ If a build fails:
 ## 🎯 Best Practices
 
 ### Before Creating a Release
+
 1. **Test locally** on your platform
 2. **Update documentation** if needed
 3. **Commit all changes**
 4. **Check for breaking changes**
 
 ### Release Notes
+
 The system auto-generates release notes, but you can customize them by:
+
 1. Editing the release after it's created
 2. Modifying the workflow template
 3. Adding a `CHANGELOG.md` file
 
 ### Version Strategy
+
 - **Patch** (0.1.1): Bug fixes, no new features
 - **Minor** (0.2.0): New features, backward compatible
 - **Major** (1.0.0): Breaking changes, major features
@@ -171,7 +195,9 @@ The system auto-generates release notes, but you can customize them by:
 ## 🔧 Customization
 
 ### Adding New Platforms
+
 Edit `.github/workflows/build.yml` and add to the matrix:
+
 ```yaml
 - os: ubuntu-latest
   target: x86_64-unknown-linux-musl
@@ -180,10 +206,13 @@ Edit `.github/workflows/build.yml` and add to the matrix:
 ```
 
 ### Modifying Release Notes
+
 Edit the `release_notes` step in the workflow to customize the template.
 
 ### Adding Build Steps
+
 Add new steps before the "Build" step:
+
 ```yaml
 - name: Custom step
   run: echo "Do something custom"
@@ -201,11 +230,3 @@ Add new steps before the "Build" step:
 ---
 
 **Ready to create your first release?** Run `./create-release.sh 0.1.0` and watch the magic happen! 🎉
-
-
-
-
-
-
-
-

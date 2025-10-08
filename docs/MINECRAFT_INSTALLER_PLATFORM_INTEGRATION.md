@@ -9,14 +9,17 @@ The NAHA MC Helper application now supports cross-platform minecraft-installer i
 The following executables are available for different platforms:
 
 ### Windows
+
 - `minecraft-installer-windows-x86_64.exe` - Windows x64 (MSVC)
 - `minecraft-installer-windows-gnu-x86_64.exe` - Windows x64 (GNU)
 
 ### macOS
+
 - `minecraft-installer-macos-intel-x86_64` - macOS Intel x64
 - `minecraft-installer-macos-apple-silicon-aarch64` - macOS Apple Silicon (ARM64)
 
 ### Linux
+
 - `minecraft-installer-linux-x86_64` - Linux x64
 
 ## Implementation Details
@@ -33,12 +36,14 @@ The `MinecraftInstallerService` class has been updated to:
 ### 2. Path Resolution
 
 #### Development Mode
-```
+
+```text
 tools/minecraft-installer-releases/{executable-name}
 ```
 
 #### Production Mode (Packaged App)
-```
+
+```text
 resources/installer/{executable-name}
 ```
 
@@ -121,7 +126,7 @@ Platform detection has been tested with all supported combinations:
 
 ## File Structure
 
-```
+```text
 tools/
 ├── minecraft-installer/
 │   ├── build-all.sh          # Updated to copy to releases folder

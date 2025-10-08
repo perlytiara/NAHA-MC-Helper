@@ -1,5 +1,6 @@
 // src/features/install/index.ts
 export { default as InstallPage } from './components/InstallPage.svelte';
+export { default as InstallServerSelection } from './components/InstallServerSelection.svelte';
 export { default as InstallHeaderSection } from './components/InstallHeaderSection.svelte';
 export { default as MrpackDownloader } from './components/MrpackDownloader.svelte';
 export { default as ProgressTracker } from './components/ProgressTracker.svelte';

@@ -1,6 +1,7 @@
 <!-- src/features/onboarding/components/OnboardingInstallLauncher.svelte -->
 <script>
   import { createEventDispatcher } from "svelte";
+  import { t } from '../../../shared/stores/i18nStore';
 
   const dispatch = createEventDispatcher();
 

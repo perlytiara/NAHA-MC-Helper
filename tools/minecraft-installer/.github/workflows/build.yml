@@ -120,27 +120,20 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
 
+    permissions:
+      contents: write
+    
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Delete existing release and tag
+      - name: Delete existing release
         continue-on-error: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # Delete the release if it exists
+          # Delete the release if it exists (this will also delete the tag)
           gh release delete ${{ env.RELEASE_TAG }} --yes || true
-          
-          # Delete the tag if it exists
-          git push --delete origin ${{ env.RELEASE_TAG }} || true
-
-      - name: Create new tag
-        run: |
-          git config user.name "GitHub Actions"
-          git config user.email "actions@github.com"
-          git tag -f ${{ env.RELEASE_TAG }}
-          git push -f origin ${{ env.RELEASE_TAG }}
 
       - name: Get version from tag
         id: get_version
@@ -199,183 +192,9 @@ jobs:
           echo "📋 Files ready for release:"
           ls -lh upload/ | grep -E "(minecraft-installer|minecraft-updater)"
 
-      - name: Create release notes
-        id: release_notes
+      - name: Generate release notes
         run: |
-          BUILD_DATE=$(date -u '+%Y-%m-%d %H:%M:%S UTC')
-          COMMIT_SHA=$(git rev-parse --short HEAD)
-          cat > release_notes.md << EOF
-          # Minecraft Installer & Updater - Latest Build
-
-          **🔄 Auto-updating Release** | Built: ${BUILD_DATE} | Commit: ${COMMIT_SHA}
-
-          This is an automatically updated release that always contains the **latest builds** from the main branch.
-
-          ## 🎉 Dual-Executable Release
-
-          This release includes **two separate executables** for all major platforms:
-          
-          1. **\`minecraft-installer\`** - Install modpacks to launchers
-          2. **\`minecraft-updater\`** - Scan and update existing instances
-
-          ---
-
-          ### 📦 Downloads
-
-          #### Minecraft Installer
-
-          **Windows:**
-          - `minecraft-installer-windows-x86_64.exe` - Windows x64 (MSVC, recommended)
-          - `minecraft-installer-windows-gnu-x86_64.exe` - Windows x64 (GNU)
-
-          **Linux:**
-          - `minecraft-installer-linux-x86_64` - Linux x64
-
-          **macOS:**
-          - `minecraft-installer-macos-intel-x86_64` - macOS Intel
-          - `minecraft-installer-macos-apple-silicon-aarch64` - macOS Apple Silicon (M1/M2/M3)
-
-          #### Minecraft Updater
-
-          **Windows:**
-          - `minecraft-updater-windows-x86_64.exe` - Windows x64 (MSVC, recommended)
-          - `minecraft-updater-windows-gnu-x86_64.exe` - Windows x64 (GNU)
-
-          **Linux:**
-          - `minecraft-updater-linux-x86_64` - Linux x64
-
-          **macOS:**
-          - `minecraft-updater-macos-intel-x86_64` - macOS Intel
-          - `minecraft-updater-macos-apple-silicon-aarch64` - macOS Apple Silicon (M1/M2/M3)
-
-          ---
-
-          ### ✨ Key Features
-
-          #### Minecraft Installer
-          - 🎮 **Multi-Launcher Support**: AstralRinth, ModrinthApp, XMCL, PrismLauncher, Official Minecraft, MultiMC
-          - 📁 **Custom Path Installation**: Install directly to any directory
-          - 🌐 **GitHub API Integration**: Download modpacks from GitHub Releases
-          - ⚙️ **Automodpack Setup**: Automatic server configuration
-          - 💾 **Database Integration**: Automatic database injection for AstralRinth/ModrinthApp
-
-          #### Minecraft Updater
-          - 🔍 **Instance Scanner**: Auto-detects all Minecraft instances across launchers
-          - 🧠 **Intelligent Mod Updates**: Compares versions and only updates what's needed
-          - 🗑️ **Duplicate Removal**: Automatically removes old mod versions
-          - 🔒 **User Mod Protection**: Preserves mods not in the modpack
-          - 🎯 **Version Selection**: Update to specific versions or latest
-          - 💾 **Database Sync**: Updates launcher databases with new version info
-          - 📊 **JSON Output**: Perfect for Electron app integration
-
-          ---
-
-          ### 🚀 Quick Start
-
-          #### Install a Modpack
-          ```bash
-          # From mrpack file
-          minecraft-installer --mrpack "modpack.mrpack" --create-instance
-
-          # From GitHub API (latest)
-          minecraft-installer --download-neoforge --create-instance
-
-          # To custom path
-          minecraft-installer --mrpack "modpack.mrpack" --target-launcher other --custom-path "C:\Games\Minecraft" --create-instance
-          ```
-
-          #### Update Existing Instances
-          ```bash
-          # Scan all instances
-          minecraft-updater scan --format compact
-
-          # Interactive update (select from list)
-          minecraft-updater interactive --modpack-type neoforge
-
-          # Update specific instance to latest
-          minecraft-updater update --instance-path "C:\path\to\instance" --modpack-type neoforge
-
-          # Update to specific version
-          minecraft-updater update --instance-path "C:\path\to\instance" --modpack-type neoforge --version 0.0.18
-
-          # Get JSON output for Electron apps
-          minecraft-updater scan --format json
-          ```
-
-          ---
-
-          ### 🔧 Electron Integration
-
-          Both tools provide JSON output for easy integration with Electron apps:
-
-          ```javascript
-          const { spawn } = require('child_process')
-          
-          // Scan instances
-          const scanner = spawn('minecraft-updater', ['scan', '--format', 'json'])
-          scanner.stdout.on('data', (data) => {
-            const instances = JSON.parse(data)
-            console.log(`Found ${instances.length} instances`)
-          })
-
-          // Update instance
-          const updater = spawn('minecraft-updater', [
-            'update',
-            '--instance-path', instancePath,
-            '--modpack-type', 'neoforge',
-            '--format', 'json'
-          ])
-          ```
-
-          ---
-
-          ### 📋 Supported Launchers
-
-          | Launcher | Installer | Updater | Database Sync |
-          |----------|-----------|---------|---------------|
-          | AstralRinth | ✅ | ✅ | ✅ |
-          | ModrinthApp | ✅ | ✅ | ✅ |
-          | XMCL | ✅ | ✅ | ❌ |
-          | PrismLauncher | ✅ | ✅ | ❌ |
-          | Official Minecraft | ✅ | ✅ | ❌ |
-          | MultiMC | ✅ | ✅ | ❌ |
-          | Custom Path | ✅ | ❌ | ❌ |
-
-          ---
-
-          ### 🔒 Checksums
-
-          All binaries include SHA256 checksums (`.sha256` files) for verification.
-
-          To verify a download:
-          ```bash
-          # Windows (PowerShell)
-          Get-FileHash minecraft-installer-windows-x86_64.exe -Algorithm SHA256
-
-          # Linux/macOS
-          shasum -a 256 -c minecraft-installer-linux-x86_64.sha256
-          ```
-
-          ---
-
-          ### 📚 Documentation
-
-          - [Integration Guide](https://github.com/perlytiara/AstralRinth/blob/main/minecraft-installer/INTEGRATION_GUIDE.md)
-          - [Quick Start](https://github.com/perlytiara/AstralRinth/blob/main/minecraft-installer/QUICK_START.md)
-          - [Updater Guide](https://github.com/perlytiara/AstralRinth/blob/main/minecraft-installer/UPDATER_GUIDE.md)
-
-          ---
-
-          **Repository**: https://github.com/perlytiara/NAHA-MC-Helper
-          
-          **Latest Commit**: ${COMMIT_SHA}
-          
-          ---
-          
-          > ⚠️ **Note**: This release is automatically rebuilt and updated on every push to main. Always download the latest version for the most recent features and fixes.
-          EOF
-
-          cat release_notes.md > $GITHUB_OUTPUT
+          node tools/github/releases/generate-release-notes.cjs
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
@@ -383,7 +202,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           tag_name: ${{ env.RELEASE_TAG }}
           name: Minecraft Tools - Latest Build
-          body_path: release_notes.md
+          body_path: RELEASE_NOTES.md
           files: |
             upload/*
           draft: false

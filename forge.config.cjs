@@ -2,7 +2,7 @@ module.exports = {
   packagerConfig: {
     asar: true,
     ignore: [
-      /^\/tools\/(?!minecraft-installer\/target\/release\/minecraft-installer\.exe$)/,
+      /^\/tools\//,
       /^\/\.git/,
       /^\/\.vscode/,
       /^\/src/,
@@ -19,9 +19,11 @@ module.exports = {
       /^\/README\.md$/,
     ],
     extraResource: [
+      // Minecraft Installer binaries for all platforms
       {
-        from: 'tools/minecraft-installer/target/release/minecraft-installer.exe',
-        to: 'minecraft-installer.exe'
+        from: 'tools/minecraft-installer-releases',
+        to: 'binaries',
+        filter: ['**/*']
       }
     ],
   },

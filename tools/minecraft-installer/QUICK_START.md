@@ -117,4 +117,3 @@ After installation, your modpack will be available in:
 ## 🎉 Success
 
 Once installed, launch your launcher and you should see the new instance ready to play!
-

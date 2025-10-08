@@ -349,4 +349,3 @@ RUST_LOG=debug minecraft-updater scan --format pretty
 ---
 
 **Ready to integrate?** Check out the `electron-integration.js` file for a complete Node.js wrapper, or use the command-line interface directly in your Electron app!
-

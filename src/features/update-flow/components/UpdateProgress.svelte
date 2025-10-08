@@ -1,5 +1,6 @@
 <script lang="ts">
   import { createEventDispatcher, onMount } from 'svelte';
+  import { t } from '../../../shared/stores/i18nStore';
   import type { MinecraftInstance } from '../types';
   
   export let instance: MinecraftInstance | null;
@@ -91,11 +92,11 @@
   <div class="progress-header">
     <h2 class="title">
       {#if isUpdating}
-        <span class="spinner-icon">🔄</span> Updating Instance...
+        <span class="spinner-icon">🔄</span> {$t('updateFlow.progress.title')}
       {:else if isComplete}
-        <span class="success-icon">✅</span> Update Complete!
+        <span class="success-icon">✅</span> {$t('updateFlow.progress.complete')}
       {:else if hasError}
-        <span class="error-icon">❌</span> Update Failed
+        <span class="error-icon">❌</span> {$t('updateFlow.progress.failed')}
       {/if}
     </h2>
     <p class="subtitle">{instance?.name}</p>

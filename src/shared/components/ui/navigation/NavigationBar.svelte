@@ -1,8 +1,25 @@
 <script>
 import { onMount } from 'svelte';
-import { currentPage, debug, notification } from '../../../stores/appStore';
+import { currentPage, debug, notification, onboardingStartStep, onboardingCurrentStep, hideUpdateButton, isInOnboarding, onboardingCompleted } from '../../../stores/appStore';
+import { t } from '../../../stores/i18nStore';
 
 let brandButton;
+
+// Install flow - same as homepage
+function startInstallFlow() {
+  console.log('🎮 [NAVBAR] Starting install flow - going to step 3 (Minecraft check)');
+  onboardingStartStep.set(3); // Start at step 3 (Minecraft check)
+  onboardingCurrentStep.set(3); // Also set current step to 3
+  hideUpdateButton.set(true); // Hide the update button
+  isInOnboarding.set(true);
+  currentPage.set('onboarding');
+}
+
+// Update flow - direct to update instance page
+function startUpdateFlow() {
+  console.log('🔄 [NAVBAR] Starting update flow');
+  currentPage.set('update-instance');
+}
 
 onMount(async () => {
   // Initialize debug state from main process
@@ -193,19 +210,19 @@ window.manualReset = manualReset;
   <div class="nav-links">
     <button type="button" class="nav-btn" class:active={$currentPage === 'homepage'} on:click={() => currentPage.set('homepage')}>
       <span class="nav-icon">🏠</span>
-      <span class="nav-text">Home</span>
+      <span class="nav-text">{$t('navigation.home')}</span>
     </button>
-    <button type="button" class="nav-btn unavailable" disabled title="Coming soon">
+    <button type="button" class="nav-btn" class:active={$currentPage === 'onboarding' && $onboardingStartStep === 3} on:click={startInstallFlow}>
       <span class="nav-icon">⬇️</span>
-      <span class="nav-text">Install</span>
+      <span class="nav-text">{$t('navigation.install')}</span>
     </button>
-    <button type="button" class="nav-btn unavailable" disabled title="Coming soon">
+    <button type="button" class="nav-btn" class:active={$currentPage === 'update-instance'} on:click={startUpdateFlow}>
       <span class="nav-icon">🔄</span>
-      <span class="nav-text">Update</span>
+      <span class="nav-text">{$t('navigation.update')}</span>
     </button>
     <button type="button" class="nav-btn unavailable" disabled title="Coming soon">
       <span class="nav-icon">🌐</span>
-      <span class="nav-text">Servers</span>
+      <span class="nav-text">{$t('navigation.servers')}</span>
     </button>
     
     {#if $debug}

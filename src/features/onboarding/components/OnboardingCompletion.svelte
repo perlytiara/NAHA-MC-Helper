@@ -1,6 +1,7 @@
 <script>
   import { createEventDispatcher } from 'svelte';
   import { onMount } from 'svelte';
+  import { t } from '../../../shared/stores/i18nStore';
 
   const dispatch = createEventDispatcher();
 
@@ -73,27 +74,27 @@
           <polyline points="22,4 12,14.01 9,11.01"></polyline>
         </svg>
       </div>
-      <h1 class="completion-title">Installation Complete!</h1>
+      <h1 class="completion-title">{$t('onboarding.completion.title')}</h1>
       <p class="completion-subtitle">
-        Your Minecraft setup has been successfully configured and is ready to use.
+        {$t('onboarding.completion.description')}
       </p>
     </div>
 
     <!-- Installation Summary -->
     <div class="summary-section">
-      <h2 class="section-title">Installation Summary</h2>
+      <h2 class="section-title">{$t('onboarding.completion.summary')}</h2>
       <div class="summary-grid">
         <div class="summary-card">
           <div class="summary-icon">🎮</div>
           <div class="summary-content">
-            <h3 class="summary-label">Modpack</h3>
+            <h3 class="summary-label">{$t('onboarding.createInstance.modpack')}</h3>
             <p class="summary-value">{serverDisplayName}</p>
           </div>
         </div>
         <div class="summary-card">
           <div class="summary-icon">🚀</div>
           <div class="summary-content">
-            <h3 class="summary-label">Launcher</h3>
+            <h3 class="summary-label">{$t('onboarding.createInstance.launcher')}</h3>
             <p class="summary-value">{launcherDisplayName}</p>
           </div>
         </div>
@@ -120,41 +121,41 @@
 
     <!-- Next Steps -->
     <div class="steps-section">
-      <h2 class="section-title">Next Steps</h2>
+      <h2 class="section-title">{$t('onboarding.completion.nextSteps')}</h2>
       <div class="steps-list">
         <div class="step-item">
           <div class="step-number">1</div>
           <div class="step-content">
-            <h3 class="step-title">Launch Your Launcher</h3>
+            <h3 class="step-title">{$t('onboarding.completion.steps.launchLauncher')}</h3>
             <p class="step-description">
-              Open <strong>{launcherDisplayName}</strong> from your desktop or start menu
+              {$t('onboarding.completion.steps.launchDescription', { launcher: launcherDisplayName })}
             </p>
           </div>
         </div>
         <div class="step-item">
           <div class="step-number">2</div>
           <div class="step-content">
-            <h3 class="step-title">Sign In</h3>
+            <h3 class="step-title">{$t('onboarding.completion.steps.signIn')}</h3>
             <p class="step-description">
-              Sign in with your Minecraft account (if required by your launcher)
+              {$t('onboarding.completion.steps.signInDescription')}
             </p>
           </div>
         </div>
         <div class="step-item">
           <div class="step-number">3</div>
           <div class="step-content">
-            <h3 class="step-title">Create Instance</h3>
+            <h3 class="step-title">{$t('onboarding.completion.steps.createInstance')}</h3>
             <p class="step-description">
-              Create a new instance or import the <strong>{serverDisplayName}</strong> modpack
+              {$t('onboarding.completion.steps.createInstanceDescription', { modpack: serverDisplayName })}
             </p>
           </div>
         </div>
         <div class="step-item">
           <div class="step-number">4</div>
           <div class="step-content">
-            <h3 class="step-title">Start Playing</h3>
+            <h3 class="step-title">{$t('onboarding.completion.steps.startPlaying')}</h3>
             <p class="step-description">
-              Launch your instance and start playing with your favorite mods!
+              {$t('onboarding.completion.steps.startPlayingDescription')}
             </p>
           </div>
         </div>
@@ -164,10 +165,10 @@
     <!-- Navigation -->
     <div class="navigation-section">
       <button class="back-button" on:click={handleBack}>
-        ← Back
+        ← {$t('common.back')}
       </button>
       <button class="finish-button" on:click={handleFinish}>
-        🎉 Finish
+        🎉 {$t('onboarding.completion.finish')}
       </button>
     </div>
   </div>

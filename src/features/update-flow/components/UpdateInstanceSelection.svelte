@@ -1,5 +1,6 @@
 <script lang="ts">
   import { createEventDispatcher, onMount } from 'svelte';
+  import { t } from '../../../shared/stores/i18nStore';
   import type { MinecraftInstance } from '../types';
   
   export let launcher: string | null;
@@ -48,28 +49,28 @@
 </script>
 
 <div class="instance-selection">
-  <h2 class="title">Select Instance to Update</h2>
-  <p class="subtitle">Choose which {modpackType} instance you want to update</p>
+  <h2 class="title">{$t('updateFlow.instanceSelection.title')}</h2>
+  <p class="subtitle">{$t('updateFlow.instanceSelection.description')}</p>
 
   {#if isLoading}
     <div class="loading-state">
       <div class="spinner"></div>
-      <p>Loading instances...</p>
+      <p>{$t('common.loading')}</p>
     </div>
   {:else if error}
     <div class="error-state">
       <span class="error-icon">⚠️</span>
-      <p>Failed to load instances: {error}</p>
+      <p>{$t('updateFlow.errors.updateFailed')}: {error}</p>
       <button class="retry-button" on:click={loadInstances}>
-        🔄 Retry
+        🔄 {$t('common.retry')}
       </button>
     </div>
   {:else if instances.length === 0}
     <div class="empty-state">
       <span class="empty-icon">📭</span>
-      <p>No {modpackType} instances found in {launcher}</p>
+      <p>{$t('updateFlow.errors.noInstances')}</p>
       <button class="back-button" on:click={goBack}>
-        ← Go Back
+        ← {$t('common.back')}
       </button>
     </div>
     {:else}
@@ -85,17 +86,17 @@
               </div>
               <div class="instance-details">
                 <div class="detail-item">
-                  <span class="detail-label">Version:</span>
+                  <span class="detail-label">{$t('updateFlow.instanceSelection.version')}</span>
                   <span class="detail-value">{instance.minecraft_version}</span>
                 </div>
                 <div class="detail-item">
-                  <span class="detail-label">Loader:</span>
+                  <span class="detail-label">{$t('updateFlow.instanceSelection.loader')}</span>
                   <span class="detail-value">{instance.mod_loader}</span>
                 </div>
               </div>
               <div class="instance-path">{instance.instance_path}</div>
               <div class="update-indicator">
-                <span>Update →</span>
+                <span>{$t('updateFlow.instanceSelection.update')} →</span>
               </div>
             </button>
           {/each}

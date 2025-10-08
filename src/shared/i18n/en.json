@@ -1,0 +1,305 @@
+{
+  "common": {
+    "yes": "Yes",
+    "no": "No",
+    "back": "Back",
+    "next": "Next",
+    "continue": "Continue",
+    "cancel": "Cancel",
+    "close": "Close",
+    "retry": "Retry",
+    "complete": "Complete",
+    "skip": "Skip",
+    "loading": "Loading..."
+  },
+  "navigation": {
+    "home": "Home",
+    "install": "Install",
+    "update": "Update",
+    "servers": "Servers",
+    "packer": "Packer",
+    "editor": "Editor",
+    "presets": "Presets"
+  },
+  "homepage": {
+    "title": "Minecraft Helper",
+    "subtitle": "Your complete toolkit for managing Minecraft modpacks and launchers",
+    "version": "Version",
+    "installModpack": "Install Modpack",
+    "takeSetup": "Take me through the setup",
+    "updateInstance": "Update Instance",
+    "features": {
+      "multiLauncher": {
+        "title": "Multi-Launcher Support",
+        "description": "Works with AstralRinth, Prism, XMCL, and more"
+      },
+      "easyInstall": {
+        "title": "Easy Installation",
+        "description": "Simple one-click modpack installation"
+      },
+      "autoUpdate": {
+        "title": "Auto Updates",
+        "description": "Keep your modpacks up to date automatically"
+      },
+      "serverIntegration": {
+        "title": "Server Integration",
+        "description": "Pre-configured for NAHA servers"
+      }
+    }
+  },
+  "onboarding": {
+    "welcome": {
+      "title": "Welcome to NAHA Minecraft Helper",
+      "description": "NAHA Minecraft Helper simplifies the installation process and server setup for Minecraft, making it easier than ever to jump into the game. Let's get started!",
+      "getStarted": "Get Started",
+      "skipSetup": "Skip Setup",
+      "tip": "This setup will help you configure your Minecraft experience"
+    },
+    "minecraftCheck": {
+      "title": "Do you have Minecraft installed?",
+      "description": "Minecraft is required to play on NAHA servers. If you don't have it, we'll guide you through the simple installation process to get you started.",
+      "yesHaveIt": "Yes, I have it",
+      "noInstallIt": "No, install it",
+      "updateInstances": "Update Instances"
+    },
+    "chooseLauncher": {
+      "title": "Which launcher do you have?",
+      "description": "Select the launcher you currently use to play Minecraft. This will help us configure your setup correctly.",
+      "detecting": "Detecting installed launchers...",
+      "noLaunchers": "No launchers detected. Please install a launcher first.",
+      "badges": {
+        "cracked": "Cracked",
+        "official": "Official"
+      },
+      "descriptions": {
+        "prism": "A user-friendly launcher with mod support.",
+        "astralrinth": "A launcher with advanced features.",
+        "modrinth": "The official Modrinth launcher.",
+        "xmcl": "A lightweight and fast launcher.",
+        "other": "I use a different launcher."
+      },
+      "features": {
+        "free": "Free",
+        "paid": "Paid",
+        "modSupport": "Mod Support",
+        "multiPlatform": "Multi-Platform",
+        "modrinth": "Modrinth",
+        "modern": "Modern",
+        "official": "Official",
+        "custom": "Custom",
+        "experimental": "Experimental",
+        "other": "Other",
+        "automation": "Automation",
+        "building": "Building",
+        "tech": "Tech",
+        "survival": "Survival",
+        "challenging": "Challenging",
+        "unique": "Unique",
+        "classic": "Classic",
+        "extensive": "Extensive",
+        "stable": "Stable",
+        "fast": "Fast",
+        "compatible": "Compatible"
+      }
+    },
+    "serverSelection": {
+      "title": "Choose Your Server",
+      "description": "Select which NAHA server you'd like to join and play on.",
+      "badges": {
+        "light": "Light",
+        "create": "Create",
+        "unavailable": "Unavailable"
+      },
+      "descriptions": {
+        "fabric": "Modern mod loader with excellent performance and compatibility.",
+        "neoforge": "Advanced modpack with creative building and automation.",
+        "forge": "Classic mod loader with extensive mod support.",
+        "btw": "Hardcore survival experience with unique mechanics."
+      },
+      "servers": {
+        "fabric": {
+          "name": "Fabric",
+          "subtitle": "Light",
+          "description": "Modern mod loader with excellent performance and compatibility."
+        },
+        "neoforge": {
+          "name": "NeoForge",
+          "subtitle": "Create",
+          "description": "Advanced modpack with creative building and automation."
+        },
+        "forge": {
+          "name": "Forge",
+          "subtitle": "Unavailable",
+          "description": "Classic mod loader with extensive mod support."
+        },
+        "btw": {
+          "name": "Better Than Wolves",
+          "subtitle": "Unavailable",
+          "description": "Hardcore survival experience with unique mechanics."
+        }
+      }
+    },
+    "installLauncher": {
+      "title": "Install a Minecraft Launcher",
+      "description": "You'll need a launcher to play Minecraft. We recommend one of these options:",
+      "skipInstall": "I'll install it myself later",
+      "install": "Install",
+      "subtitle": "We'll download and install the launcher for you automatically.",
+      "installNow": "Install Now",
+      "installing": "Installing...",
+      "failedToFetch": "Failed to fetch releases"
+    },
+    "createInstance": {
+      "title": "Create Instance",
+      "description": "Ready to install your selected modpack and launcher configuration.",
+      "modpack": "Modpack",
+      "launcher": "Launcher",
+      "installerReady": "Minecraft Installer Ready",
+      "installerDescription": "The installer will automatically download and install your modpack.",
+      "skipInstallation": "Skip Installation",
+      "installModpack": "Install Modpack",
+      "creating": "Creating instance...",
+      "skipCreation": "Skip instance creation"
+    },
+    "completion": {
+      "title": "Installation Complete!",
+      "description": "Your Minecraft setup has been successfully configured and is ready to use.",
+      "finish": "Finish",
+      "summary": "Installation Summary",
+      "nextSteps": "Next Steps",
+      "steps": {
+        "launchLauncher": "Launch Your Launcher",
+        "launchDescription": "Open {launcher} from your desktop or start menu",
+        "signIn": "Sign In",
+        "signInDescription": "Sign in with your Minecraft account (if required by your launcher)",
+        "createInstance": "Create Instance",
+        "createInstanceDescription": "Create a new instance or import the {modpack} modpack",
+        "startPlaying": "Start Playing",
+        "startPlayingDescription": "Launch your instance and start playing with your favorite mods!"
+      }
+    },
+    "stepOf": "Step {{current}} of {{total}}"
+  },
+  "updateFlow": {
+    "title": "Update Minecraft Instance",
+    "steps": {
+      "chooseLauncher": "Choose Your Launcher",
+      "selectModpack": "Select Modpack Type",
+      "pickInstance": "Pick Your Instance",
+      "updating": "Updating..."
+    },
+    "launcherSelection": {
+      "title": "Select Your Minecraft Launcher",
+      "description": "Choose which launcher contains the instances you want to update",
+      "instance": "instance",
+      "instances": "instances",
+      "launchers": {
+        "prismlauncher": "PrismLauncher",
+        "astralrinth": "AstralRinth",
+        "modrinthapp": "ModrinthApp",
+        "xmcl": "XMCL",
+        "official": "Official Minecraft"
+      }
+    },
+    "modpackSelection": {
+      "title": "Choose Your Modpack Type",
+      "description": "Select the type of modpack you want to update",
+      "neoforge": "NeoForge",
+      "fabric": "Fabric",
+      "descriptions": {
+        "neoforge": "Modern modding platform",
+        "fabric": "Lightweight and fast"
+      }
+    },
+    "instanceSelection": {
+      "title": "Pick Your Instance",
+      "description": "Select which instance you want to update",
+      "modCount": "{{count}} mods",
+      "version": "Version:",
+      "loader": "Loader:",
+      "update": "Update"
+    },
+    "progress": {
+      "title": "Updating Instance",
+      "downloading": "Downloading modpack...",
+      "installing": "Installing mods...",
+      "complete": "Update complete!",
+      "failed": "Update failed"
+    },
+    "errors": {
+      "scanFailed": "Failed to scan launchers",
+      "noInstances": "No instances found",
+      "updateFailed": "Update failed"
+    }
+  },
+  "settings": {
+    "language": "Language",
+    "selectLanguage": "Select Language",
+    "english": "English",
+    "french": "Français"
+  },
+  "menu": {
+    "file": "File",
+    "quit": "Quit",
+    "edit": "Edit",
+    "undo": "Undo",
+    "redo": "Redo",
+    "cut": "Cut",
+    "copy": "Copy",
+    "paste": "Paste",
+    "view": "View",
+    "reload": "Reload",
+    "forceReload": "Force Reload",
+    "toggleDevTools": "Toggle Developer Tools",
+    "resetZoom": "Reset Zoom",
+    "zoomIn": "Zoom In",
+    "zoomOut": "Zoom Out",
+    "toggleFullscreen": "Toggle Fullscreen",
+    "window": "Window",
+    "minimize": "Minimize",
+    "close": "Close",
+    "help": "Help",
+    "about": "About NAHA MC Helper",
+    "checkUpdates": "Check for Updates",
+    "debugMode": "Debug Mode",
+    "resetData": "Reset Data",
+    "language": "Language"
+  },
+  "dialogs": {
+    "about": {
+      "title": "About NAHA MC Helper",
+      "version": "Version",
+      "description": "Minecraft modpack and launcher management tool"
+    },
+    "resetData": {
+      "title": "Reset Application Data",
+      "message": "Are you sure you want to reset all application data to factory settings?",
+      "detail": "This will clear all settings, cache, and user data. This action cannot be undone.",
+      "confirm": "Reset Data"
+    }
+  },
+  "notifications": {
+    "updateAvailable": "Update available",
+    "noUpdates": "No updates available",
+    "downloadingUpdate": "Downloading update...",
+    "updateDownloaded": "Update downloaded",
+    "installReady": "Ready to install",
+    "error": "Error",
+    "success": "Success"
+  },
+  "updateModal": {
+    "checking": "Checking for Updates...",
+    "updateError": "Update Error",
+    "updateAvailable": "Update Available",
+    "noUpdates": "No Updates Available",
+    "lookingForLatest": "Looking for the latest version...",
+    "failedToCheck": "Failed to check for updates:",
+    "downloadingUpdate": "Downloading Update...",
+    "whatsNew": "What's New:",
+    "downloadUpdate": "Download Update",
+    "installRestart": "Install & Restart",
+    "close": "Close",
+    "latestVersion": "You're running the latest version"
+  }
+}
+

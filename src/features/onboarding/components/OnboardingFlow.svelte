@@ -1,8 +1,9 @@
 <!-- src/features/onboarding/components/OnboardingFlow.svelte -->
 <script>
   import { onMount } from "svelte";
-  import { currentPage, debug, onboardingCompleted } from "../../../shared/stores/appStore";
+  import { currentPage, debug, onboardingCompleted, onboardingStartStep, onboardingCurrentStep, hideUpdateButton, isInOnboarding } from "../../../shared/stores/appStore";
   import { completeOnboarding as saveOnboardingData } from "../../../shared/utils/onboardingUtils";
+  import OnboardingLanguageSelection from "./OnboardingLanguageSelection.svelte";
   import OnboardingWelcome from "./OnboardingWelcome.svelte";
   import OnboardingMinecraftCheck from "./OnboardingMinecraftCheck.svelte";
   import OnboardingInstallLauncher from "./OnboardingInstallLauncher.svelte";
@@ -18,6 +19,27 @@
   let minecraftInstalled = null;
   let selectedLauncher = null;
   let selectedServer = null;
+  let hasInitialized = false;
+  
+  // Immediately sync with store before rendering
+  $: if ($onboardingStartStep && !hasInitialized) {
+    console.log('🔧 [FLOW] Initial sync - setting currentStep to:', $onboardingStartStep);
+    currentStep = $onboardingStartStep;
+  }
+  
+  // Set current step from store on mount (restore preserved step)
+  onMount(() => {
+    console.log('🔧 [FLOW] onMount - savedStep:', $onboardingCurrentStep, 'startStep:', $onboardingStartStep);
+    // Use the preserved current step if available
+    currentStep = $onboardingCurrentStep;
+    hasInitialized = true;
+    console.log('🔧 [FLOW] After mount - currentStep:', currentStep);
+  });
+  
+  // Save current step to store whenever it changes (preserve on navigation)
+  $: if (hasInitialized) {
+    onboardingCurrentStep.set(currentStep);
+  }
   
   // Debug selectedServer changes
   $: if (selectedServer) {
@@ -43,7 +65,26 @@
   }
 
   function previousStep() {
+    console.log('🔧 [FLOW] previousStep called. currentStep:', currentStep, 'startStep:', $onboardingStartStep);
+    
+    // If we're at step 3 (Minecraft check) and came from homepage install button, go back to homepage
+    if (currentStep === 3 && $onboardingStartStep === 3) {
+      console.log('🔧 [FLOW] Going back to homepage (came from install button)');
+      onboardingStartStep.set(1);
+      onboardingCurrentStep.set(1);
+      hideUpdateButton.set(false);
+      isInOnboarding.set(false);
+      // Check if onboarding was previously completed
+      const wasCompleted = localStorage.getItem('naha-onboarding-completed');
+      if (wasCompleted) {
+        onboardingCompleted.set(true);
+      }
+      currentPage.set('homepage');
+      return;
+    }
+    
     if (currentStep > 1) {
+      console.log('🔧 [FLOW] Going to previous step:', currentStep - 1);
       currentStep--;
     }
   }
@@ -55,7 +96,9 @@
 
     if (wantsUpdate) {
       // Redirect to update flow
-      console.log('🔧 [FLOW] Redirecting to update flow');
+      console.log('🔧 [FLOW] Redirecting to update flow, keeping step at 2');
+      // Keep the step at 2 so when we come back, we're still at step 2
+      // Don't change currentStep, it stays at 2
       currentPage.set('update-instance');
       return;
     }
@@ -63,11 +106,11 @@
     if (hasMinecraft) {
       // If user has Minecraft, they still need to select their launcher first
       useMinecraftSetup = true;
-      totalSteps = 6; // 6 steps for users who have Minecraft: Welcome -> Check -> Launcher -> Server Selection -> Instance Creation -> Completion
+      totalSteps = 7; // 7 steps for users who have Minecraft: Language -> Welcome -> Check -> Launcher -> Server Selection -> Instance Creation -> Completion
     } else {
       // If user doesn't have Minecraft, they need to install a launcher
       useMinecraftSetup = false;
-      totalSteps = 7; // 7 steps for users who need to install: Welcome -> Check -> Launcher -> Install -> Server Selection -> Instance Creation -> Completion
+      totalSteps = 8; // 8 steps for users who need to install: Language -> Welcome -> Check -> Launcher -> Install -> Server Selection -> Instance Creation -> Completion
     }
     nextStep();
   }
@@ -127,6 +170,12 @@
 
     // Mark onboarding as completed in the store
     onboardingCompleted.set(true);
+    
+    // Reset onboarding control stores
+    onboardingStartStep.set(1);
+    onboardingCurrentStep.set(1);
+    hideUpdateButton.set(false);
+    isInOnboarding.set(false);
     
     // Navigate to homepage
     currentPage.set("homepage");
@@ -235,26 +284,23 @@
           on:back={handleInstallationBack}
         />
       {:else if currentStep === 1}
-        <OnboardingWelcome on:next={nextStep} on:skip={skipOnboarding} />
+        <OnboardingLanguageSelection on:next={nextStep} />
       {:else if currentStep === 2}
+        <OnboardingWelcome on:next={nextStep} on:skip={skipOnboarding} />
+      {:else if currentStep === 3}
         <OnboardingMinecraftCheck
           on:minecraft-response={handleMinecraftResponse}
           on:back={previousStep}
         />
-      {:else if currentStep === 3}
-        <!-- Launcher selection for both Minecraft and non-Minecraft users -->
-        <!-- Debug: minecraftInstalled = {minecraftInstalled} -->
+      {:else if currentStep === 4}
+        <!-- Launcher selection for ALL users at step 4 -->
         <OnboardingChooseLauncher
           hasMinecraft={minecraftInstalled}
           on:launcher-checked={handleLauncherChecked}
           on:back={previousStep}
         />
-        {#if $debug}
-          <div style="background: rgba(0,255,0,0.1); padding: 0.5rem; margin: 0.5rem 0; border-radius: 4px; font-size: 0.8rem; color: white;">
-            <strong>🔍 OnboardingFlow Debug:</strong> minecraftInstalled = {minecraftInstalled}, currentStep = {currentStep}
-          </div>
-        {/if}
-      {:else if currentStep === 4 && minecraftInstalled === false}
+      {:else if currentStep === 5 && minecraftInstalled === false}
+        <!-- Install instructions for users who don't have Minecraft -->
         <OnboardingInstall
           {selectedLauncher}
           on:install-complete={handleInstallComplete}
@@ -262,33 +308,56 @@
           on:continue={handleContinue}
           on:back={previousStep}
         />
-      {:else if currentStep === 4 && minecraftInstalled === true}
+      {:else if currentStep === 5 && minecraftInstalled === true}
+        <!-- Server selection for users who have Minecraft -->
         <OnboardingCreateInstance
           hasMinecraftInstalled={true}
+          isInstanceCreationMode={false}
           selectedLauncherFromFlow={selectedLauncher}
           selectedServerFromFlow={selectedServer}
           on:server-selected={handleServerSelected}
           on:next={nextStep}
-          on:instanceCreated={handleInstanceCreated}
-          on:continue={handleSkipInstanceCreation}
           on:back={previousStep}
-          on:start-installation={handleStartInstallation}
         />
-      {:else if currentStep === 5 && minecraftInstalled === false}
+      {:else if currentStep === 6 && minecraftInstalled === false}
+        <!-- Server selection for users who don't have Minecraft (after install step) -->
         <OnboardingCreateInstance
           hasMinecraftInstalled={false}
+          isInstanceCreationMode={false}
           selectedLauncherFromFlow={selectedLauncher}
           selectedServerFromFlow={selectedServer}
           on:server-selected={handleServerSelected}
           on:next={nextStep}
+          on:back={previousStep}
+        />
+      {:else if currentStep === 6 && minecraftInstalled === true}
+        <!-- Instance creation for users who have Minecraft -->
+        <OnboardingCreateInstance
+          hasMinecraftInstalled={true}
+          isInstanceCreationMode={true}
+          selectedLauncherFromFlow={selectedLauncher}
+          selectedServerFromFlow={selectedServer}
           on:instanceCreated={handleInstanceCreated}
           on:continue={handleSkipInstanceCreation}
           on:back={previousStep}
           on:start-installation={handleStartInstallation}
         />
-      {:else if currentStep === 5 && minecraftInstalled === true}
+      {:else if currentStep === 7 && minecraftInstalled === false}
+        <!-- Instance creation for users who don't have Minecraft -->
         <OnboardingCreateInstance
-          hasMinecraftInstalled={true}
+          hasMinecraftInstalled={false}
+          isInstanceCreationMode={true}
+          selectedLauncherFromFlow={selectedLauncher}
+          selectedServerFromFlow={selectedServer}
+          on:instanceCreated={handleInstanceCreated}
+          on:continue={handleSkipInstanceCreation}
+          on:back={previousStep}
+          on:start-installation={handleStartInstallation}
+        />
+      {:else if currentStep === 6 && minecraftInstalled === false}
+        <!-- Instance creation for users who don't have Minecraft -->
+        <OnboardingCreateInstance
+          hasMinecraftInstalled={false}
           selectedLauncherFromFlow={selectedLauncher}
           selectedServerFromFlow={selectedServer}
           isInstanceCreationMode={true}
@@ -297,30 +366,21 @@
           on:back={previousStep}
           on:start-installation={handleStartInstallation}
         />
-      {:else if currentStep === 6 && minecraftInstalled === true}
+      {:else if currentStep === 7 && minecraftInstalled === true}
         <!-- Completion step for users WITH Minecraft -->
         <OnboardingCompletion
           {selectedServer}
           {selectedLauncher}
+          hasMinecraftInstalled={minecraftInstalled}
           on:back={handleCompletionBack}
           on:finish={handleCompletionFinish}
         />
-      {:else if currentStep === 6 && minecraftInstalled === false}
-        <OnboardingCreateInstance
-          hasMinecraftInstalled={false}
-          selectedLauncherFromFlow={selectedLauncher}
-          selectedServerFromFlow={selectedServer}
-          isInstanceCreationMode={true}
-          on:instanceCreated={handleInstanceCreated}
-          on:continue={handleSkipInstanceCreation}
-          on:back={previousStep}
-          on:start-installation={handleStartInstallation}
-        />
-      {:else if currentStep === 7}
+      {:else if currentStep === 8}
         <!-- Completion step for users WITHOUT Minecraft -->
         <OnboardingCompletion
           {selectedServer}
           {selectedLauncher}
+          hasMinecraftInstalled={minecraftInstalled}
           on:back={handleCompletionBack}
           on:finish={handleCompletionFinish}
         />
@@ -445,7 +505,7 @@
     position: relative;
     z-index: 1;
     width: 100%;
-    max-width: 600px;
+    max-width: 700px;
     padding: 1rem;
     display: flex;
     flex-direction: column;
@@ -497,7 +557,7 @@
     align-items: center;
     min-height: 300px;
     max-height: 90vh;
-    overflow: hidden;
+    overflow: visible;
     width: 100%;
   }
 

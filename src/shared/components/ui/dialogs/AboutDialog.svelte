@@ -1,5 +1,6 @@
 <script>
   import { onMount, createEventDispatcher } from 'svelte';
+  import { t } from '../../../stores/i18nStore';
   
   export let show = false;
   
@@ -56,12 +57,12 @@
       {#if loading}
         <div class="loading-content">
           <div class="loading-spinner"></div>
-          <p>Loading application information...</p>
+          <p>{$t('common.loading')}</p>
         </div>
       {:else if appInfo}
         <div class="dialog-content">
           <h1 class="app-title">{formatAppName(appInfo.name)}</h1>
-          <p class="app-version">Version {appInfo.version}</p>
+          <p class="app-version">{$t('dialogs.about.version')} {appInfo.version}</p>
           
           {#if appInfo.description}
             <p class="app-description">{appInfo.description}</p>
