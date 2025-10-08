@@ -2,8 +2,8 @@ name: Build and Release Minecraft Tools
 
 on:
   push:
-    branches:
-      - main # Trigger on push to main branch
+    tags:
+      - 'v*' # Trigger on version tags (same as main app build)
   workflow_dispatch: # Allow manual triggering
 
 env:
