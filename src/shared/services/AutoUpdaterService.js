@@ -131,10 +131,13 @@ class AutoUpdaterService {
       if (isUpdateAvailable) {
         console.log('Auto-updater: Update available via GitHub API');
         
+        // Parse release notes to extract key features
+        const releaseNotes = this.parseReleaseNotes(data.body || 'Update available');
+        
         // Create update info object
         const updateInfo = {
           version: latestVersion,
-          releaseNotes: data.body || 'Update available',
+          releaseNotes: releaseNotes,
           releaseName: data.name || data.tag_name,
           releaseDate: data.published_at
         };
@@ -380,6 +383,51 @@ class AutoUpdaterService {
       updateDownloaded: this.updateDownloaded,
       updateInfo: this.updateInfo
     };
+  }
+
+  // Parse release notes markdown to extract key features
+  parseReleaseNotes(markdown) {
+    try {
+      // Extract the "What's New" section
+      const whatsNewMatch = markdown.match(/##\s*✨\s*What's New[^#]*((?:- \*\*[^*]+\*\*[^\n]*\n?)+)/);
+      
+      if (whatsNewMatch && whatsNewMatch[1]) {
+        // Extract bullet points and clean them up
+        const bullets = whatsNewMatch[1]
+          .split('\n')
+          .filter(line => line.trim().startsWith('-'))
+          .map(line => {
+            // Remove markdown formatting and emoji, keep just the feature name
+            return line
+              .replace(/^-\s*\*\*/, '• ')  // Replace - ** with bullet
+              .replace(/\*\*:.*$/, '')      // Remove **: and everything after
+              .trim();
+          })
+          .filter(line => line.length > 0)
+          .join('\n');
+        
+        return bullets || 'Bug fixes and improvements';
+      }
+      
+      // Fallback: try to find any bullet points
+      const bulletPoints = markdown.match(/^-\s+\*\*([^*]+)\*\*/gm);
+      if (bulletPoints) {
+        return bulletPoints
+          .map(point => point.replace(/^-\s+\*\*/, '• ').replace(/\*\*.*$/, ''))
+          .join('\n');
+      }
+      
+      // Last resort: return first paragraph
+      const firstPara = markdown.split('\n\n')[0];
+      if (firstPara && firstPara.length < 200) {
+        return firstPara.replace(/[#*]/g, '').trim();
+      }
+      
+      return 'Bug fixes and improvements';
+    } catch (error) {
+      console.error('Error parsing release notes:', error);
+      return 'Bug fixes and improvements';
+    }
   }
 
   // Compare version strings to determine if one is newer

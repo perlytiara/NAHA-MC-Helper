@@ -76,6 +76,7 @@
       "main.js",
       "preload.js",
       "src/shared/services/**/*",
+      "src/shared/utils/**/*",
       "node_modules/**/*"
     ],
     "icon": "public/icons/win/icon.ico",

@@ -102,7 +102,11 @@
             {:else}
               <div class="release-notes">
                 <h3>{$t('updateModal.whatsNew')}</h3>
-                <p>{updateInfo.releaseNotes || 'Bug fixes and improvements'}</p>
+                <div class="release-notes-content">
+                  {#each (updateInfo.releaseNotes || 'Bug fixes and improvements').split('\n').filter(line => line.trim()) as line}
+                    <p class="release-note-item">{line}</p>
+                  {/each}
+                </div>
               </div>
             {/if}
           </div>
@@ -340,15 +344,22 @@
   .release-notes h3 {
     font-size: 1rem;
     font-weight: 600;
-    margin: 0 0 0.5rem 0;
+    margin: 0 0 0.75rem 0;
     color: #10b981;
   }
 
-  .release-notes p {
+  .release-notes-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .release-note-item {
     font-size: 0.9rem;
-    line-height: 1.6;
-    color: rgba(255, 255, 255, 0.8);
+    line-height: 1.5;
+    color: rgba(255, 255, 255, 0.9);
     margin: 0;
+    padding-left: 0.25rem;
   }
 
   .modal-footer {
