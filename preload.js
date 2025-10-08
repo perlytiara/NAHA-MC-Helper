@@ -39,6 +39,7 @@ contextBridge.exposeInMainWorld('nahaAPI', {
   // App info functions
   getAppInfo: () => ipcRenderer.invoke('get-app-info'),
   getAppVersion: () => ipcRenderer.invoke('get-app-version'),
+  quitApp: () => ipcRenderer.invoke('quit-app'),
   onShowAboutDialog: (callback) => ipcRenderer.on('show-about-dialog', callback),
   
   // Debug mode functions
@@ -102,6 +103,14 @@ contextBridge.exposeInMainWorld('nahaAPI', {
     onUpdateDownloaded: (callback) => {
       ipcRenderer.on('auto-updater:update-downloaded', callback);
       return () => ipcRenderer.off('auto-updater:update-downloaded', callback);
+    },
+    onUpdateInstalling: (callback) => {
+      ipcRenderer.on('auto-updater:update-installing', callback);
+      return () => ipcRenderer.off('auto-updater:update-installing', callback);
+    },
+    onUpdateReadyToRestart: (callback) => {
+      ipcRenderer.on('auto-updater:update-ready-to-restart', callback);
+      return () => ipcRenderer.off('auto-updater:update-ready-to-restart', callback);
     },
     onUpdateError: (callback) => {
       ipcRenderer.on('auto-updater:update-error', callback);

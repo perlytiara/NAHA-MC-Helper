@@ -955,6 +955,12 @@ ipcMain.handle("get-app-version", async () => {
   }
 });
 
+// Quit app handler
+ipcMain.handle("quit-app", () => {
+  console.log('App quit requested');
+  app.quit();
+});
+
 // Debug mode handlers
 ipcMain.handle("get-debug-mode", async () => {
   return debugMode;

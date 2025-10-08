@@ -26,8 +26,10 @@
   let isChecking: boolean = false;
   let isDownloading: boolean = false;
   let updateError: UpdateError | null = null;
-  let currentVersion: string = '1.0.3'; // Will be loaded from package.json
+  let currentVersion: string = '1.0.1'; // Will be loaded from package.json
   let showRestartAnimation: boolean = false;
+  let updateMessage: string = 'Downloading update...';
+  let showRestartPrompt: boolean = false;
 
   // Auto-updater event handlers
   function handleUpdateChecking(): void {
@@ -72,16 +74,34 @@
     console.log('🔥 App: handleDownloadProgress called with:', data);
     downloadProgress = data;
     isDownloading = true;
-    showUpdateModal = true; // Ensure modal is visible during download
+    showUpdateModal = false; // Hide modal
+    showRestartAnimation = true; // Show cat animation during download
+    showRestartPrompt = false;
+    updateMessage = `Downloading update... ${data.percent?.toFixed(0)}%`;
   }
 
   function handleUpdateDownloaded(event: any, data: UpdateInfo): void {
     console.log('🎉 App: Update downloaded!', data);
-    downloadProgress = null;
+    downloadProgress = { percent: 100, transferred: 0, total: 0, bytesPerSecond: 0 };
     isDownloading = false;
     updateInfo = { ...updateInfo, ...data };
-    showUpdateModal = false; // Hide the update modal
-    showRestartAnimation = true; // Show the quirky restart animation
+    updateMessage = 'Download complete! Preparing installation...';
+  }
+
+  function handleUpdateInstalling(event: any, data: any): void {
+    console.log('🔧 App: Installing update in background...', data);
+    showUpdateModal = false; // Hide update modal
+    showRestartAnimation = true; // Keep cat animation visible
+    showRestartPrompt = false;
+    updateMessage = 'Installing update in background...';
+  }
+
+  function handleUpdateReadyToRestart(event: any, data: any): void {
+    console.log('✅ App: Update ready to restart!', data);
+    showRestartAnimation = true; // Keep animation visible
+    showRestartPrompt = true; // Show restart prompt over animation
+    updateMessage = 'Update installed successfully!';
+    updateInfo = { ...updateInfo, ...data, readyToRestart: true };
   }
 
   function handleUpdateError(event: any, data: string | UpdateError): void {
@@ -121,9 +141,18 @@
   }
 
   function handleInstall(): void {
-    if (window.nahaAPI?.autoUpdater?.installUpdate) {
-      window.nahaAPI.autoUpdater.installUpdate();
+    console.log('App: Restart requested to apply update');
+    // Close the app - the new version will start automatically
+    if (window.nahaAPI?.quitApp) {
+      window.nahaAPI.quitApp();
     }
+  }
+
+  function handleRestartLater(): void {
+    console.log('App: User chose to restart later');
+    showRestartAnimation = false;
+    showRestartPrompt = false;
+    // User can restart manually later
   }
 
   function handleViewReleaseNotes(): void {
@@ -144,17 +173,6 @@
   function handleUpdateLater(): void {
     showUpdateModal = false;
     updateInfo = null;
-  }
-
-  function handleRestartApp(): void {
-    console.log('🔄 App: Closing app for update installation...');
-    // Close the app to let the user install the update
-    if (window.nahaAPI?.autoUpdater?.installUpdate) {
-      window.nahaAPI.autoUpdater.installUpdate();
-    } else {
-      // Fallback: just close the window
-      window.close();
-    }
   }
 
   // Compare version strings to determine if one is newer
@@ -388,6 +406,8 @@
         window.nahaAPI.autoUpdater.onUpdateNotAvailable?.(handleUpdateNotAvailable),
         window.nahaAPI.autoUpdater.onDownloadProgress?.(handleDownloadProgress),
         window.nahaAPI.autoUpdater.onUpdateDownloaded?.(handleUpdateDownloaded),
+        window.nahaAPI.autoUpdater.onUpdateInstalling?.(handleUpdateInstalling),
+        window.nahaAPI.autoUpdater.onUpdateReadyToRestart?.(handleUpdateReadyToRestart),
         window.nahaAPI.autoUpdater.onUpdateError?.(handleUpdateError)
       ];
       console.log('🔥 App: Event listeners set up:', removeListeners.length);
@@ -511,7 +531,10 @@
   <!-- Restart Animation -->
   <RestartAnimation 
     isVisible={showRestartAnimation}
-    onRestart={handleRestartApp}
+    message={updateMessage}
+    showRestartPrompt={showRestartPrompt}
+    onRestart={handleInstall}
+    onLater={handleRestartLater}
   />
 
 </main>

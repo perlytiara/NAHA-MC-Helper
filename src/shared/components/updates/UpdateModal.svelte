@@ -13,7 +13,7 @@
   export let downloadProgress: DownloadProgress | null = null;
   export let isChecking = false;
   export let error: UpdateError | null = null;
-  export let currentVersion = '1.0.3';
+  export let currentVersion = '1.0.1';
   
   function handleDownload() {
     dispatch('download');
@@ -116,15 +116,18 @@
       </div>
 
       <div class="modal-footer">
-        {#if updateInfo && !downloadProgress}
+        {#if updateInfo?.readyToRestart}
+          <button class="install-button" on:click={handleInstall}>
+            🔄 Restart Now
+          </button>
+          <button class="close-button-footer" on:click={handleClose}>
+            Later
+          </button>
+        {:else if updateInfo && !downloadProgress}
           <button class="download-button" on:click={handleDownload}>
             📥 {$t('updateModal.downloadUpdate')}
           </button>
-        {:else if downloadProgress && downloadProgress.percent >= 100}
-          <button class="install-button" on:click={handleInstall}>
-            🚀 {$t('updateModal.installRestart')}
-          </button>
-        {:else if !isChecking}
+        {:else if !isChecking && !downloadProgress}
           <button class="close-button-footer" on:click={handleClose}>
             {$t('updateModal.close')}
           </button>

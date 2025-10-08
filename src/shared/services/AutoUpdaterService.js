@@ -3,6 +3,7 @@ import electronUpdater from 'electron-updater';
 import os from 'os';
 import path from 'path';
 import fs from 'fs';
+import { spawn } from 'child_process';
 
 const { app, dialog, shell } = electron;
 const { autoUpdater } = electronUpdater;
@@ -281,10 +282,13 @@ class AutoUpdaterService {
         position += chunk.length;
       }
       
-      // Save the installer to a temporary file
+      // Save the installer to a temporary file with unique name
       const tempDir = os.tmpdir();
-      const tempPath = path.join(tempDir, fileName);
+      const timestamp = Date.now();
+      const uniqueFileName = fileName.replace(/\.exe$/, `-${timestamp}.exe`);
+      const tempPath = path.join(tempDir, uniqueFileName);
       console.log('💾 Auto-updater: Saving installer to:', tempPath);
+      
       fs.writeFileSync(tempPath, buffer);
       
       console.log('✅ Auto-updater: Installer downloaded successfully!');
@@ -297,30 +301,71 @@ class AutoUpdaterService {
         releaseNotes: `Update ${this.updateInfo.version} downloaded successfully. The installer will open automatically.`
       });
       
-      // Open the installer
-      console.log('🚀 Auto-updater: Opening installer...');
-      const result = await shell.openPath(tempPath);
-      if (result) {
-        console.error('❌ Auto-updater: Failed to open installer:', result);
-        this.sendToRenderer('update-error', {
-          message: 'Failed to open installer',
-          details: result
+      // Install silently in background
+      console.log('🚀 Auto-updater: Installing update silently in background...');
+      
+      if (platform === 'win32') {
+        // Windows: Run NSIS installer with silent flag
+        this.sendToRenderer('update-installing', {
+          version: this.updateInfo.version,
+          message: 'Installing update in background...'
         });
-      } else {
-        console.log('✅ Auto-updater: Installer opened successfully!');
         
-        // Wait a moment for the installer to open, then quit the app
-        setTimeout(() => {
-          console.log('🚀 Auto-updater: Quitting app to allow installation...');
-          app.quit();
-        }, 1500);
+        const installer = spawn(tempPath, ['/S'], {
+          detached: true,
+          stdio: 'ignore'
+        });
+        
+        installer.on('close', (code) => {
+          console.log('✅ Auto-updater: Silent installation completed with code:', code);
+          
+          // Send completion event - ask user to restart
+          this.sendToRenderer('update-ready-to-restart', {
+            version: this.updateInfo.version,
+            message: 'Update installed successfully! Restart to apply changes.'
+          });
+        });
+        
+        installer.on('error', (err) => {
+          console.error('❌ Auto-updater: Installation error:', err);
+          this.sendToRenderer('update-error', {
+            message: 'Failed to install update',
+            details: err.message
+          });
+        });
+        
+        installer.unref();
+      } else {
+        // macOS/Linux: Open installer (user needs to complete installation)
+        const result = await shell.openPath(tempPath);
+        if (result) {
+          console.error('❌ Auto-updater: Failed to open installer:', result);
+          this.sendToRenderer('update-error', {
+            message: 'Failed to open installer',
+            details: result
+          });
+        } else {
+          console.log('✅ Auto-updater: Installer opened successfully!');
+          this.sendToRenderer('update-ready-to-restart', {
+            version: this.updateInfo.version,
+            message: 'Complete the installation, then restart the app.'
+          });
+        }
       }
       
     } catch (error) {
       console.error('Auto-updater: Error downloading installer:', error);
+      
+      let errorMessage = 'Failed to download installer';
+      if (error.code === 'EBUSY') {
+        errorMessage = 'Installer file is locked. Please close any open installers and try again.';
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
       this.sendToRenderer('update-error', {
-        message: 'Failed to download installer',
-        details: error.message
+        message: errorMessage,
+        details: error.stack || error.toString()
       });
     }
   }
