@@ -1,6 +1,6 @@
 <script>
   import { onMount, createEventDispatcher } from 'svelte';
-  import { currentPage } from '../../stores/appStore';
+  import { currentPage } from '../stores/appStore';
 
   const dispatch = createEventDispatcher();
 

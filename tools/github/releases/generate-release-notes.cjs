@@ -124,8 +124,13 @@ if (require.main === module) {
   
   const releaseNotes = generateReleaseNotes(version, changes);
   
-  // Write to file
-  const outputFile = path.join(__dirname, `RELEASE_NOTES_v${version}.md`);
+  // Write to notes folder
+  const notesDir = path.join(__dirname, 'notes');
+  if (!fs.existsSync(notesDir)) {
+    fs.mkdirSync(notesDir, { recursive: true });
+  }
+  
+  const outputFile = path.join(notesDir, `RELEASE_NOTES_v${version}.md`);
   fs.writeFileSync(outputFile, releaseNotes);
   
   console.log(`✅ Release notes generated: ${outputFile}`);

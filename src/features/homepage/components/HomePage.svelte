@@ -134,19 +134,23 @@ const features = [
       </div>
     </div>
     
-    <!-- Call to action -->
-    <div class="cta-section">
-      <div class="cta-buttons">
-        <button class="cta-button primary" on:click={() => currentPage.set('minecraft-manager')}>
-          <span class="cta-icon">🎮</span>
-          <span class="cta-text">Manage Minecraft Modpacks</span>
-        </button>
-        <button class="cta-button secondary" on:click={startSetupFlow}>
-          <span class="cta-icon">🚀</span>
-          <span class="cta-text">Take me through the setup</span>
-        </button>
-      </div>
-    </div>
+        <!-- Call to action -->
+        <div class="cta-section">
+          <div class="cta-buttons">
+            <button class="cta-button primary" on:click={() => currentPage.set('minecraft-manager')}>
+              <span class="cta-icon">🎮</span>
+              <span class="cta-text">Install New Modpack</span>
+            </button>
+            <button class="cta-button secondary" on:click={() => currentPage.set('update-instance')}>
+              <span class="cta-icon">🔄</span>
+              <span class="cta-text">Update Existing Instance</span>
+            </button>
+            <button class="cta-button tertiary" on:click={startSetupFlow}>
+              <span class="cta-icon">🚀</span>
+              <span class="cta-text">Take me through the setup</span>
+            </button>
+          </div>
+        </div>
     
     <!-- Update Status Section -->
     <div class="update-section">
@@ -471,11 +475,23 @@ const features = [
         background: linear-gradient(135deg, #059669, #047857);
     }
 
-    .cta-button.secondary:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 24px rgba(59, 130, 246, 0.4);
-        background: linear-gradient(135deg, #2563eb, #7c3aed);
-    }
+        .cta-button.secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(59, 130, 246, 0.4);
+            background: linear-gradient(135deg, #2563eb, #7c3aed);
+        }
+
+        .cta-button.tertiary {
+            background: linear-gradient(135deg, #8b5cf6, #a855f7);
+            color: white;
+            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+        }
+
+        .cta-button.tertiary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(139, 92, 246, 0.4);
+            background: linear-gradient(135deg, #7c3aed, #9333ea);
+        }
     
     .cta-button:active {
         transform: translateY(0);

@@ -49,9 +49,16 @@
   }
 
   function handleMinecraftResponse(event) {
-    const hasMinecraft = event.detail.hasMinecraft;
+    const { hasMinecraft, wantsUpdate } = event.detail;
     minecraftInstalled = hasMinecraft;
+    console.log('🔧 [FLOW] minecraftInstalled set to:', hasMinecraft, 'wantsUpdate:', wantsUpdate);
 
+    if (wantsUpdate) {
+      // Redirect to update flow
+      console.log('🔧 [FLOW] Redirecting to update flow');
+      currentPage.set('update-instance');
+      return;
+    }
 
     if (hasMinecraft) {
       // If user has Minecraft, they still need to select their launcher first

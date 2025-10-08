@@ -154,8 +154,8 @@ case "${1:-}" in
     echo ""
     echo "Examples:"
     echo "  $0 delete-all"
-    echo "  $0 create 1.0.0 'NAHA MC Helper v1.0.0' RELEASE_NOTES.md"
-    echo "  $0 reset-and-create 1.0.0"
+    echo "  $0 create 1.0.0 'NAHA MC Helper v1.0.0' notes/RELEASE_NOTES_v1.0.0.md"
+    echo "  $0 reset-and-create 1.0.0 'NAHA MC Helper v1.0.0' notes/RELEASE_NOTES_v1.0.0.md"
     exit 1
     ;;
 esac

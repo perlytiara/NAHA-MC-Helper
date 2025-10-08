@@ -110,13 +110,13 @@ contextBridge.exposeInMainWorld('nahaAPI', {
     off: (event, callback) => ipcRenderer.off(`auto-updater:${event}`, callback)
   },
 
-  // Minecraft Updater functionality
-  minecraftUpdater: {
-    scanInstances: (format) => ipcRenderer.invoke('minecraft-updater:scan-instances', format),
-    updateInstance: (instancePath, modpackType, version) => ipcRenderer.invoke('minecraft-updater:update-instance', instancePath, modpackType, version),
-    listLaunchers: () => ipcRenderer.invoke('minecraft-updater:list-launchers'),
-    getBinaryStatus: () => ipcRenderer.invoke('minecraft-updater:get-binary-status')
-  },
+          // Minecraft Updater functionality
+          minecraftUpdater: {
+            scanInstances: (format, launcher) => ipcRenderer.invoke('minecraft-updater:scan-instances', format, launcher),
+            updateInstance: (instancePath, modpackType, version) => ipcRenderer.invoke('minecraft-updater:update-instance', instancePath, modpackType, version),
+            listLaunchers: () => ipcRenderer.invoke('minecraft-updater:list-launchers'),
+            getBinaryStatus: () => ipcRenderer.invoke('minecraft-updater:get-binary-status')
+          },
 
   // Minecraft Installer functionality (new simplified interface)
   minecraftInstaller: {

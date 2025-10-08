@@ -125,8 +125,8 @@ echo                               Delete everything and create new release
 echo.
 echo Examples:
 echo   %~nx0 delete-all
-echo   %~nx0 create 1.0.0 "NAHA MC Helper v1.0.0" RELEASE_NOTES.md
-echo   %~nx0 reset-and-create 1.0.0
+echo   %~nx0 create 1.0.0 "NAHA MC Helper v1.0.0" notes\RELEASE_NOTES_v1.0.0.md
+echo   %~nx0 reset-and-create 1.0.0 "NAHA MC Helper v1.0.0" notes\RELEASE_NOTES_v1.0.0.md
 exit /b 1
 
 :eof

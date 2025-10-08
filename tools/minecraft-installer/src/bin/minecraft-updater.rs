@@ -20,6 +20,9 @@ enum Commands {
         /// Output format (json, pretty, compact)
         #[arg(short, long, default_value = "compact")]
         format: String,
+        /// Filter by specific launcher (optional)
+        #[arg(long)]
+        launcher: Option<String>,
     },
     /// Update mods for a specific instance
     Update {
@@ -65,9 +68,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let updater = MinecraftUpdater::new();
 
     match cli.command {
-        Commands::Scan { format } => {
+        Commands::Scan { format, launcher } => {
             match updater.scan_instances().await {
-                Ok(instances) => {
+                Ok(mut instances) => {
+                    // Filter by launcher if specified
+                    if let Some(target_launcher) = launcher {
+                        instances.retain(|instance| instance.launcher_type.to_lowercase() == target_launcher.to_lowercase());
+                    }
                     match format.as_str() {
                         "json" => {
                             println!("{}", serde_json::to_string_pretty(&instances)?);

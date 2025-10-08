@@ -12,6 +12,10 @@
         dispatch('minecraft-response', { hasMinecraft: false });
     }
     
+    function handleUpdate() {
+        dispatch('minecraft-response', { hasMinecraft: true, wantsUpdate: true });
+    }
+    
     function handleBack() {
         dispatch('back');
     }
@@ -33,6 +37,10 @@
         <div class="response-buttons">
             <button class="response-button yes-button" on:click={handleYes}>
                 Yes, I have Minecraft
+            </button>
+            
+            <button class="response-button update-button" on:click={handleUpdate}>
+                I want to update existing instances
             </button>
             
             <button class="response-button no-button" on:click={handleNo}>
@@ -164,6 +172,22 @@
     }
     
     .no-button:active {
+        transform: translateY(0);
+    }
+    
+    .update-button {
+        background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+        color: white;
+        box-shadow: 0 4px 16px rgba(139, 92, 246, 0.3);
+    }
+    
+    .update-button:hover {
+        background: linear-gradient(135deg, #7c3aed, #6d28d9);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(139, 92, 246, 0.4);
+    }
+    
+    .update-button:active {
         transform: translateY(0);
     }
     
