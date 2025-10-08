@@ -299,8 +299,18 @@ class AutoUpdaterService {
       const result = await shell.openPath(tempPath);
       if (result) {
         console.error('❌ Auto-updater: Failed to open installer:', result);
+        this.sendToRenderer('update-error', {
+          message: 'Failed to open installer',
+          details: result
+        });
       } else {
         console.log('✅ Auto-updater: Installer opened successfully!');
+        
+        // Wait a moment for the installer to open, then quit the app
+        setTimeout(() => {
+          console.log('🚀 Auto-updater: Quitting app to allow installation...');
+          app.quit();
+        }, 1500);
       }
       
     } catch (error) {

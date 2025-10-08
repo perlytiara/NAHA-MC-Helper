@@ -13,7 +13,7 @@
   export let downloadProgress: DownloadProgress | null = null;
   export let isChecking = false;
   export let error: UpdateError | null = null;
-  export let currentVersion = '1.0.2';
+  export let currentVersion = '1.0.1';
   
   function handleDownload() {
     dispatch('download');
