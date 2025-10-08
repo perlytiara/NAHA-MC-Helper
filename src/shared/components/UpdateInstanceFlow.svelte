@@ -63,6 +63,7 @@
       if (window.nahaAPI?.minecraftUpdater?.scanInstances) {
         const result = await window.nahaAPI.minecraftUpdater.scanInstances('json', launcher);
         if (result.success && result.instances) {
+          // Store all instances for now, we'll filter by modpack type when selecting
           availableInstances = result.instances;
         }
       }
@@ -238,13 +239,13 @@
             <p>❌ {error}</p>
             <button class="btn btn-secondary" on:click={() => loadInstancesForLauncher(selectedLauncher)}>Retry</button>
           </div>
-        {:else if availableInstances.length === 0}
+        {:else if availableInstances.filter(i => i.mod_loader.toLowerCase().includes(selectedModpackType)).length === 0}
           <div class="empty-state">
             <p>No {selectedModpackType} instances found in {selectedLauncher?.name}.</p>
           </div>
         {:else}
           <div class="instance-list">
-            {#each availableInstances as instance}
+            {#each availableInstances.filter(i => i.mod_loader.toLowerCase().includes(selectedModpackType)) as instance}
               <button class="instance-card" on:click={() => selectInstance(instance)}>
                 <div class="instance-info">
                   <div class="instance-name">{instance.name}</div>
