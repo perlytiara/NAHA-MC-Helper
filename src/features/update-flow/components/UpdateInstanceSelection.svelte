@@ -223,8 +223,8 @@
     background: linear-gradient(to top, rgba(0, 0, 0, 0.3), transparent);
   }
   
-  .instance-list:not(.no-scroll) ~ .fade-top,
-  .instance-list:not(.no-scroll) ~ .fade-bottom {
+  .instance-list-wrapper:not(.no-scroll) .fade-top,
+  .instance-list-wrapper:not(.no-scroll) .fade-bottom {
     opacity: 1;
   }
   
@@ -251,18 +251,19 @@
     background: rgba(255, 255, 255, 0.08);
     border: 2px solid rgba(255, 255, 255, 0.15);
     border-radius: 10px;
-    padding: 0.875rem;
+    padding: 0.75rem;
     cursor: pointer;
     transition: all 0.3s ease;
     text-align: left;
     position: relative;
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 0.4rem;
+    width: 100%;
+    min-height: 110px;
   }
 
   .instance-card:hover {
-    transform: scale(1.01);
     border-color: #10b981;
     box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
     background: rgba(16, 185, 129, 0.15);

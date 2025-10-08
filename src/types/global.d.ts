@@ -50,7 +50,18 @@ interface Window {
     openFileDialog: (options: { properties: string[] }) => Promise<string[]>;
     onShowAboutDialog: (callback: () => void) => () => void;
     getFileHash: (filePath: string, algorithm?: string) => Promise<string>;
+    getAppVersion: () => Promise<string>;
     autoUpdater: AutoUpdater;
+    minecraftUpdater: {
+      scanInstances: (format: string, launcher?: string | null) => Promise<{ success: boolean; instances: any[] }>;
+      updateInstance: (instancePath: string, modpackType: string, version: string | null) => Promise<any>;
+      listLaunchers: () => Promise<any>;
+      getBinaryStatus: () => Promise<any>;
+    };
+    minecraftInstaller: {
+      installModpack: (modpackType: string, targetLauncher: string | null) => Promise<any>;
+      listLaunchers: () => Promise<any>;
+    };
     ipcRenderer: {
       on: (channel: string, callback: (...args: any[]) => void) => void;
       off: (channel: string, callback: (...args: any[]) => void) => void;

@@ -583,7 +583,7 @@ ipcMain.handle("minecraft-updater:get-binary-status", async () => {
 });
 
 // Minecraft Installer IPC Handlers (simplified interface)
-ipcMain.handle("minecraft-installer:install-modpack", async (event, modpackType, targetLauncher = null) => {
+ipcMain.handle("minecraft-installer:install-modpack", async (event, modpackType /* , targetLauncher = null */) => {
   try {
     console.log(`📦 Installing ${modpackType} modpack...`);
     
