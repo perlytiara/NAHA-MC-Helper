@@ -1,6 +1,6 @@
 <script lang="ts">
   import { createEventDispatcher } from 'svelte';
-  import { fade, fly } from 'svelte/transition';
+  import { fade } from 'svelte/transition';
   import UpdateLauncherSelection from './UpdateLauncherSelection.svelte';
   import UpdateModpackSelection from './UpdateModpackSelection.svelte';
   import UpdateInstanceSelection from './UpdateInstanceSelection.svelte';
@@ -83,11 +83,11 @@
   <!-- Content Area -->
   <div class="content-area">
     {#if currentStep === 1}
-      <div in:fly={{ x: -50, duration: 300 }} out:fly={{ x: 50, duration: 300 }}>
+      <div class="step-wrapper" in:fade={{ duration: 200 }}>
         <UpdateLauncherSelection on:launcherSelected={handleLauncherSelected} on:back={handleBack} />
       </div>
     {:else if currentStep === 2}
-      <div in:fly={{ x: -50, duration: 300 }} out:fly={{ x: 50, duration: 300 }}>
+      <div class="step-wrapper" in:fade={{ duration: 200 }}>
         <UpdateModpackSelection 
           launcher={selectedLauncher} 
           on:modpackSelected={handleModpackSelected} 
@@ -95,7 +95,7 @@
         />
       </div>
     {:else if currentStep === 3}
-      <div in:fly={{ x: -50, duration: 300 }} out:fly={{ x: 50, duration: 300 }}>
+      <div class="step-wrapper" in:fade={{ duration: 200 }}>
         <UpdateInstanceSelection 
           launcher={selectedLauncher}
           modpackType={selectedModpackType}
@@ -104,7 +104,7 @@
         />
       </div>
     {:else if currentStep === 4}
-      <div in:fly={{ x: -50, duration: 300 }}>
+      <div class="step-wrapper" in:fade={{ duration: 200 }}>
         <UpdateProgress 
           instance={selectedInstance}
           modpackType={selectedModpackType}
@@ -118,21 +118,23 @@
 <style>
   .update-flow-container {
     width: 100%;
-    max-width: 700px;
+    max-width: 800px;
     margin: 0 auto;
     padding: 1rem;
     height: 100vh;
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    justify-content: center;
+    gap: 0.75rem;
   }
 
   .progress-bar-container {
     background: rgba(16, 185, 129, 0.1);
     border: 2px solid rgba(16, 185, 129, 0.3);
     border-radius: 12px;
-    padding: 1rem;
+    padding: 0.75rem;
     backdrop-filter: blur(10px);
+    flex-shrink: 0;
   }
 
   .progress-steps {
@@ -205,12 +207,32 @@
 
   .content-area {
     flex: 1;
-    overflow-y: auto;
+    overflow: hidden;
     background: rgba(255, 255, 255, 0.05);
     border: 2px solid rgba(255, 255, 255, 0.1);
     border-radius: 12px;
-    padding: 1.5rem;
+    padding: 0;
     backdrop-filter: blur(10px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 0;
+    position: relative;
+  }
+  
+  .step-wrapper {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .step-wrapper > :global(div) {
+    width: 100%;
+    max-height: 100%;
   }
 
   @media (max-width: 640px) {

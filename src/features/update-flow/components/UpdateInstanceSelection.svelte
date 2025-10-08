@@ -72,30 +72,36 @@
         ← Go Back
       </button>
     </div>
-  {:else}
-    <div class="instance-list">
-      {#each instances as instance}
-        <button class="instance-card" on:click={() => selectInstance(instance)}>
-          <div class="instance-header">
-            <h3 class="instance-name">{instance.name}</h3>
-            <span class="mod-count-badge">{instance.mod_count} mods</span>
-          </div>
-          <div class="instance-details">
-            <div class="detail-item">
-              <span class="detail-label">Version:</span>
-              <span class="detail-value">{instance.minecraft_version}</span>
-            </div>
-            <div class="detail-item">
-              <span class="detail-label">Loader:</span>
-              <span class="detail-value">{instance.mod_loader}</span>
-            </div>
-          </div>
-          <div class="instance-path">{instance.instance_path}</div>
-          <div class="update-indicator">
-            <span>Update →</span>
-          </div>
-        </button>
-      {/each}
+    {:else}
+    <div class="instance-list-wrapper" class:no-scroll={instances.length <= 3}>
+      <div class="fade-overlay fade-top"></div>
+      <div class="instance-list-scroll">
+        <div class="instance-list">
+          {#each instances as instance}
+            <button class="instance-card" on:click={() => selectInstance(instance)}>
+              <div class="instance-header">
+                <h3 class="instance-name">{instance.name}</h3>
+                <span class="mod-count-badge">{instance.mod_count} mods</span>
+              </div>
+              <div class="instance-details">
+                <div class="detail-item">
+                  <span class="detail-label">Version:</span>
+                  <span class="detail-value">{instance.minecraft_version}</span>
+                </div>
+                <div class="detail-item">
+                  <span class="detail-label">Loader:</span>
+                  <span class="detail-value">{instance.mod_loader}</span>
+                </div>
+              </div>
+              <div class="instance-path">{instance.instance_path}</div>
+              <div class="update-indicator">
+                <span>Update →</span>
+              </div>
+            </button>
+          {/each}
+        </div>
+      </div>
+      <div class="fade-overlay fade-bottom"></div>
     </div>
 
     <div class="actions">
@@ -110,7 +116,10 @@
   .instance-selection {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: 0.875rem;
+    height: 100%;
+    justify-content: flex-start;
+    padding: 1.5rem 2rem 1.5rem 2rem;
   }
 
   .title {
@@ -162,50 +171,101 @@
     font-size: 3rem;
   }
 
+  .instance-list-wrapper {
+    position: relative;
+    flex: 1;
+    margin: 0;
+  }
+  
+  .instance-list-wrapper.no-scroll .fade-overlay {
+    display: none;
+  }
+
+  .instance-list-scroll {
+    max-height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 0 0.5rem 0 0.5rem;
+  }
+  
+  .instance-list-wrapper.no-scroll .instance-list-scroll {
+    padding: 0;
+    overflow-y: hidden;
+  }
+
   .instance-list {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
-    margin: 1rem 0;
-    max-height: 400px;
-    overflow-y: auto;
-    padding-right: 0.5rem;
+    gap: 0.75rem;
+    margin: 0;
+    padding: 0;
+  }
+  
+  /* Fade overlays */
+  .fade-overlay {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 40px;
+    pointer-events: none;
+    z-index: 10;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  
+  .fade-top {
+    top: 0;
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.3), transparent);
+  }
+  
+  .fade-bottom {
+    bottom: 0;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.3), transparent);
+  }
+  
+  .instance-list:not(.no-scroll) ~ .fade-top,
+  .instance-list:not(.no-scroll) ~ .fade-bottom {
+    opacity: 1;
+  }
+  
+  /* Custom scrollbar */
+  .instance-list-scroll::-webkit-scrollbar {
+    width: 4px;
   }
 
-  .instance-list::-webkit-scrollbar {
-    width: 6px;
-  }
-
-  .instance-list::-webkit-scrollbar-track {
+  .instance-list-scroll::-webkit-scrollbar-track {
     background: rgba(255, 255, 255, 0.05);
-    border-radius: 3px;
+    border-radius: 2px;
   }
 
-  .instance-list::-webkit-scrollbar-thumb {
-    background: rgba(16, 185, 129, 0.3);
-    border-radius: 3px;
+  .instance-list-scroll::-webkit-scrollbar-thumb {
+    background: rgba(16, 185, 129, 0.4);
+    border-radius: 2px;
   }
 
-  .instance-list::-webkit-scrollbar-thumb:hover {
-    background: rgba(16, 185, 129, 0.5);
+  .instance-list-scroll::-webkit-scrollbar-thumb:hover {
+    background: rgba(16, 185, 129, 0.6);
   }
 
   .instance-card {
     background: rgba(255, 255, 255, 0.08);
     border: 2px solid rgba(255, 255, 255, 0.15);
-    border-radius: 12px;
-    padding: 1rem;
+    border-radius: 10px;
+    padding: 0.875rem;
     cursor: pointer;
     transition: all 0.3s ease;
     text-align: left;
     position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
   }
 
   .instance-card:hover {
-    transform: translateX(4px);
+    transform: scale(1.01);
     border-color: #10b981;
-    box-shadow: 0 4px 16px rgba(16, 185, 129, 0.3);
-    background: rgba(16, 185, 129, 0.08);
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+    background: rgba(16, 185, 129, 0.15);
   }
 
   .instance-header {
@@ -213,7 +273,6 @@
     align-items: center;
     justify-content: space-between;
     gap: 1rem;
-    margin-bottom: 0.75rem;
   }
 
   .instance-name {
@@ -237,7 +296,6 @@
   .instance-details {
     display: flex;
     gap: 1.5rem;
-    margin-bottom: 0.5rem;
   }
 
   .detail-item {
@@ -284,7 +342,8 @@
   .actions {
     display: flex;
     justify-content: center;
-    margin-top: 1rem;
+    margin-top: auto;
+    padding-top: 0.5rem;
   }
 
   .back-button,
@@ -312,12 +371,12 @@
       font-size: 1.25rem;
     }
 
-    .instance-list {
-      max-height: 350px;
+    .instance-selection {
+      padding: 1rem 1.5rem;
     }
 
     .instance-card {
-      padding: 0.875rem;
+      padding: 0.75rem;
     }
 
     .instance-name {

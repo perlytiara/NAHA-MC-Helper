@@ -143,7 +143,10 @@
   .update-progress {
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
+    gap: 1rem;
+    height: 100%;
+    justify-content: flex-start;
+    padding: 1.5rem 2rem 1.5rem 2rem;
   }
 
   .progress-header {

@@ -126,7 +126,10 @@
   .launcher-selection {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: 0.875rem;
+    height: 100%;
+    justify-content: flex-start;
+    padding: 1.5rem 2rem 1.5rem 2rem;
   }
 
   .title {
@@ -180,23 +183,25 @@
 
   .launcher-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-    gap: 1rem;
-    margin: 1rem 0;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+    margin: 0;
   }
 
   .launcher-card {
     background: rgba(255, 255, 255, 0.08);
     border: 2px solid rgba(255, 255, 255, 0.15);
-    border-radius: 12px;
-    padding: 1.25rem;
+    border-radius: 10px;
+    padding: 0.875rem;
     cursor: pointer;
     transition: all 0.3s ease;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0.5rem;
+    justify-content: center;
+    gap: 0.4rem;
     text-align: center;
+    min-height: 120px;
   }
 
   .launcher-card:hover {
@@ -227,7 +232,8 @@
   .actions {
     display: flex;
     justify-content: center;
-    margin-top: 1rem;
+    margin-top: auto;
+    padding-top: 0.5rem;
   }
 
   .back-button,
@@ -256,12 +262,13 @@
     }
 
     .launcher-grid {
-      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      grid-template-columns: repeat(2, 1fr) !important;
       gap: 0.75rem;
     }
 
     .launcher-card {
       padding: 1rem;
+      min-height: 140px;
     }
 
     .launcher-icon {
