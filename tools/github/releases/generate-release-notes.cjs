@@ -80,9 +80,9 @@ Download the appropriate version for your system below:
 
 ### 🍎 macOS
 - **Intel Macs**: [NAHA.MC.Helper-${version}.dmg](https://github.com/${GITHUB_REPO}/releases/download/v${version}/NAHA.MC.Helper-${version}.dmg) 🖱️
+- **Intel Macs (Zip)**: [NAHA.MC.Helper-${version}-mac.zip](https://github.com/${GITHUB_REPO}/releases/download/v${version}/NAHA.MC.Helper-${version}-mac.zip) 📎
 - **Apple Silicon Macs**: [NAHA.MC.Helper-${version}-arm64.dmg](https://github.com/${GITHUB_REPO}/releases/download/v${version}/NAHA.MC.Helper-${version}-arm64.dmg) 🍏
 - **Apple Silicon Macs (Zip)**: [NAHA.MC.Helper-${version}-arm64-mac.zip](https://github.com/${GITHUB_REPO}/releases/download/v${version}/NAHA.MC.Helper-${version}-arm64-mac.zip) 📎
-- **Intel Macs (Zip)**: [NAHA.MC.Helper-${version}-mac.zip](https://github.com/${GITHUB_REPO}/releases/download/v${version}/NAHA.MC.Helper-${version}-mac.zip) 📎
 
 ### 🐧 Linux
 - **Universal**: [NAHA.MC.Helper-${version}.AppImage](https://github.com/${GITHUB_REPO}/releases/download/v${version}/NAHA.MC.Helper-${version}.AppImage) 🐧
