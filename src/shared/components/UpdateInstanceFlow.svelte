@@ -15,6 +15,7 @@
   let isLoading = false;
   let error = null;
   let updateProgress = '';
+  let progressLog = [];
 
   // Step titles
   const stepTitles = [
@@ -26,6 +27,15 @@
 
   onMount(async () => {
     await loadAvailableLaunchers();
+    
+    // Listen for progress events from the updater
+    if (window.nahaAPI?.ipcRenderer) {
+      window.nahaAPI.ipcRenderer.on('minecraft-updater:progress', (event, message) => {
+        console.log('Progress update:', message);
+        updateProgress = message;
+        progressLog = [...progressLog, message];
+      });
+    }
   });
 
   async function loadAvailableLaunchers() {
@@ -104,9 +114,11 @@
     nextStep();
   }
 
-  function selectInstance(instance) {
+  async function selectInstance(instance) {
     selectedInstance = instance;
     nextStep();
+    // Automatically start the update
+    await startUpdate();
   }
 
   function nextStep() {
@@ -125,6 +137,7 @@
     isLoading = true;
     error = null;
     updateProgress = 'Starting update...';
+    progressLog = ['🔄 Initializing update process...'];
     
     try {
       if (window.nahaAPI?.minecraftUpdater?.updateInstance) {
@@ -135,10 +148,20 @@
         );
         
         if (result.success) {
-          updateProgress = `✅ Update completed! Updated ${result.updated_mods?.length || 0} mods.`;
+          updateProgress = `✅ Update completed!`;
+          progressLog = [...progressLog, `✅ Update completed successfully!`];
+          if (result.updated_mods && result.updated_mods.length > 0) {
+            progressLog = [...progressLog, `📦 Updated ${result.updated_mods.length} mods`];
+          }
+          if (result.new_mods && result.new_mods.length > 0) {
+            progressLog = [...progressLog, `➕ Added ${result.new_mods.length} new mods`];
+          }
+          if (result.preserved_mods && result.preserved_mods.length > 0) {
+            progressLog = [...progressLog, `💾 Preserved ${result.preserved_mods.length} user mods`];
+          }
           setTimeout(() => {
             dispatch('complete');
-          }, 2000);
+          }, 3000);
         } else {
           throw new Error(result.error || 'Update failed');
         }
@@ -149,6 +172,7 @@
       console.error('Update failed:', e);
       error = e.message;
       updateProgress = `❌ Update failed: ${e.message}`;
+      progressLog = [...progressLog, `❌ Error: ${e.message}`];
     } finally {
       isLoading = false;
     }
@@ -274,12 +298,23 @@
         {#if isLoading}
           <div class="update-progress">
             <div class="loading-spinner"></div>
-            <p>{updateProgress}</p>
+            <div class="progress-log">
+              {#each progressLog as logEntry}
+                <div class="log-entry">{logEntry}</div>
+              {/each}
+            </div>
           </div>
         {:else}
           <div class="update-complete">
-            <p>{updateProgress}</p>
-            <button class="btn btn-primary" on:click={goBack}>Back to Home</button>
+            <div class="progress-log completed">
+              {#each progressLog as logEntry}
+                <div class="log-entry">{logEntry}</div>
+              {/each}
+            </div>
+            {#if error}
+              <div class="error-message">{error}</div>
+            {/if}
+            <button class="btn btn-primary mt-4" on:click={goBack}>Back to Home</button>
           </div>
         {/if}
       </div>
@@ -288,12 +323,8 @@
 
   <!-- Navigation -->
   <div class="step-navigation">
-    {#if currentStep > 1}
+    {#if currentStep > 1 && currentStep < 4}
       <button class="btn btn-secondary" on:click={prevStep}>← Back</button>
-    {/if}
-    
-    {#if currentStep === 3 && selectedInstance}
-      <button class="btn btn-primary" on:click={startUpdate}>Start Update</button>
     {/if}
     
     <button class="btn btn-ghost" on:click={goBack}>Cancel</button>
@@ -551,6 +582,46 @@
   @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
+  }
+
+  .progress-log {
+    max-width: 600px;
+    margin: 2rem auto;
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 1rem;
+    max-height: 300px;
+    overflow-y: auto;
+    text-align: left;
+  }
+
+  .progress-log.completed {
+    background: #f0fdf4;
+    border-color: #bbf7d0;
+  }
+
+  .log-entry {
+    padding: 0.5rem;
+    margin: 0.25rem 0;
+    font-family: 'Courier New', monospace;
+    font-size: 0.875rem;
+    color: #374151;
+    border-left: 3px solid transparent;
+  }
+
+  .log-entry:hover {
+    background: rgba(16, 185, 129, 0.05);
+    border-left-color: #10b981;
+  }
+
+  .error-message {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #dc2626;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-top: 1rem;
   }
 
   .error-state {

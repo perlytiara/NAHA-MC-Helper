@@ -75,25 +75,30 @@ ${changesList.map(change => `- **${change}**: Enhanced functionality for better 
 Download the appropriate version for your system below:
 
 ### 🖥️ Windows
+
 - **Installer**: [NAHA.MC.Helper.Setup.${version}.exe](https://github.com/${GITHUB_REPO}/releases/download/v${version}/NAHA.MC.Helper.Setup.${version}.exe) 📦
 - **Portable**: [NAHA.MC.Helper.${version}.exe](https://github.com/${GITHUB_REPO}/releases/download/v${version}/NAHA.MC.Helper.${version}.exe) 💼
 
 ### 🍎 macOS
+
 - **Intel Macs**: [NAHA.MC.Helper-${version}.dmg](https://github.com/${GITHUB_REPO}/releases/download/v${version}/NAHA.MC.Helper-${version}.dmg) 🖱️
 - **Intel Macs (Zip)**: [NAHA.MC.Helper-${version}-mac.zip](https://github.com/${GITHUB_REPO}/releases/download/v${version}/NAHA.MC.Helper-${version}-mac.zip) 📎
 - **Apple Silicon Macs**: [NAHA.MC.Helper-${version}-arm64.dmg](https://github.com/${GITHUB_REPO}/releases/download/v${version}/NAHA.MC.Helper-${version}-arm64.dmg) 🍏
 - **Apple Silicon Macs (Zip)**: [NAHA.MC.Helper-${version}-arm64-mac.zip](https://github.com/${GITHUB_REPO}/releases/download/v${version}/NAHA.MC.Helper-${version}-arm64-mac.zip) 📎
 
 ### 🐧 Linux
+
 - **Universal**: [NAHA.MC.Helper-${version}.AppImage](https://github.com/${GITHUB_REPO}/releases/download/v${version}/NAHA.MC.Helper-${version}.AppImage) 🐧
 - **Debian/Ubuntu**: [naha-mc-helper_${version}_amd64.deb](https://github.com/${GITHUB_REPO}/releases/download/v${version}/naha-mc-helper_${version}_amd64.deb) 📀
 - **Red Hat/Fedora**: [naha-mc-helper-${version}.x86_64.rpm](https://github.com/${GITHUB_REPO}/releases/download/v${version}/naha-mc-helper-${version}.x86_64.rpm) 🔧
 
 ### 📂 Source Code
+
 - [Source code (zip)](https://github.com/${GITHUB_REPO}/archive/refs/tags/v${version}.zip) 📜
 - [Source code (tar.gz)](https://github.com/${GITHUB_REPO}/archive/refs/tags/v${version}.tar.gz) 📜
 
 ## 🔄 Auto-Update Feature
+
 No need to manually check for updates! NAHA MC Helper now automatically detects new versions and notifies you when they're ready to install. Stay current with minimal effort! 🔔
 
 ---
@@ -101,6 +106,7 @@ No need to manually check for updates! NAHA MC Helper now automatically detects 
 **Thank you for using NAHA MC Helper!** We're thrilled to bring you these improvements. Let us know your feedback, and happy exploring! 😄
 
 ## 📋 Version Info
+
 - **Version**: ${version}
 - **Release Date**: ${new Date().toISOString().split('T')[0]}
 - **GitHub Repository**: [${GITHUB_REPO}](https://github.com/${GITHUB_REPO})
