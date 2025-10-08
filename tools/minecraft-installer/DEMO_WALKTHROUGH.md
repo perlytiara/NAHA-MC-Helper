@@ -4,29 +4,29 @@
 
 This standalone Minecraft installer provides **comprehensive Minecraft installation** with **multi-launcher integration**. Here's exactly what happens when you run it:
 
-## 🚀 **Demo Scenario 1: Basic Installation**
+## 🚀 **Demo Scenario 1 - Basic Installation**
 
-### Command:
+### Command
 
 ```bash
 minecraft-installer --version 1.20.1 --create-instance --verbose
 ```
 
-### What It Does:
+### What It Does
 
-#### **Step 1: Initialization** 🏗️
+#### **Step 1 - Initialization** 🏗️
 
-```
+```text
 Minecraft Installer v0.1.0
 Installing Minecraft 1.20.1 with vanilla loader
 Installation directory: C:\Users\user\AppData\Roaming\MinecraftInstaller
 ```
 
-#### **Step 2: Directory Setup** 📁
+#### **Step 2 - Directory Setup** 📁
 
 Creates organized directory structure:
 
-```
+```text
 C:\Users\user\AppData\Roaming\MinecraftInstaller\
 ├── minecraft\
 │   ├── versions\1.20.1\          # Version-specific files
@@ -37,9 +37,9 @@ C:\Users\user\AppData\Roaming\MinecraftInstaller\
 └── instances\                    # Created instances
 ```
 
-#### **Step 3: Launcher Detection** 🔍
+#### **Step 3 - Launcher Detection** 🔍
 
-```
+```text
 🚀 Detected Launchers
 ════════════════════
 Official        C:\Users\user\AppData\Roaming\.minecraft
@@ -47,26 +47,26 @@ PrismLauncher   C:\Users\user\AppData\Roaming\PrismLauncher
 AstralRinth     C:\Users\user\AppData\Roaming\AstralRinthApp
 ```
 
-#### **Step 4: Version Validation** ✅
+#### **Step 4 - Version Validation** ✅
 
-```
+```text
 Fetching Minecraft version manifest...
 ✓ Found Minecraft 1.20.1 (release)
 ✓ Requires Java 17
 ```
 
-#### **Step 5: Java Installation** ☕
+#### **Step 5 - Java Installation** ☕
 
-```
+```text
 Checking Java installation...
 Downloading Java 17 from Adoptium...
 Java JRE [████████████████████████████████████████] 45.2MB/45.2MB (2s)
 ✓ Java 17 successfully installed
 ```
 
-#### **Step 6: Minecraft Download** ⬇️
+#### **Step 6 - Minecraft Download** ⬇️
 
-```
+```text
 Downloading Minecraft components...
 Client 1.20.1 [████████████████████████████████████████] 25.1MB/25.1MB (5s)
 Libraries [████████████████████████████████████████] 127/127 libraries (15s)
@@ -74,9 +74,9 @@ Assets [████████████████████████
 ✓ All components downloaded successfully
 ```
 
-#### **Step 7: Instance Creation** 🎯
+#### **Step 7 - Instance Creation** 🎯
 
-```
+```text
 Installing to AstralRinth launcher at: C:\Users\user\AppData\Roaming\AstralRinthApp
 ✓ Instance 'Minecraft 1.20.1' created at: C:\Users\user\AppData\Roaming\AstralRinthApp\profiles\minecraft-1-20-1
 ✓ Minecraft 1.20.1 successfully installed!
@@ -84,17 +84,17 @@ Installing to AstralRinth launcher at: C:\Users\user\AppData\Roaming\AstralRinth
 
 ---
 
-## 🎮 **Demo Scenario 2: Launcher Detection**
+## 🎮 **Demo Scenario 2 - Launcher Detection and Configuration**
 
-### Command:
+### Execution Command
 
 ```bash
 minecraft-installer --list-launchers
 ```
 
-### Output:
+### Expected Output
 
-```
+```text
 🚀 Detected Launchers
 ════════════════════
 Official        C:\Users\user\AppData\Roaming\.minecraft
@@ -113,19 +113,19 @@ Supported launchers:
 
 ---
 
-## 📦 **Demo Scenario 3: Modpack Installation**
+## 📦 **Demo Scenario 3 - Modpack Installation and Configuration**
 
-### Command:
+### Installation Command
 
 ```bash
 minecraft-installer --mrpack "Fabulously Optimized 5.0.0.mrpack" --create-instance
 ```
 
-### What It Does:
+### Installation Process
 
-#### **Step 1: Mrpack Analysis** 🔍
+#### **Step 1 - Mrpack Analysis** 🔍
 
-```
+```text
 Installing mrpack: Fabulously Optimized 5.0.0.mrpack
 Analyzing modpack structure...
 ✓ Found: Fabulously Optimized v5.0.0
@@ -134,9 +134,9 @@ Analyzing modpack structure...
 ✓ Mods to download: 89 files
 ```
 
-#### **Step 2: Mod Downloads** ⬇️
+#### **Step 2 - Mod Downloads** ⬇️
 
-```
+```text
 Downloading mods...
 Sodium [████████████████████████████████████████] 1.2MB/1.2MB
 Iris [████████████████████████████████████████] 2.8MB/2.8MB
@@ -145,18 +145,18 @@ Lithium [███████████████████████�
 ✓ All mods downloaded and verified
 ```
 
-#### **Step 3: Config Application** ⚙️
+#### **Step 3 - Config Application** ⚙️
 
-```
+```text
 Applying modpack configuration...
 ✓ Copied 47 config files
 ✓ Applied resource pack settings
 ✓ Configured performance options
 ```
 
-#### **Step 4: Instance Creation** 🎯
+#### **Step 4 - Instance Creation** 🎯
 
-```
+```text
 Creating launcher instances...
 ✓ PrismLauncher instance created: Fabulously Optimized 5.0.0
 ✓ AstralRinth profile created: fabulously-optimized-5-0-0
@@ -165,17 +165,17 @@ Creating launcher instances...
 
 ---
 
-## 🔧 **Demo Scenario 4: Version Listing**
+## 🔧 **Demo Scenario 4 - Version Listing and Information**
 
-### Command:
+### Command
 
 ```bash
 minecraft-installer --list-versions --version-type release
 ```
 
-### Output:
+### Output
 
-```
+```text
 🎮 Available Minecraft Versions
 ═════════════════════════════════
 Latest Release: 1.20.1
@@ -302,16 +302,3 @@ When working properly, the installer provides:
 6. **📦 Modpack Support**: Full Modrinth modpack compatibility
 
 The installer bridges the gap between manual Minecraft installation and launcher-specific installation, providing a **universal solution** that works with any launcher while maintaining the **quality and features** of the original AstralRinth installation process.
-
-
-
-
-
-
-
-
-
-
-
-
-

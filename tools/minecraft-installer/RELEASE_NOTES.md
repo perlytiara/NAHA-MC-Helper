@@ -95,7 +95,7 @@ minecraft-installer.exe --list-versions
 
 ### Standard Launcher Installation
 
-```
+```text
 launcher/
 ├── instances/
 │   └── NAHA-NeoForge/

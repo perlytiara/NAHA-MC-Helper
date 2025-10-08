@@ -50,7 +50,7 @@ Location: `target/release/`
 
 ## 🚀 How to Create a Release
 
-### One Command:
+### One Command
 
 **Windows:**
 
@@ -67,7 +67,7 @@ chmod +x create-release.sh
 ./create-release.sh 1.0.0
 ```
 
-### What Happens:
+### What Happens
 
 1. ✅ Creates git tag `v1.0.0`
 2. ✅ Pushes to GitHub
@@ -88,7 +88,7 @@ chmod +x create-release.sh
 
 Each release will contain:
 
-```
+```text
 Release v1.0.0
 ├── minecraft-installer-windows-x86_64.exe (10-12 MB)
 ├── minecraft-installer-windows-x86_64.exe.sha256
@@ -119,7 +119,7 @@ Release v1.0.0
 
 ### Project Structure
 
-```
+```text
 minecraft-installer/
 ├── TWO EXECUTABLES:
 │   ├── minecraft-installer (src/main.rs)

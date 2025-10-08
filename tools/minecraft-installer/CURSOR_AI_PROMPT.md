@@ -46,16 +46,20 @@ Both binaries share the same library code in `src/lib.rs`.
 ## GitHub Actions CI/CD
 
 ### Workflow File
+
 `.github/workflows/build.yml`
 
 ### Trigger
+
 ```bash
 git tag -a v1.0.0 -m "Release v1.0.0"
 git push origin v1.0.0
 ```
 
 ### Build Matrix
+
 Builds for **5 platforms** in parallel:
+
 - Windows x64 (MSVC)
 - Windows x64 (GNU)
 - Linux x64 (GNU)
@@ -63,18 +67,20 @@ Builds for **5 platforms** in parallel:
 - macOS aarch64 (Apple Silicon)
 
 ### Output Per Release
+
 - **10 binary files** (2 executables × 5 platforms)
 - **10 checksum files** (.sha256)
 - **1 GitHub release** with professional notes
 
 ### Total Build Time
+
 ~10-15 minutes (parallel execution)
 
 ---
 
 ## Directory Structure
 
-```
+```text
 minecraft-installer/
 ├── src/
 │   ├── main.rs                      # minecraft-installer entry
@@ -124,6 +130,7 @@ pub async fn fetch_modpack_info_version(&self, modpack_type: &str, target_versio
 ```
 
 **API Endpoints:**
+
 - Latest: `https://api.github.com/repos/perlytiara/NAHA-Minecraft-Modpacks/releases/latest`
 - Specific: `https://api.github.com/repos/perlytiara/NAHA-Minecraft-Modpacks/releases/tags/NeoForge-0.0.18`
 
@@ -154,6 +161,7 @@ async fn update_mods_intelligently(
 ```
 
 **Algorithm:**
+
 1. Download new mrpack from GitHub
 2. Deduplicate mrpack entries
 3. Normalize mod names (handles complex names like `sodium-extra-0.6.0+mc1.21.1.jar`)
@@ -176,6 +184,7 @@ async fn update_launcher_database(
 ```
 
 **Updates:**
+
 - AstralRinth `app.db`
 - ModrinthApp `app.db`
 - Sets `modified` timestamp
@@ -199,6 +208,7 @@ cargo build --release --bin minecraft-updater
 ```
 
 **Output:**
+
 - `target/release/minecraft-installer[.exe]`
 - `target/release/minecraft-updater[.exe]`
 
@@ -368,6 +378,7 @@ target/release/minecraft-updater scan --format compact
 Edit: `.github/workflows/build.yml`
 
 Common changes:
+
 - Add new platform to matrix
 - Change release note template
 - Add build dependencies
@@ -404,6 +415,7 @@ cargo check --bin minecraft-updater
 ### Release Not Created
 
 Check:
+
 - ✅ Tag starts with `v` (e.g., `v1.0.0` not `1.0.0`)
 - ✅ Tag was pushed: `git push origin v1.0.0`
 - ✅ Workflow file exists: `.github/workflows/build.yml`
@@ -415,6 +427,7 @@ Check:
 ## Quick Reference Card
 
 ### Build Commands
+
 ```bash
 cargo build --release                              # Both binaries (current platform)
 cargo build --release --bin minecraft-installer    # Just installer
@@ -424,6 +437,7 @@ cargo build --release --bin minecraft-updater      # Just updater
 ```
 
 ### Release Commands
+
 ```bash
 ./create-release.sh 1.0.0    # Create and push tag (triggers CI/CD)
 git tag -a v1.0.0 -m "..."   # Manual tag creation
@@ -431,6 +445,7 @@ git push origin v1.0.0       # Manual tag push
 ```
 
 ### Test Commands
+
 ```bash
 cargo test                                         # Run all tests
 cargo test --lib                                  # Library tests only
@@ -532,7 +547,8 @@ function installModpack(modpackType, targetLauncher = null) {
 ## File Locations After Build
 
 ### Local Build
-```
+
+```text
 target/
 └── release/
     ├── minecraft-installer[.exe]
@@ -540,7 +556,8 @@ target/
 ```
 
 ### Cross-Platform Build
-```
+
+```text
 dist/
 ├── minecraft-installer-windows-x86_64.exe
 ├── minecraft-updater-windows-x86_64.exe
@@ -555,7 +572,8 @@ dist/
 ```
 
 ### GitHub Release
-```
+
+```text
 https://github.com/perlytiara/AstralRinth/releases/tag/v1.0.0
 ├── minecraft-installer-windows-x86_64.exe
 ├── minecraft-installer-windows-x86_64.exe.sha256
@@ -570,6 +588,7 @@ https://github.com/perlytiara/AstralRinth/releases/tag/v1.0.0
 ## GitHub Actions Workflow Highlights
 
 ### Build Step
+
 ```yaml
 - name: Build both binaries
   run: |
@@ -578,6 +597,7 @@ https://github.com/perlytiara/AstralRinth/releases/tag/v1.0.0
 ```
 
 ### Prepare Binaries
+
 ```yaml
 - name: Prepare binaries (Windows)
   if: matrix.os == 'windows-latest'
@@ -588,6 +608,7 @@ https://github.com/perlytiara/AstralRinth/releases/tag/v1.0.0
 ```
 
 ### Upload Artifacts
+
 ```yaml
 - name: Upload installer artifact
   uses: actions/upload-artifact@v4
@@ -606,7 +627,7 @@ https://github.com/perlytiara/AstralRinth/releases/tag/v1.0.0
 
 ## Complete Release Workflow
 
-```
+```text
 ┌──────────────────────────────────────┐
 │  Developer: ./create-release.sh 1.0.0│
 └──────────────────────────────────────┘
@@ -676,17 +697,20 @@ https://github.com/perlytiara/AstralRinth/releases/tag/v1.0.0
 **Documentation:** Comprehensive (6+ markdown files)  
 
 **Key Commands:**
+
 - Build: `cargo build --release`
 - Release: `./create-release.sh [version]`
 - Test: `cargo test`
 
 **Key Files:**
+
 - Workflow: `.github/workflows/build.yml`
 - Installer: `src/main.rs`
 - Updater: `src/bin/minecraft-updater.rs`
 - Shared: `src/launcher_support.rs`, `src/updater.rs`
 
 **Integration Points:**
+
 - Scan: `minecraft-updater scan --format json`
 - Update: `minecraft-updater update --instance-path ... --modpack-type ... --format json`
 - Install: `minecraft-installer --download-neoforge --create-instance`
@@ -694,7 +718,7 @@ https://github.com/perlytiara/AstralRinth/releases/tag/v1.0.0
 ---
 
 **For full details, see:**
+
 - [BUILD_AND_RELEASE.md](BUILD_AND_RELEASE.md) - Complete guide
 - [INTEGRATION_SUMMARY.md](INTEGRATION_SUMMARY.md) - Technical overview
 - [RELEASE_QUICK_GUIDE.md](RELEASE_QUICK_GUIDE.md) - Quick instructions
-

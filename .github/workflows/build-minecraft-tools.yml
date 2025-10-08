@@ -1,4 +1,4 @@
-name: Build and Release
+name: Build and Release Minecraft Tools
 
 on:
   push:
@@ -38,6 +38,10 @@ jobs:
             target: aarch64-apple-darwin
             platform_suffix: macos-apple-silicon-aarch64
 
+    defaults:
+      run:
+        working-directory: tools/minecraft-installer
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -56,8 +60,8 @@ jobs:
           path: |
             ~/.cargo/registry
             ~/.cargo/git
-            target
-          key: ${{ runner.os }}-cargo-${{ matrix.target }}-${{ hashFiles('**/Cargo.lock') }}
+            tools/minecraft-installer/target
+          key: ${{ runner.os }}-cargo-${{ matrix.target }}-${{ hashFiles('tools/minecraft-installer/Cargo.lock') }}
           restore-keys: |
             ${{ runner.os }}-cargo-${{ matrix.target }}-
 
@@ -105,14 +109,14 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: installer-${{ matrix.platform_suffix }}
-          path: dist/minecraft-installer-${{ matrix.platform_suffix }}*
+          path: tools/minecraft-installer/dist/minecraft-installer-${{ matrix.platform_suffix }}*
           retention-days: 30
 
       - name: Upload updater artifact
         uses: actions/upload-artifact@v4
         with:
           name: updater-${{ matrix.platform_suffix }}
-          path: dist/minecraft-updater-${{ matrix.platform_suffix }}*
+          path: tools/minecraft-installer/dist/minecraft-updater-${{ matrix.platform_suffix }}*
           retention-days: 30
 
   create-release:
@@ -225,28 +229,28 @@ jobs:
           #### Minecraft Installer
 
           **Windows:**
-          - `minecraft-installer-windows-x86_64.exe` - Windows x64 (MSVC, recommended)
-          - `minecraft-installer-windows-gnu-x86_64.exe` - Windows x64 (GNU)
+          - \`minecraft-installer-windows-x86_64.exe\` - Windows x64 (MSVC, recommended)
+          - \`minecraft-installer-windows-gnu-x86_64.exe\` - Windows x64 (GNU)
 
           **Linux:**
-          - `minecraft-installer-linux-x86_64` - Linux x64
+          - \`minecraft-installer-linux-x86_64\` - Linux x64
 
           **macOS:**
-          - `minecraft-installer-macos-intel-x86_64` - macOS Intel
-          - `minecraft-installer-macos-apple-silicon-aarch64` - macOS Apple Silicon (M1/M2/M3)
+          - \`minecraft-installer-macos-intel-x86_64\` - macOS Intel
+          - \`minecraft-installer-macos-apple-silicon-aarch64\` - macOS Apple Silicon (M1/M2/M3)
 
           #### Minecraft Updater
 
           **Windows:**
-          - `minecraft-updater-windows-x86_64.exe` - Windows x64 (MSVC, recommended)
-          - `minecraft-updater-windows-gnu-x86_64.exe` - Windows x64 (GNU)
+          - \`minecraft-updater-windows-x86_64.exe\` - Windows x64 (MSVC, recommended)
+          - \`minecraft-updater-windows-gnu-x86_64.exe\` - Windows x64 (GNU)
 
           **Linux:**
-          - `minecraft-updater-linux-x86_64` - Linux x64
+          - \`minecraft-updater-linux-x86_64\` - Linux x64
 
           **macOS:**
-          - `minecraft-updater-macos-intel-x86_64` - macOS Intel
-          - `minecraft-updater-macos-apple-silicon-aarch64` - macOS Apple Silicon (M1/M2/M3)
+          - \`minecraft-updater-macos-intel-x86_64\` - macOS Intel
+          - \`minecraft-updater-macos-apple-silicon-aarch64\` - macOS Apple Silicon (M1/M2/M3)
 
           ---
 
@@ -273,7 +277,7 @@ jobs:
           ### 🚀 Quick Start
 
           #### Install a Modpack
-          ```bash
+          \`\`\`bash
           # From mrpack file
           minecraft-installer --mrpack "modpack.mrpack" --create-instance
 
@@ -281,11 +285,11 @@ jobs:
           minecraft-installer --download-neoforge --create-instance
 
           # To custom path
-          minecraft-installer --mrpack "modpack.mrpack" --target-launcher other --custom-path "C:\Games\Minecraft" --create-instance
-          ```
+          minecraft-installer --mrpack "modpack.mrpack" --target-launcher other --custom-path "C:\\Games\\Minecraft" --create-instance
+          \`\`\`
 
           #### Update Existing Instances
-          ```bash
+          \`\`\`bash
           # Scan all instances
           minecraft-updater scan --format compact
 
@@ -293,14 +297,14 @@ jobs:
           minecraft-updater interactive --modpack-type neoforge
 
           # Update specific instance to latest
-          minecraft-updater update --instance-path "C:\path\to\instance" --modpack-type neoforge
+          minecraft-updater update --instance-path "C:\\path\\to\\instance" --modpack-type neoforge
 
           # Update to specific version
-          minecraft-updater update --instance-path "C:\path\to\instance" --modpack-type neoforge --version 0.0.18
+          minecraft-updater update --instance-path "C:\\path\\to\\instance" --modpack-type neoforge --version 0.0.18
 
           # Get JSON output for Electron apps
           minecraft-updater scan --format json
-          ```
+          \`\`\`
 
           ---
 
@@ -308,14 +312,14 @@ jobs:
 
           Both tools provide JSON output for easy integration with Electron apps:
 
-          ```javascript
+          \`\`\`javascript
           const { spawn } = require('child_process')
           
           // Scan instances
           const scanner = spawn('minecraft-updater', ['scan', '--format', 'json'])
           scanner.stdout.on('data', (data) => {
             const instances = JSON.parse(data)
-            console.log(`Found ${instances.length} instances`)
+            console.log(\`Found \${instances.length} instances\`)
           })
 
           // Update instance
@@ -325,7 +329,7 @@ jobs:
             '--modpack-type', 'neoforge',
             '--format', 'json'
           ])
-          ```
+          \`\`\`
 
           ---
 
@@ -345,24 +349,24 @@ jobs:
 
           ### 🔒 Checksums
 
-          All binaries include SHA256 checksums (`.sha256` files) for verification.
+          All binaries include SHA256 checksums (\`.sha256\` files) for verification.
 
           To verify a download:
-          ```bash
+          \`\`\`bash
           # Windows (PowerShell)
           Get-FileHash minecraft-installer-windows-x86_64.exe -Algorithm SHA256
 
           # Linux/macOS
           shasum -a 256 -c minecraft-installer-linux-x86_64.sha256
-          ```
+          \`\`\`
 
           ---
 
           ### 📚 Documentation
 
-          - [Integration Guide](https://github.com/perlytiara/AstralRinth/blob/main/minecraft-installer/INTEGRATION_GUIDE.md)
-          - [Quick Start](https://github.com/perlytiara/AstralRinth/blob/main/minecraft-installer/QUICK_START.md)
-          - [Updater Guide](https://github.com/perlytiara/AstralRinth/blob/main/minecraft-installer/UPDATER_GUIDE.md)
+          - [Integration Guide](https://github.com/perlytiara/NAHA-MC-Helper/blob/main/tools/minecraft-installer/INTEGRATION_SUMMARY.md)
+          - [Quick Start](https://github.com/perlytiara/NAHA-MC-Helper/blob/main/tools/minecraft-installer/QUICK_START.md)
+          - [Updater Guide](https://github.com/perlytiara/NAHA-MC-Helper/blob/main/tools/minecraft-installer/UPDATER_GUIDE.md)
 
           ---
 
@@ -388,3 +392,4 @@ jobs:
             upload/*
           draft: false
           prerelease: false
+

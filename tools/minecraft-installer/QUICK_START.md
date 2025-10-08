@@ -2,26 +2,26 @@
 
 ## 🚀 Getting Started
 
-### 1. Download
+### 1. Download the Installer
 
 - Get `minecraft-installer-windows-x86_64.exe` from the `dist/` folder
 - No additional dependencies required!
 
 ### 2. Basic Usage
 
-#### Install from mrpack file:
+#### Install from mrpack file
 
 ```bash
 minecraft-installer.exe --mrpack "your-modpack.mrpack" --create-instance
 ```
 
-#### Install to specific launcher:
+#### Install to specific launcher
 
 ```bash
 minecraft-installer.exe --mrpack "your-modpack.mrpack" --target-launcher xmcl --create-instance
 ```
 
-#### Install to custom path (NEW!):
+#### Install to custom path (NEW)
 
 ```bash
 minecraft-installer.exe --mrpack "your-modpack.mrpack" --target-launcher other --custom-path "C:\Games\Minecraft" --create-instance
@@ -114,14 +114,7 @@ After installation, your modpack will be available in:
 - **PrismLauncher**: `%USERPROFILE%\AppData\Roaming\PrismLauncher\instances\NAHA-NeoForge\`
 - **Custom Path**: Whatever path you specified with `--custom-path`
 
-## 🎉 Success!
+## 🎉 Success
 
 Once installed, launch your launcher and you should see the new instance ready to play!
-
-
-
-
-
-
-
 

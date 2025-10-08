@@ -9,7 +9,8 @@ This document explains how the Minecraft Installer integrates with different lau
 - **Detection**: `launcher_profiles.json` + `versions/` directory
 - **Instance Format**: Profiles in `launcher_profiles.json`
 - **Directory Structure**:
-  ```
+
+  ```text
   .minecraft/
   ├── launcher_profiles.json
   ├── versions/
@@ -24,7 +25,8 @@ This document explains how the Minecraft Installer integrates with different lau
 - **Detection**: `prismlauncher.cfg` + `instances/` directory
 - **Instance Format**: MultiMC-style instances with `instance.cfg` and `mmc-pack.json`
 - **Directory Structure**:
-  ```
+
+  ```text
   PrismLauncher/
   ├── prismlauncher.cfg
   ├── accounts.json
@@ -46,7 +48,8 @@ This document explains how the Minecraft Installer integrates with different lau
 - **Detection**: `config.json` + `instances.json`
 - **Instance Format**: JSON-based instance configuration
 - **Directory Structure**:
-  ```
+
+  ```text
   .xmcl/
   ├── config.json
   ├── instances.json
@@ -61,7 +64,8 @@ This document explains how the Minecraft Installer integrates with different lau
 - **Detection**: `settings.json` + `profiles/` directory
 - **Instance Format**: Profile-based with `profile.json`
 - **Directory Structure**:
-  ```
+
+  ```text
   AstralRinthApp/
   ├── settings.json
   ├── profiles/
@@ -201,7 +205,7 @@ The installer fully supports mrpack files:
 
 ### Mrpack Structure Handling
 
-```
+```text
 modpack.mrpack (ZIP file)
 ├── modrinth.index.json     # Modpack metadata and file list
 └── overrides/              # Files to copy to instance
@@ -264,6 +268,7 @@ cargo test launcher_structures
    ```
 
 3. **Mrpack Installation**:
+
    ```bash
    minecraft-installer --mrpack test-modpack.mrpack --create-instance
    ```

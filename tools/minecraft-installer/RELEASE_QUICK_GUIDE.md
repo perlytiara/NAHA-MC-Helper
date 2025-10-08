@@ -18,7 +18,7 @@ That's it! GitHub Actions handles everything else.
 
 ### ⏱️ Timeline: ~10-15 minutes total
 
-```
+```text
 0:00  ✅ Tag created and pushed
 0:01  🔄 GitHub Actions triggered
       
@@ -49,10 +49,11 @@ That's it! GitHub Actions handles everything else.
 
 ## What You Get
 
-### GitHub Release Contains:
+### GitHub Release Contains
 
 **10 Executables:**
-```
+
+```text
 ✅ minecraft-installer-windows-x86_64.exe
 ✅ minecraft-installer-windows-gnu-x86_64.exe
 ✅ minecraft-installer-linux-x86_64
@@ -67,11 +68,13 @@ That's it! GitHub Actions handles everything else.
 ```
 
 **10 Checksums:**
-```
+
+```text
 ✅ [each binary].sha256
 ```
 
 **Plus:**
+
 - 📝 Auto-generated release notes
 - 📊 Feature highlights
 - 🚀 Quick start examples
@@ -110,12 +113,12 @@ chmod +x minecraft-updater-linux-x86_64
 
 ---
 
-## That's It!
+## That's It
 
 Creating a release is literally:
+
 1. Run `./create-release.sh 1.0.0`
 2. Wait 15 minutes
 3. Download and test
 
 GitHub Actions does all the heavy lifting! 🎉
-
