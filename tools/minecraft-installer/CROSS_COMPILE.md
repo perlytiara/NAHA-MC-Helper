@@ -98,3 +98,10 @@ The Windows build produces:
 - Supports all launcher types including the new "Other" custom path launcher
 - Includes all features: mrpack installation, API downloads, automodpack setup
 
+
+
+
+
+
+
+

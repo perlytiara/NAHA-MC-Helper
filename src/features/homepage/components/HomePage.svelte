@@ -136,10 +136,16 @@ const features = [
     
     <!-- Call to action -->
     <div class="cta-section">
-      <button class="cta-button" on:click={startSetupFlow}>
-        <span class="cta-icon">🚀</span>
-        <span class="cta-text">Take me through the setup</span>
-      </button>
+      <div class="cta-buttons">
+        <button class="cta-button primary" on:click={() => currentPage.set('minecraft-manager')}>
+          <span class="cta-icon">🎮</span>
+          <span class="cta-text">Manage Minecraft Modpacks</span>
+        </button>
+        <button class="cta-button secondary" on:click={startSetupFlow}>
+          <span class="cta-icon">🚀</span>
+          <span class="cta-text">Take me through the setup</span>
+        </button>
+      </div>
     </div>
     
     <!-- Update Status Section -->
@@ -423,10 +429,15 @@ const features = [
         align-items: center;
         width: 100%;
     }
+
+    .cta-buttons {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
     
     .cta-button {
-        background: linear-gradient(135deg, #3b82f6, #8b5cf6);
-        color: white;
         border: none;
         border-radius: 12px;
         padding: 0.75rem 1.5rem;
@@ -437,11 +448,30 @@ const features = [
         display: inline-flex;
         align-items: center;
         gap: 0.4rem;
-        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
         backdrop-filter: blur(10px);
+        min-width: 200px;
+        justify-content: center;
+    }
+
+    .cta-button.primary {
+        background: linear-gradient(135deg, #10b981, #059669);
+        color: white;
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    }
+
+    .cta-button.secondary {
+        background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+        color: white;
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
     }
     
-    .cta-button:hover {
+    .cta-button.primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(16, 185, 129, 0.4);
+        background: linear-gradient(135deg, #059669, #047857);
+    }
+
+    .cta-button.secondary:hover {
         transform: translateY(-2px);
         box-shadow: 0 8px 24px rgba(59, 130, 246, 0.4);
         background: linear-gradient(135deg, #2563eb, #7c3aed);

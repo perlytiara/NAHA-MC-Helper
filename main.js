@@ -188,11 +188,22 @@ const createMenu = () => {
 };
 
 const createWindow = () => {
+  // Use platform-appropriate icon
+  let iconPath;
+  if (process.platform === 'win32') {
+    iconPath = path.join(__dirname, "public", "icons", "win", "icon.ico");
+  } else if (process.platform === 'darwin') {
+    iconPath = path.join(__dirname, "public", "icons", "mac", "icon.icns");
+  } else {
+    iconPath = path.join(__dirname, "public", "icons", "png", "512x512.png");
+  }
+
   mainWindow = new BrowserWindow({
     width: 1200,
     height: 800,
     titleBarStyle: "default",
     autoHideMenuBar: false,
+    icon: iconPath,
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,

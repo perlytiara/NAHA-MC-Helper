@@ -32,3 +32,10 @@ echo "✓ macOS builds complete:"
 echo "  - dist/minecraft-installer-macos-intel-x86_64"
 echo "  - dist/minecraft-installer-macos-apple-silicon-aarch64"
 
+
+
+
+
+
+
+

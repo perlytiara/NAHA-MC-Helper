@@ -11,17 +11,18 @@
   
   const dispatch = createEventDispatcher();
   
-  function handleDownload() {
-    console.log('🔥 UpdateModal: handleDownload called!');
-    console.log('🔥 UpdateModal: Current state - updateInfo:', !!updateInfo, 'isDownloading:', isDownloading, 'isChecking:', isChecking);
-    dispatch('download');
-  }
-  
   function handleInstall() {
-    dispatch('install');
+    console.log('🔥 UpdateModal: handleInstall called - downloading and installing!');
+    dispatch('download'); // Triggers download which leads to install
   }
   
-  function handleLater() {
+  function handleUpdate() {
+    console.log('🔥 UpdateModal: handleUpdate called - downloading update!');
+    dispatch('download'); // Same as install, just different UX
+  }
+  
+  function handleSkip() {
+    console.log('🔥 UpdateModal: handleSkip called - skipping this version');
     dispatch('later');
   }
   
@@ -73,44 +74,79 @@
       <div class="space-y-4">
         {#if updateInfo}
           <!-- Update Available -->
-          <div class="bg-success/10 border border-success/20 rounded-lg p-4">
-            <div class="flex items-center gap-3 mb-3">
-              <div class="badge badge-success badge-lg">NEW</div>
-              <span class="text-lg font-semibold">Version {updateInfo.version}</span>
-            </div>
-            <p class="text-base-content/70 mb-2">
-              You're currently running version <strong>{currentVersion}</strong>
-            </p>
-            <!-- Development mode notice -->
-            <div class="alert alert-info text-sm mb-3">
-              <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-4 w-4" fill="none" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-              </svg>
-              <span>In development mode, the download will open GitHub releases page for manual installation.</span>
-            </div>
-            {#if updateInfo.releaseNotes}
-              <div class="collapse collapse-arrow bg-base-100">
-                <input type="checkbox" />
-                <div class="collapse-title text-sm font-medium">
-                  View Release Notes
+          <div class="bg-gradient-to-br from-success/10 to-info/10 border border-success/30 rounded-xl p-6">
+            <div class="flex items-start justify-between mb-4">
+              <div>
+                <div class="flex items-center gap-3 mb-2">
+                  <div class="badge badge-success badge-lg font-bold">NEW VERSION</div>
+                  <span class="text-2xl font-bold text-success">v{updateInfo.version}</span>
                 </div>
-                <div class="collapse-content">
-                  <div class="text-sm whitespace-pre-wrap">{updateInfo.releaseNotes}</div>
+                <p class="text-base-content/60 text-sm">
+                  Current version: <span class="font-semibold text-base-content">v{currentVersion}</span>
+                </p>
+              </div>
+              <div class="text-5xl">🚀</div>
+            </div>
+            
+            {#if updateInfo.releaseNotes}
+              <div class="bg-base-100 rounded-lg p-4 mb-4">
+                <h4 class="font-semibold mb-2 text-base">What's New:</h4>
+                <div class="text-sm text-base-content/80 whitespace-pre-wrap max-h-48 overflow-y-auto">
+                  {updateInfo.releaseNotes}
                 </div>
               </div>
             {/if}
+            
+            <div class="alert alert-info text-sm">
+              <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-5 w-5" fill="none" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+              <div>
+                <p class="font-semibold">Installation Process</p>
+                <p class="text-xs opacity-80">The installer will download and open automatically. Follow the on-screen prompts to complete the update.</p>
+              </div>
+            </div>
           </div>
           
           <div class="flex gap-3 justify-end">
-            <button class="btn btn-outline" on:click={handleLater}>
-              Later
+            <button 
+              class="btn btn-ghost gap-2" 
+              on:click={handleSkip}
+              disabled={isDownloading}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+              Skip This Version
             </button>
-            <button class="btn btn-primary" on:click={handleDownload}>
+            <button 
+              class="btn btn-info gap-2" 
+              on:click={handleUpdate}
+              disabled={isDownloading}
+            >
               {#if isDownloading}
-                <span class="loading loading-spinner loading-sm mr-2"></span>
+                <span class="loading loading-spinner loading-sm"></span>
                 Downloading...
               {:else}
-                📥 Download Update
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                </svg>
+                Update Later
+              {/if}
+            </button>
+            <button 
+              class="btn btn-success gap-2" 
+              on:click={handleInstall}
+              disabled={isDownloading}
+            >
+              {#if isDownloading}
+                <span class="loading loading-spinner loading-sm"></span>
+                Preparing...
+              {:else}
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+                Install Now
               {/if}
             </button>
           </div>

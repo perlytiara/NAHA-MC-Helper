@@ -17,6 +17,10 @@ path = "debug_db.rs"
 name = "test-db-insert"
 path = "test_db_insert.rs"
 
+[[bin]]
+name = "minecraft-updater"
+path = "src/bin/minecraft-updater.rs"
+
 [lib]
 name = "minecraft_installer"
 path = "src/lib.rs"
@@ -35,7 +39,10 @@ serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 
 # File I/O and compression
-zip = { version = "4.3", default-features = false, features = ["deflate", "bzip2"] }
+zip = { version = "4.3", default-features = false, features = [
+  "deflate",
+  "bzip2",
+] }
 flate2 = "1.1"
 sha1_smol = { version = "1.0", features = ["std"] }
 sha2 = "0.10"

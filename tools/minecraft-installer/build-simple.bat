@@ -30,3 +30,10 @@ echo.
 echo Output files:
 dir dist
 
+
+
+
+
+
+
+

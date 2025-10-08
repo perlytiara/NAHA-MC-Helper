@@ -58,3 +58,10 @@ echo    https://github.com/perlytiara/minecraft-installer/releases/tag/v%VERSION
 
 pause
 
+
+
+
+
+
+
+

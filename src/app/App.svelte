@@ -5,6 +5,7 @@
   import { OnboardingFlow } from '../features/onboarding';
   import ServersPage from '../features/servers/components/ServersPage.svelte';
   import InstallPage from '../features/install/components/InstallPage.svelte';
+  import MinecraftManager from '../shared/components/MinecraftManager.svelte';
   import StatusBanner from '../shared/components/ui/feedback/StatusBanner.svelte';
   import AboutDialog from '../shared/components/ui/dialogs/AboutDialog.svelte';
   import UpdateModal from '../components/UpdateModal.svelte';
@@ -415,6 +416,10 @@
     </div>
   {:else if $currentPage === 'servers'}
     <ServersPage />
+  {:else if $currentPage === 'minecraft-manager'}
+    <div class="p-8">
+      <MinecraftManager on:skip={() => currentPage.set('homepage')} />
+    </div>
   {:else if $currentPage === 'packer'}
     <div class="p-8">
       <h1>Packer Tool - Coming Soon</h1>

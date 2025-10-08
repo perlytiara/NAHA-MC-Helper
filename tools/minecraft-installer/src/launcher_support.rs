@@ -1098,25 +1098,157 @@ notes=Created by Minecraft Installer
 
     /// Download modpack info from NAHA API
     pub async fn fetch_modpack_info(&self, modpack_type: &str) -> Result<NahaModpackInfo> {
-        let api_url = format!("https://perlytiara.github.io/NAHA-MC.IO/api/{}/", modpack_type);
-        info!("Fetching modpack info from: {}", api_url);
+        // Use GitHub releases API to get the latest modpack
+        let api_url = "https://api.github.com/repos/perlytiara/NAHA-Minecraft-Modpacks/releases/latest";
+        info!("Fetching modpack info from GitHub: {}", api_url);
 
         let client = reqwest::Client::new();
-        let response = client.get(&api_url).send().await
+        let response = client.get(api_url)
+            .header("User-Agent", "Minecraft-Installer/1.0")
+            .send().await
             .map_err(|e| MinecraftInstallerError::InstallationFailed(
                 format!("Failed to fetch modpack info: {}", e)
             ))?;
 
         if !response.status().is_success() {
             return Err(MinecraftInstallerError::InstallationFailed(
-                format!("API request failed with status: {}", response.status())
+                format!("GitHub API request failed with status: {}", response.status())
             ));
         }
 
-        let modpack_info: NahaModpackInfo = response.json().await
+        let release_data: serde_json::Value = response.json().await
             .map_err(|e| MinecraftInstallerError::InstallationFailed(
-                format!("Failed to parse modpack info: {}", e)
+                format!("Failed to parse GitHub release data: {}", e)
             ))?;
+
+        // Find the appropriate mrpack file based on modpack_type
+        let assets = release_data["assets"].as_array()
+            .ok_or_else(|| MinecraftInstallerError::InstallationFailed(
+                "No assets found in GitHub release".to_string()
+            ))?;
+
+        let mrpack_asset = if modpack_type == "neoforge" {
+            assets.iter().find(|asset| {
+                let name = asset["name"].as_str().unwrap_or("");
+                (name.contains("NeoForge") || name.contains("Neoforge")) && name.ends_with(".mrpack")
+            })
+        } else if modpack_type == "fabric" {
+            assets.iter().find(|asset| {
+                let name = asset["name"].as_str().unwrap_or("");
+                name.contains("Fabric") && name.ends_with(".mrpack")
+            })
+        } else {
+            None
+        };
+
+        let asset = mrpack_asset.ok_or_else(|| MinecraftInstallerError::InstallationFailed(
+            format!("No {} mrpack found in latest release", modpack_type)
+        ))?;
+
+        let download_url = asset["browser_download_url"].as_str()
+            .ok_or_else(|| MinecraftInstallerError::InstallationFailed(
+                "No download URL found for mrpack".to_string()
+            ))?;
+
+        // Extract version from filename (e.g., "NAHA-Neoforge-1.21.1-0.2.0.mrpack" -> "0.2.0")
+        let filename = asset["name"].as_str().unwrap_or("");
+        let version = filename.split('-').last()
+            .and_then(|v| v.strip_suffix(".mrpack"))
+            .unwrap_or("latest");
+
+        // Create NahaModpackInfo with GitHub data
+        let modpack_info = NahaModpackInfo {
+            server_name: "NAHA Server".to_string(),
+            server_type: modpack_type.to_string(),
+            latest_mrpack: filename.to_string(),
+            fingerprint: "naha-server-fingerprint".to_string(),
+            version: version.to_string(),
+            last_updated: "2025-10-04T00:00:00Z".to_string(),
+            description: format!("NAHA {} Modpack v{}", modpack_type, version),
+            download_url: download_url.to_string(),
+            server_ip: "play.naha.com".to_string(),
+            server_port: 25565,
+        };
+
+        info!("✓ Fetched modpack info: {} v{}", modpack_info.server_name, modpack_info.version);
+        Ok(modpack_info)
+    }
+
+    /// Fetch modpack info for a specific version/tag
+    pub async fn fetch_modpack_info_version(&self, modpack_type: &str, target_version: &str) -> Result<NahaModpackInfo> {
+        // Use GitHub releases API to get a specific release by tag
+        let tag_name = if modpack_type == "neoforge" {
+            format!("NeoForge-{}", target_version)
+        } else {
+            format!("Fabric-{}", target_version)
+        };
+        
+        let api_url = format!("https://api.github.com/repos/perlytiara/NAHA-Minecraft-Modpacks/releases/tags/{}", tag_name);
+        info!("Fetching specific version from GitHub: {}", api_url);
+
+        let client = reqwest::Client::new();
+        let response = client.get(&api_url)
+            .header("User-Agent", "Minecraft-Installer/1.0")
+            .send().await
+            .map_err(|e| MinecraftInstallerError::InstallationFailed(
+                format!("Failed to fetch modpack info: {}", e)
+            ))?;
+
+        if !response.status().is_success() {
+            return Err(MinecraftInstallerError::InstallationFailed(
+                format!("GitHub API request failed with status: {} (tag: {})", response.status(), tag_name)
+            ));
+        }
+
+        let release_data: serde_json::Value = response.json().await
+            .map_err(|e| MinecraftInstallerError::InstallationFailed(
+                format!("Failed to parse GitHub release data: {}", e)
+            ))?;
+
+        // Find the appropriate mrpack file
+        let assets = release_data["assets"].as_array()
+            .ok_or_else(|| MinecraftInstallerError::InstallationFailed(
+                "No assets found in GitHub release".to_string()
+            ))?;
+
+        let mrpack_asset = if modpack_type == "neoforge" {
+            assets.iter().find(|asset| {
+                let name = asset["name"].as_str().unwrap_or("");
+                (name.contains("NeoForge") || name.contains("Neoforge")) && name.ends_with(".mrpack")
+            })
+        } else if modpack_type == "fabric" {
+            assets.iter().find(|asset| {
+                let name = asset["name"].as_str().unwrap_or("");
+                name.contains("Fabric") && name.ends_with(".mrpack")
+            })
+        } else {
+            None
+        };
+
+        let asset = mrpack_asset.ok_or_else(|| MinecraftInstallerError::InstallationFailed(
+            format!("No {} mrpack found in release {}", modpack_type, tag_name)
+        ))?;
+
+        let download_url = asset["browser_download_url"].as_str()
+            .ok_or_else(|| MinecraftInstallerError::InstallationFailed(
+                "No download URL found for mrpack".to_string()
+            ))?;
+
+        let filename = asset["name"].as_str().unwrap_or("");
+
+        // Create NahaModpackInfo
+        let modpack_info = NahaModpackInfo {
+            server_name: "NAHA Server".to_string(),
+            server_type: modpack_type.to_string(),
+            latest_mrpack: filename.to_string(),
+            fingerprint: "naha-server-fingerprint".to_string(),
+            version: target_version.to_string(),
+            last_updated: "2025-10-04T00:00:00Z".to_string(),
+            description: format!("NAHA {} Modpack v{}", modpack_type, target_version),
+            download_url: download_url.to_string(),
+            server_ip: "play.naha.com".to_string(),
+            server_port: 25565,
+        };
 
         info!("✓ Fetched modpack info: {} v{}", modpack_info.server_name, modpack_info.version);
         Ok(modpack_info)

@@ -20,3 +20,10 @@ cp target/x86_64-unknown-linux-gnu/release/minecraft-installer dist/minecraft-in
 
 echo "✓ Linux build complete: dist/minecraft-installer-linux-x86_64"
 
+
+
+
+
+
+
+
