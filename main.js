@@ -929,6 +929,17 @@ ipcMain.handle("get-app-info", async () => {
   }
 });
 
+// Get app version handler
+ipcMain.handle("get-app-version", async () => {
+  try {
+    const packageJson = JSON.parse(await fs.readFile("./package.json", "utf8"));
+    return packageJson.version;
+  } catch (error) {
+    console.error("Failed to read version from package.json:", error);
+    return "1.0.1"; // Fallback version
+  }
+});
+
 // Debug mode handlers
 ipcMain.handle("get-debug-mode", async () => {
   return debugMode;

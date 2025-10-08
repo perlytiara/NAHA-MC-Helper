@@ -38,6 +38,7 @@ contextBridge.exposeInMainWorld('nahaAPI', {
   
   // App info functions
   getAppInfo: () => ipcRenderer.invoke('get-app-info'),
+  getAppVersion: () => ipcRenderer.invoke('get-app-version'),
   onShowAboutDialog: (callback) => ipcRenderer.on('show-about-dialog', callback),
   
   // Debug mode functions

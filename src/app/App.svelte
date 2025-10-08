@@ -24,7 +24,7 @@ import UpdateInstanceFlow from '../shared/components/UpdateInstanceFlow.svelte';
   let isChecking: boolean = false;
   let isDownloading: boolean = false;
   let updateError: UpdateError | null = null;
-  let currentVersion: string = '1.0.1';
+  let currentVersion: string = '1.0.1'; // Will be loaded from package.json
   let showRestartAnimation: boolean = false;
 
   // Auto-updater event handlers
@@ -339,7 +339,17 @@ import UpdateInstanceFlow from '../shared/components/UpdateInstanceFlow.svelte';
     console.log('App: window.manualUpdateCheck available:', typeof window.manualUpdateCheck);
   }
 
-  onMount(() => {
+  onMount(async () => {
+    // Load app version from package.json
+    if (window.nahaAPI?.getAppVersion) {
+      try {
+        currentVersion = await window.nahaAPI.getAppVersion();
+        console.log('App: Loaded version:', currentVersion);
+      } catch (error) {
+        console.error('App: Failed to load version:', error);
+      }
+    }
+    
     // Check if this is the first time the user is opening the app
     const completed = isOnboardingCompleted();
     onboardingCompleted.set(completed);

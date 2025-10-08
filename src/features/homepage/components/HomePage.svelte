@@ -7,6 +7,7 @@ import NavigationBar from '../../../shared/components/ui/navigation/NavigationBa
 // Update check state
 let isCheckingUpdate = false;
 let updateStatus = null;
+let appVersion = '1.0.1'; // Default fallback
 
 function startSetupFlow() {
   resetOnboarding();
@@ -57,10 +58,20 @@ async function handleCheckForUpdates() {
 }
 
 // Debug logging
-onMount(() => {
+onMount(async () => {
   console.log('HomePage component mounted');
   console.log('Debug mode:', $debug);
   console.log('Current page:', $currentPage);
+  
+  // Get app version from Electron API
+  if (window.nahaAPI?.getAppVersion) {
+    try {
+      appVersion = await window.nahaAPI.getAppVersion();
+      console.log('App version:', appVersion);
+    } catch (error) {
+      console.error('Failed to get app version:', error);
+    }
+  }
 });
 
 // Key features and benefits
@@ -137,17 +148,17 @@ const features = [
         <!-- Call to action -->
         <div class="cta-section">
           <div class="cta-buttons">
-            <button class="cta-button primary" on:click={() => currentPage.set('minecraft-manager')}>
+            <button class="cta-button side-button" on:click={() => currentPage.set('minecraft-manager')}>
               <span class="cta-icon">🎮</span>
-              <span class="cta-text">Install New Modpack</span>
+              <span class="cta-text">Install Modpack</span>
             </button>
-            <button class="cta-button secondary" on:click={() => currentPage.set('update-instance')}>
-              <span class="cta-icon">🔄</span>
-              <span class="cta-text">Update Existing Instance</span>
-            </button>
-            <button class="cta-button tertiary" on:click={startSetupFlow}>
+            <button class="cta-button main-button" on:click={startSetupFlow}>
               <span class="cta-icon">🚀</span>
               <span class="cta-text">Take me through the setup</span>
+            </button>
+            <button class="cta-button side-button" on:click={() => currentPage.set('update-instance')}>
+              <span class="cta-icon">🔄</span>
+              <span class="cta-text">Update Instance</span>
             </button>
           </div>
         </div>
@@ -159,7 +170,7 @@ const features = [
           <div class="update-icon">🔄</div>
           <div class="update-info">
             <h3 class="update-title">Stay Updated</h3>
-            <p class="update-subtitle">Current version: v1.2.0</p>
+            <p class="update-subtitle">Current version: v{appVersion}</p>
           </div>
         </div>
         <div class="update-actions">
@@ -168,11 +179,10 @@ const features = [
             on:click={handleCheckForUpdates}
             disabled={isCheckingUpdate}
           >
+            <span class="update-button-icon">📡</span>
             {#if isCheckingUpdate}
-              <span class="loading loading-spinner loading-sm"></span>
               Checking...
             {:else}
-              <span class="update-button-icon">📡</span>
               Check for Updates
             {/if}
           </button>
@@ -187,7 +197,7 @@ const features = [
     
     <!-- Version info -->
     <div class="version-info">
-      <p>NAHA MC Helper v1.2.0 - Always improving</p>
+      <p>NAHA MC Helper v{appVersion} - Always improving</p>
     </div>
     
     <!-- Hidden onboarding reset (for debugging/testing) -->
@@ -300,13 +310,13 @@ const features = [
         z-index: 1;
         max-width: 900px;
         margin: 0 auto;
-        padding: 0.5rem;
+        padding: 0.25rem 0.5rem;
         height: 100vh;
         display: flex;
         flex-direction: column;
         justify-content: center;
         align-items: center;
-        gap: 0.5rem;
+        gap: 0.75rem;
     }
     
     /* Debug info */
@@ -329,8 +339,8 @@ const features = [
     
     .hero-content {
         background: rgba(255, 255, 255, 0.08);
-        border-radius: 16px;
-        padding: 1rem;
+        border-radius: 14px;
+        padding: 0.75rem 1.25rem;
         border: 2px solid rgba(255, 255, 255, 0.15);
         box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
         backdrop-filter: blur(10px);
@@ -341,10 +351,10 @@ const features = [
     }
     
     .hero-logo {
-        width: 80px;
-        height: 80px;
-        border-radius: 12px;
-        margin-bottom: 0.75rem;
+        width: 64px;
+        height: 64px;
+        border-radius: 10px;
+        margin-bottom: 0.5rem;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
         transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
@@ -355,9 +365,9 @@ const features = [
     }
     
     .hero-title {
-        font-size: 1.5rem;
+        font-size: 1.35rem;
         font-weight: 800;
-        margin: 0 0 0.25rem 0;
+        margin: 0 0 0.2rem 0;
         background: linear-gradient(45deg, #a78bfa, #06b6d4);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
@@ -365,7 +375,7 @@ const features = [
     }
     
     .hero-subtitle {
-        font-size: 0.8rem;
+        font-size: 0.75rem;
         color: rgba(255, 255, 255, 0.8);
         margin: 0;
         line-height: 1.3;
@@ -382,17 +392,17 @@ const features = [
     
     .features-grid {
         display: grid;
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(4, 1fr);
         gap: 0.5rem;
         width: 100%;
-        max-width: 600px;
+        max-width: 750px;
     }
     
     .feature-card {
         background: rgba(255, 255, 255, 0.08);
         border: 2px solid rgba(255, 255, 255, 0.15);
-        border-radius: 12px;
-        padding: 0.75rem;
+        border-radius: 10px;
+        padding: 0.6rem;
         text-align: center;
         backdrop-filter: blur(10px);
         transition: all 0.3s ease;
@@ -436,62 +446,57 @@ const features = [
 
     .cta-buttons {
         display: flex;
-        gap: 1rem;
+        gap: 0.75rem;
         justify-content: center;
-        flex-wrap: wrap;
+        align-items: center;
+        flex-wrap: nowrap;
+        width: 100%;
+        max-width: 750px;
     }
     
     .cta-button {
         border: none;
         border-radius: 12px;
-        padding: 0.75rem 1.5rem;
-        font-size: 0.9rem;
+        padding: 0.75rem 1rem;
+        font-size: 0.85rem;
         font-weight: 700;
         cursor: pointer;
         transition: all 0.3s ease;
         display: inline-flex;
         align-items: center;
+        justify-content: center;
         gap: 0.4rem;
         backdrop-filter: blur(10px);
-        min-width: 200px;
-        justify-content: center;
+        flex: 1;
     }
 
-    .cta-button.primary {
-        background: linear-gradient(135deg, #10b981, #059669);
+    .cta-button.main-button {
+        background: linear-gradient(135deg, #8b5cf6, #a855f7);
         color: white;
-        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        box-shadow: 0 6px 16px rgba(139, 92, 246, 0.4);
+        flex: 1.2;
+        font-size: 0.9rem;
+        padding: 0.85rem 1.25rem;
     }
 
-    .cta-button.secondary {
-        background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+    .cta-button.side-button {
+        background: linear-gradient(135deg, #3b82f6, #2563eb);
         color: white;
         box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        flex: 0.9;
     }
     
-    .cta-button.primary:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 24px rgba(16, 185, 129, 0.4);
-        background: linear-gradient(135deg, #059669, #047857);
+    .cta-button.main-button:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 28px rgba(139, 92, 246, 0.5);
+        background: linear-gradient(135deg, #7c3aed, #9333ea);
     }
 
-        .cta-button.secondary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 24px rgba(59, 130, 246, 0.4);
-            background: linear-gradient(135deg, #2563eb, #7c3aed);
-        }
-
-        .cta-button.tertiary {
-            background: linear-gradient(135deg, #8b5cf6, #a855f7);
-            color: white;
-            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
-        }
-
-        .cta-button.tertiary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 24px rgba(139, 92, 246, 0.4);
-            background: linear-gradient(135deg, #7c3aed, #9333ea);
-        }
+    .cta-button.side-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 18px rgba(59, 130, 246, 0.4);
+        background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    }
     
     .cta-button:active {
         transform: translateY(0);
@@ -653,66 +658,53 @@ const features = [
     }
     
     /* Responsive design */
-    @media (max-width: 768px) {
-        .content-wrapper {
-            padding: 0.75rem;
-            gap: 0.25rem;
-        }
-        
-        .hero-content {
-            padding: 1rem;
-        }
-        
-        .hero-logo {
-            width: 64px;
-            height: 64px;
-            margin-bottom: 0.5rem;
-        }
-        
-        .hero-title {
-            font-size: 1.5rem;
-        }
-        
-        .hero-subtitle {
-            font-size: 0.8rem;
-        }
-        
+    @media (max-width: 900px) {
         .features-grid {
-            grid-template-columns: 1fr;
-            gap: 0.5rem;
+            grid-template-columns: repeat(2, 1fr);
         }
         
-        .feature-card {
-            padding: 0.75rem;
+        .cta-buttons {
+            flex-wrap: wrap;
+            max-width: 600px;
         }
         
-        .cta-button {
-            padding: 0.75rem 1.5rem;
-            font-size: 0.9rem;
+        .cta-button.main-button {
+            flex: 1 0 100%;
+            order: -1;
+        }
+        
+        .cta-button.side-button {
+            flex: 1;
         }
     }
     
     @media (max-width: 640px) {
         .content-wrapper {
-            padding: 0.5rem;
+            padding: 0.25rem;
+            gap: 0.5rem;
         }
         
         .hero-content {
-            padding: 0.75rem;
+            padding: 0.6rem 1rem;
         }
         
         .hero-logo {
             width: 56px;
             height: 56px;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.4rem;
         }
         
         .hero-title {
-            font-size: 1.25rem;
+            font-size: 1.2rem;
         }
         
         .hero-subtitle {
-            font-size: 0.75rem;
+            font-size: 0.7rem;
+        }
+        
+        .features-grid {
+            grid-template-columns: 1fr 1fr;
+            gap: 0.4rem;
         }
         
         .feature-card {
@@ -720,20 +712,26 @@ const features = [
         }
         
         .feature-icon {
-            font-size: 1.25rem;
+            font-size: 1.1rem;
+            margin-bottom: 0.3rem;
         }
         
         .feature-title {
-            font-size: 0.9rem;
+            font-size: 0.8rem;
         }
         
         .feature-description {
-            font-size: 0.7rem;
+            font-size: 0.65rem;
         }
         
         .cta-button {
-            padding: 0.75rem 1.25rem;
+            padding: 0.65rem 0.9rem;
+            font-size: 0.8rem;
+        }
+        
+        .cta-button.main-button {
             font-size: 0.85rem;
+            padding: 0.75rem 1rem;
         }
     }
 </style>
