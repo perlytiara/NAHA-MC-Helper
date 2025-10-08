@@ -6,7 +6,7 @@
   import ServersPage from '../features/servers/components/ServersPage.svelte';
   import InstallPage from '../features/install/components/InstallPage.svelte';
   import MinecraftManager from '../shared/components/MinecraftManager.svelte';
-import UpdateInstanceFlow from '../shared/components/UpdateInstanceFlow.svelte';
+  import { UpdateFlow } from '../features/update-flow';
   import StatusBanner from '../shared/components/ui/feedback/StatusBanner.svelte';
   import AboutDialog from '../shared/components/ui/dialogs/AboutDialog.svelte';
   import UpdateModal from '../components/UpdateModal.svelte';
@@ -432,12 +432,10 @@ import UpdateInstanceFlow from '../shared/components/UpdateInstanceFlow.svelte';
             <MinecraftManager on:skip={() => currentPage.set('homepage')} />
           </div>
         {:else if $currentPage === 'update-instance'}
-          <div class="p-8">
-            <UpdateInstanceFlow 
-              on:complete={() => currentPage.set('homepage')} 
-              on:back={() => currentPage.set('homepage')} 
-            />
-          </div>
+          <UpdateFlow 
+            on:complete={() => currentPage.set('homepage')} 
+            on:back={() => currentPage.set('homepage')} 
+          />
   {:else if $currentPage === 'packer'}
     <div class="p-8">
       <h1>Packer Tool - Coming Soon</h1>
