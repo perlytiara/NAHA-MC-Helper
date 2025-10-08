@@ -27,17 +27,20 @@ This project produces **TWO executables** for each platform:
 ### Quick Build (Current Platform Only)
 
 **Windows:**
+
 ```cmd
 build.bat
 ```
 
 **Linux/macOS:**
+
 ```bash
 chmod +x build.sh
 ./build.sh
 ```
 
 **Output:**
+
 - `target/release/minecraft-installer.exe` (or no .exe on Unix)
 - `target/release/minecraft-updater.exe` (or no .exe on Unix)
 
@@ -60,18 +63,21 @@ cargo build --release --target x86_64-pc-windows-msvc --bin minecraft-updater
 ### Using Build Scripts
 
 **Windows (build-all.bat):**
+
 ```cmd
 build-all.bat
 ```
 
 **Linux/macOS (build-all.sh):**
+
 ```bash
 chmod +x build-all.sh
 ./build-all.sh
 ```
 
 This will attempt to build for all platforms and place binaries in `dist/`:
-```
+
+```text
 dist/
 ├── minecraft-installer-windows-x86_64.exe
 ├── minecraft-updater-windows-x86_64.exe
@@ -114,20 +120,22 @@ git push origin main
 
 #### Step 2: Create and Push a Tag
 
-**Option A: Using the release script (Recommended)**
+#### Option A: Using the release script (Recommended)
 
 Windows:
+
 ```cmd
 create-release.bat 1.0.0
 ```
 
 Linux/macOS:
+
 ```bash
 chmod +x create-release.sh
 ./create-release.sh 1.0.0
 ```
 
-**Option B: Manual Git commands**
+#### Option B: Manual Git commands
 
 ```bash
 # Create annotated tag
@@ -146,9 +154,11 @@ git push origin v1.0.0
 #### Step 4: Verify Release
 
 Once complete, check:
+
 - `https://github.com/perlytiara/AstralRinth/releases`
 
 You should see a new release with:
+
 - ✅ 10 binary files (2 per platform)
 - ✅ 10 `.sha256` checksum files
 - ✅ Comprehensive release notes
@@ -161,7 +171,8 @@ You should see a new release with:
 Each release includes:
 
 ### Windows Builds
-```
+
+```text
 minecraft-installer-windows-x86_64.exe           (MSVC - recommended)
 minecraft-installer-windows-x86_64.exe.sha256
 minecraft-updater-windows-x86_64.exe
@@ -174,7 +185,8 @@ minecraft-updater-windows-gnu-x86_64.exe.sha256
 ```
 
 ### Linux Builds
-```
+
+```text
 minecraft-installer-linux-x86_64
 minecraft-installer-linux-x86_64.sha256
 minecraft-updater-linux-x86_64
@@ -182,7 +194,8 @@ minecraft-updater-linux-x86_64.sha256
 ```
 
 ### macOS Builds
-```
+
+```text
 minecraft-installer-macos-intel-x86_64           (Intel Macs)
 minecraft-installer-macos-intel-x86_64.sha256
 minecraft-updater-macos-intel-x86_64
@@ -270,12 +283,14 @@ shasum -a 256 -c minecraft-installer-linux-x86_64.sha256
 ### Build Fails on GitHub Actions
 
 **Check the logs:**
+
 1. Go to Actions tab on GitHub
 2. Click the failed workflow
 3. Click on the failed job
 4. Expand the failing step
 
 **Common issues:**
+
 - Dependency installation failed → Check Linux/macOS dependency steps
 - Compilation error → Test locally first with `cargo build --release`
 - Test failure → Run `cargo test` locally to fix
@@ -283,6 +298,7 @@ shasum -a 256 -c minecraft-installer-linux-x86_64.sha256
 ### Missing Binaries in Release
 
 If some binaries are missing:
+
 - Check if the build step succeeded for that platform
 - Verify the artifact upload step completed
 - Check the "Organize files and create checksums" step
@@ -290,6 +306,7 @@ If some binaries are missing:
 ### Release Not Created
 
 Make sure:
+
 - Tag starts with `v` (e.g., `v1.0.0`, not just `1.0.0`)
 - Tag was pushed to GitHub (`git push origin v1.0.0`)
 - GitHub Actions has permission to create releases (check repository settings)
@@ -315,7 +332,7 @@ The GitHub Actions workflow builds this matrix:
 
 ## 🎉 Release Workflow Summary
 
-```
+```text
 ┌─────────────────────────────────────────────┐
 │ Developer creates tag: v1.0.0                │
 │ $ git tag -a v1.0.0 -m "Release v1.0.0"     │
@@ -397,17 +414,20 @@ The GitHub Actions workflow builds this matrix:
 ## 🎯 Quick Commands
 
 ### Local Development Build
+
 ```bash
 cargo build --release
 ```
 
 ### Build Both Binaries
+
 ```bash
 cargo build --release --bin minecraft-installer
 cargo build --release --bin minecraft-updater
 ```
 
 ### Build for Specific Platform
+
 ```bash
 # Windows
 cargo build --release --target x86_64-pc-windows-msvc
@@ -422,7 +442,8 @@ cargo build --release --target x86_64-apple-darwin
 cargo build --release --target aarch64-apple-darwin
 ```
 
-### Create a Release
+### Quick Release Command
+
 ```bash
 # Using script
 ./create-release.sh 1.0.0
@@ -439,6 +460,7 @@ git push origin v1.0.0
 The GitHub Actions workflow automatically generates release notes with:
 
 ### Header
+
 ```markdown
 # Minecraft Installer & Updater v1.0.0
 
@@ -448,26 +470,31 @@ This release includes **two separate executables** for all major platforms
 ```
 
 ### Download Section
+
 - Lists all binaries organized by type (Installer / Updater)
 - Grouped by platform (Windows / Linux / macOS)
 - Shows file sizes and architecture
 
 ### Features Section
+
 - Highlights key features of installer
 - Highlights key features of updater
 - Shows what's new in this version
 
 ### Quick Start Section
+
 - Basic usage examples for installer
 - Basic usage examples for updater
 - Integration examples for Electron
 
 ### Launcher Support Table
+
 - Shows which launchers work with which tool
 - Indicates database sync support
 - Shows automodpack compatibility
 
 ### Checksums Section
+
 - Instructions for verifying downloads
 - Platform-specific verification commands
 
@@ -478,6 +505,7 @@ This release includes **two separate executables** for all major platforms
 ### Verify Downloaded Binaries
 
 **Windows (PowerShell):**
+
 ```powershell
 # Get hash of downloaded file
 Get-FileHash minecraft-installer-windows-x86_64.exe -Algorithm SHA256
@@ -487,6 +515,7 @@ Get-Content minecraft-installer-windows-x86_64.exe.sha256
 ```
 
 **Linux/macOS:**
+
 ```bash
 # Verify using checksum file
 shasum -a 256 -c minecraft-installer-linux-x86_64.sha256
@@ -499,6 +528,7 @@ cat minecraft-installer-linux-x86_64.sha256
 ### Build Reproducibility
 
 The GitHub Actions builds are reproducible because:
+
 - Uses fixed Rust toolchain version (defined in `rust-toolchain.toml`)
 - Uses locked dependency versions (`Cargo.lock` is committed)
 - Uses official GitHub-hosted runners
@@ -554,6 +584,7 @@ Typical sizes (uncompressed):
 | **minecraft-updater** | ~10-12 MB | ~11-13 MB | ~10-12 MB |
 
 **Note:** Sizes vary slightly between platforms due to:
+
 - Platform-specific system libraries
 - Debug symbol stripping (Linux/macOS only)
 - Compression differences
@@ -563,7 +594,9 @@ Typical sizes (uncompressed):
 ## 🚨 Common Issues
 
 ### Issue: "Cross-compilation failed"
+
 **Solution:** Install the target toolchain:
+
 ```bash
 rustup target add x86_64-pc-windows-msvc
 rustup target add x86_64-unknown-linux-gnu
@@ -572,7 +605,9 @@ rustup target add aarch64-apple-darwin
 ```
 
 ### Issue: "OpenSSL not found" (Linux builds)
+
 **Solution:** Install OpenSSL development libraries:
+
 ```bash
 # Ubuntu/Debian
 sudo apt-get install pkg-config libssl-dev
@@ -582,14 +617,18 @@ sudo dnf install openssl-devel
 ```
 
 ### Issue: "GitHub release not created"
+
 **Solution:** Check these:
+
 1. Tag pushed successfully: `git push origin v1.0.0`
 2. `GH_TOKEN` secret exists in repository settings
 3. Workflow has write permissions for releases
 4. No build failures in any platform
 
 ### Issue: "Binary doesn't run on target platform"
+
 **Solution:**
+
 - Ensure you downloaded the correct platform binary
 - On Linux/macOS, make sure file is executable: `chmod +x binary`
 - Check system requirements (glibc version for Linux)
@@ -616,6 +655,7 @@ sudo dnf install openssl-devel
 ### Release Communication
 
 After publishing:
+
 - Announce in project Discord/community
 - Update documentation links
 - Create migration guide if breaking changes
@@ -628,6 +668,7 @@ After publishing:
 ### Download Statistics
 
 View download counts:
+
 - Go to: `https://github.com/perlytiara/AstralRinth/releases`
 - Each release shows download count per asset
 - Total downloads shown at the bottom
@@ -635,6 +676,7 @@ View download counts:
 ### Build Success Rate
 
 Monitor CI/CD health:
+
 - Go to: `https://github.com/perlytiara/AstralRinth/actions`
 - Check "Build and Release" workflow history
 - Aim for 100% success rate on tagged releases
@@ -716,4 +758,3 @@ A successful release has:
 ---
 
 **Ready to release?** Just run `./create-release.sh [version]` and let automation do the rest! 🚀
-

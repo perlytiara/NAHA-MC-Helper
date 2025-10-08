@@ -4,7 +4,7 @@ This directory contains tools for managing GitHub releases for both **Minecraft 
 
 ## 📁 Directory Structure
 
-```
+```text
 releases/
 ├── generate-installer-release-notes.cjs    # Generate release notes for Minecraft Installer
 ├── generate-updater-release-notes.cjs      # Generate release notes for Minecraft Updater
@@ -22,14 +22,14 @@ releases/
 
 ### Generating Release Notes
 
-#### For Minecraft Installer:
+#### For Minecraft Installer
 
 ```bash
 # Generate release notes
 node generate-installer-release-notes.cjs 1.1.2 "Multi-Launcher Support,Custom Path Installation,API Integration,Automodpack Setup"
 ```
 
-#### For Minecraft Updater:
+#### For Minecraft Updater
 
 ```bash
 # Generate release notes
@@ -38,7 +38,7 @@ node generate-updater-release-notes.cjs 1.0.0 "Auto-update detection,Cross-platf
 
 ### Managing Releases
 
-#### For Minecraft Installer:
+#### Managing Installer Releases
 
 **Windows:**
 
@@ -69,7 +69,7 @@ chmod +x manage-installer-releases.sh
 ./manage-installer-releases.sh reset-and-create 1.1.2
 ```
 
-#### For Minecraft Updater:
+#### Managing Updater Releases (Alternative)
 
 **Windows:**
 
@@ -102,7 +102,7 @@ chmod +x manage-updater-releases.sh
 
 ## 📦 Complete Release Workflow
 
-### For Minecraft Installer:
+### Complete Installer Release Workflow
 
 1. **Build binaries for all platforms** (see `../../build-all.sh` or `../../build-all.bat`)
 
@@ -126,7 +126,7 @@ chmod +x manage-updater-releases.sh
 
 4. **Upload binaries to the release** (manually or via `gh release upload`)
 
-### For Minecraft Updater:
+### Complete Updater Release Workflow
 
 1. **Build binaries for all platforms**
 
@@ -163,7 +163,7 @@ The generated release notes include:
 - 📂 **Source code links**
 - 📋 **Version info** (version, date, repository)
 
-### Example Output:
+### Example Output
 
 ```markdown
 # Minecraft Installer v1.1.2
@@ -224,5 +224,5 @@ If you need to modify the release format:
 
 For issues related to:
 
-- **Minecraft Installer**: https://github.com/perlytiara/minecraft-installer
-- **Minecraft Updater**: https://github.com/perlytiara/minecraft-updater
+- **Minecraft Installer**: <https://github.com/perlytiara/minecraft-installer>
+- **Minecraft Updater**: <https://github.com/perlytiara/minecraft-updater>

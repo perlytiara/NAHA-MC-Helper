@@ -10,7 +10,7 @@ minecraft-installer --list-versions
 
 This will show you all available Minecraft versions:
 
-```
+```text
 🎮 Available Minecraft Versions
 ═════════════════════════════════
 Latest Release: 1.20.1
@@ -125,7 +125,7 @@ When you run the installer, it will:
 
 1. **Create Directory Structure**
 
-   ```
+   ```text
    installation-directory/
    ├── minecraft/
    │   ├── versions/1.20.1/
@@ -177,7 +177,7 @@ The installer creates standard Minecraft directory structure that most launchers
 
 ### Common Issues
 
-**Java Installation Failed**
+#### Java Installation Failed
 
 ```bash
 # Try with verbose logging
@@ -186,7 +186,7 @@ minecraft-installer --version 1.20.1 --verbose
 # Install Java manually and ensure it's in PATH
 ```
 
-**Download Failed**
+#### Download Failed
 
 ```bash
 # Check internet connection and try again
@@ -196,7 +196,7 @@ minecraft-installer --version 1.20.1 --force
 minecraft-installer --version 1.20.1 --verbose
 ```
 
-**Permission Denied**
+#### Permission Denied
 
 ```bash
 # On Unix systems, ensure executable permissions
@@ -206,7 +206,7 @@ chmod +x minecraft-installer
 minecraft-installer --version 1.20.1 --install-dir ~/minecraft-test
 ```
 
-**Version Not Found**
+#### Version Not Found
 
 ```bash
 # List available versions first
@@ -260,13 +260,3 @@ Installation logs are saved to:
 - You can install multiple Minecraft versions
 - Each gets its own directory under `versions/`
 - Libraries and assets are shared when possible
-
-
-
-
-
-
-
-
-
-

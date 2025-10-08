@@ -21,24 +21,28 @@ cargo build --release --target x86_64-pc-windows-msvc
 
 ### For Linux (x86_64-unknown-linux-gnu)
 
-**Option 1: Use Docker (Recommended)**
+#### Option 1: Use Docker (Recommended)
+
 ```bash
 # Create a Dockerfile for Linux builds
 docker run --rm -v "$(pwd)":/workspace -w /workspace rust:latest cargo build --release --target x86_64-unknown-linux-gnu
 ```
 
-**Option 2: Manual Setup**
+#### Option 2: Manual Setup
+
 1. Install WSL2 with Ubuntu
 2. Install Rust and cross-compilation tools in WSL
 3. Build from WSL environment
 
 ### For macOS (x86_64-apple-darwin / aarch64-apple-darwin)
 
-**Option 1: Use GitHub Actions (Recommended)**
+#### Option 1: Use GitHub Actions (Recommended)
+
 - Set up GitHub Actions workflow with macOS runners
 - Build automatically on push/PR
 
-**Option 2: Manual Setup**
+#### Option 2: Manual Setup (macOS)
+
 1. Install Xcode command line tools
 2. Install cross-compilation toolchain
 3. Set up proper environment variables
@@ -57,6 +61,7 @@ docker run --rm -v "$(pwd)":/workspace -w /workspace rust:latest cargo build --r
 ## Dependencies
 
 The minecraft-installer requires:
+
 - **OpenSSL**: For HTTPS requests and crypto operations
 - **SQLite**: For database operations (bundled with rusqlite)
 - **System libraries**: Platform-specific system calls
@@ -94,14 +99,7 @@ jobs:
 ## Current Build Output
 
 The Windows build produces:
+
 - `minecraft-installer-windows-x86_64.exe` (10.4 MB)
 - Supports all launcher types including the new "Other" custom path launcher
 - Includes all features: mrpack installation, API downloads, automodpack setup
-
-
-
-
-
-
-
-

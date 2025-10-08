@@ -1098,25 +1098,53 @@ notes=Created by Minecraft Installer
 
     /// Download modpack info from NAHA API
     pub async fn fetch_modpack_info(&self, modpack_type: &str) -> Result<NahaModpackInfo> {
-        // Use GitHub releases API to get the latest modpack
-        let api_url = "https://api.github.com/repos/perlytiara/NAHA-Minecraft-Modpacks/releases/latest";
-        info!("Fetching modpack info from GitHub: {}", api_url);
-
         let client = reqwest::Client::new();
-        let response = client.get(api_url)
+        
+        // First, fetch server info from NAHA API
+        let naha_api_url = format!("https://perlytiara.github.io/NAHA-MC.IO/api/{}/", modpack_type);
+        info!("Fetching server info from NAHA API: {}", naha_api_url);
+        
+        let naha_response = client.get(&naha_api_url)
             .header("User-Agent", "Minecraft-Installer/1.0")
             .send().await
             .map_err(|e| MinecraftInstallerError::InstallationFailed(
-                format!("Failed to fetch modpack info: {}", e)
+                format!("Failed to fetch NAHA API info: {}", e)
             ))?;
 
-        if !response.status().is_success() {
+        let naha_data: serde_json::Value = if naha_response.status().is_success() {
+            naha_response.json().await
+                .map_err(|e| MinecraftInstallerError::InstallationFailed(
+                    format!("Failed to parse NAHA API data: {}", e)
+                ))?
+        } else {
+            serde_json::json!({})
+        };
+
+        // Extract server info from NAHA API
+        let server_name = naha_data["server_name"].as_str().unwrap_or("NAHA Server").to_string();
+        let fingerprint = naha_data["fingerprint"].as_str().unwrap_or("naha-server-fingerprint").to_string();
+        let server_ip = naha_data["server_ip"].as_str().unwrap_or("play.naha.com").to_string();
+        let server_port = naha_data["server_port"].as_u64().unwrap_or(25565) as u16;
+        let last_updated = naha_data["last_updated"].as_str().unwrap_or("2025-10-08T00:00:00Z").to_string();
+        
+        // Now fetch the latest modpack from GitHub releases
+        let github_api_url = "https://api.github.com/repos/perlytiara/NAHA-Minecraft-Modpacks/releases/latest";
+        info!("Fetching modpack from GitHub: {}", github_api_url);
+
+        let github_response = client.get(github_api_url)
+            .header("User-Agent", "Minecraft-Installer/1.0")
+            .send().await
+            .map_err(|e| MinecraftInstallerError::InstallationFailed(
+                format!("Failed to fetch GitHub release: {}", e)
+            ))?;
+
+        if !github_response.status().is_success() {
             return Err(MinecraftInstallerError::InstallationFailed(
-                format!("GitHub API request failed with status: {}", response.status())
+                format!("GitHub API request failed with status: {}", github_response.status())
             ));
         }
 
-        let release_data: serde_json::Value = response.json().await
+        let release_data: serde_json::Value = github_response.json().await
             .map_err(|e| MinecraftInstallerError::InstallationFailed(
                 format!("Failed to parse GitHub release data: {}", e)
             ))?;
@@ -1150,27 +1178,31 @@ notes=Created by Minecraft Installer
                 "No download URL found for mrpack".to_string()
             ))?;
 
-        // Extract version from filename (e.g., "NAHA-Neoforge-1.21.1-0.2.0.mrpack" -> "0.2.0")
+        // Extract version from filename (e.g., "NAHA-Neoforge-1.21.1-0.2.5.mrpack" -> "0.2.5")
         let filename = asset["name"].as_str().unwrap_or("");
         let version = filename.split('-').last()
             .and_then(|v| v.strip_suffix(".mrpack"))
             .unwrap_or("latest");
 
-        // Create NahaModpackInfo with GitHub data
+        // Create NahaModpackInfo combining GitHub and NAHA API data
         let modpack_info = NahaModpackInfo {
-            server_name: "NAHA Server".to_string(),
+            server_name,
             server_type: modpack_type.to_string(),
             latest_mrpack: filename.to_string(),
-            fingerprint: "naha-server-fingerprint".to_string(),
+            fingerprint,
             version: version.to_string(),
-            last_updated: "2025-10-04T00:00:00Z".to_string(),
+            last_updated,
             description: format!("NAHA {} Modpack v{}", modpack_type, version),
             download_url: download_url.to_string(),
-            server_ip: "play.naha.com".to_string(),
-            server_port: 25565,
+            server_ip,
+            server_port,
         };
 
-        info!("✓ Fetched modpack info: {} v{}", modpack_info.server_name, modpack_info.version);
+        info!("✓ Fetched modpack info: {} v{} (fingerprint: {}...)", 
+            modpack_info.server_name, 
+            modpack_info.version,
+            &modpack_info.fingerprint[..16]
+        );
         Ok(modpack_info)
     }
 
@@ -1381,9 +1413,16 @@ notes=Created by Minecraft Installer
         fs::create_dir_all(&automodpack_private_dir).await?;
 
         // Create automodpack-known-hosts.json with server fingerprint (matching real format)
+        // Use server hostname (e.g., "play.naha.com") as the key, not the IP
+        let server_host = if modpack_info.server_ip.contains(".") && !modpack_info.server_ip.chars().all(|c| c.is_numeric() || c == '.') {
+            modpack_info.server_ip.clone()
+        } else {
+            "play.naha.com".to_string()
+        };
+        
         let known_hosts = json!({
             "hosts": {
-                modpack_info.server_ip.clone(): modpack_info.fingerprint.clone()
+                server_host: modpack_info.fingerprint.clone()
             }
         });
 
@@ -1450,6 +1489,17 @@ notes=Created by Minecraft Installer
         if temp_resourcepacks.exists() {
             fs::create_dir_all(&target_resourcepacks).await?;
             self.copy_dir_recursive(&temp_resourcepacks, &target_resourcepacks).await?;
+        }
+
+        // Copy automodpack directory from mrpack overrides
+        let temp_automodpack = temp_dir.join("automodpack");
+        let target_automodpack = base_dir.join("automodpack");
+
+        if temp_automodpack.exists() {
+            info!("📦 Found automodpack folder in mrpack, copying...");
+            fs::create_dir_all(&target_automodpack).await?;
+            self.copy_dir_recursive(&temp_automodpack, &target_automodpack).await?;
+            info!("✓ Automodpack folder copied from mrpack");
         }
 
         // Copy shaderpacks directory

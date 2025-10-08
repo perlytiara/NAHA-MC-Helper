@@ -10,5 +10,8 @@ Thumbs.db
 dist-electron/
 dist-electron-new/
 dist-electron-fixed/
+dist-package/
 out/
 tools/minecraft-installer/target/
+
+

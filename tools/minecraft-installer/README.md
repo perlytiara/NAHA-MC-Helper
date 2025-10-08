@@ -8,6 +8,7 @@ A comprehensive Minecraft modpack management system with **two separate executab
 ## ✨ Features
 
 ### Minecraft Installer
+
 - **Multi-Launcher Support**: Works with AstralRinth, ModrinthApp, XMCL, PrismLauncher, Official Minecraft Launcher, MultiMC, and custom paths
 - **Custom Path Installation**: Install directly to any directory (perfect for Legacy Launcher)
 - **GitHub API Integration**: Download modpacks directly from GitHub Releases
@@ -15,6 +16,7 @@ A comprehensive Minecraft modpack management system with **two separate executab
 - **Database Integration**: Automatic database injection for AstralRinth/ModrinthApp
 
 ### Minecraft Updater
+
 - **Intelligent Mod Updates**: Compares versions and only updates what's needed
 - **Instance Scanner**: Auto-detects all Minecraft instances across launchers
 - **Duplicate Removal**: Automatically removes old mod versions
@@ -24,18 +26,22 @@ A comprehensive Minecraft modpack management system with **two separate executab
 - **JSON Output**: Perfect for Electron app integration
 
 ### Cross-Platform
+
 - Builds for Windows (x64), Linux (x64), macOS (Intel & Apple Silicon)
 
 ## 🚀 Quick Start
 
 ### Download
+
 Get the latest release from the [Releases](https://github.com/perlytiara/AstralRinth/releases) page.
 
 Download both executables for your platform:
+
 - `minecraft-installer-[platform].exe` / `minecraft-installer-[platform]`
 - `minecraft-updater-[platform].exe` / `minecraft-updater-[platform]`
 
 ### Installer Usage
+
 ```bash
 # Install from mrpack file
 minecraft-installer --mrpack "modpack.mrpack" --create-instance
@@ -52,6 +58,7 @@ minecraft-installer --download-fabric --create-instance
 ```
 
 ### Updater Usage
+
 ```bash
 # Scan all instances
 minecraft-updater scan --format compact
@@ -84,10 +91,12 @@ minecraft-updater scan --format json
 ## 🛠️ Building from Source
 
 ### Prerequisites
-- Rust 1.90+ 
+
+- Rust 1.90+
 - Git
 
 ### Build Both Executables
+
 ```bash
 git clone https://github.com/perlytiara/AstralRinth.git
 cd AstralRinth/minecraft-installer
@@ -102,10 +111,12 @@ cargo build --release --bin minecraft-updater
 ```
 
 Executables will be in `target/release/`:
+
 - `minecraft-installer.exe` / `minecraft-installer`
 - `minecraft-updater.exe` / `minecraft-updater`
 
 ### Automated Multi-Platform Builds
+
 The project uses GitHub Actions to automatically build for all platforms:
 
 ```bash
@@ -149,4 +160,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-**Made with ❤️ for the Minecraft community**
+## Made with ❤️ for the Minecraft community
