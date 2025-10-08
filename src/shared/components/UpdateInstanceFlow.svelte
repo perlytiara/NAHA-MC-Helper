@@ -78,14 +78,18 @@
   function getLauncherIcon(launcherName) {
     switch (launcherName.toLowerCase()) {
       case 'astralrinth':
+        return '🌟';
       case 'modrinthapp':
         return '📱';
       case 'xmcl':
+        return '🎯';
       case 'prismlauncher':
+        return '🔷';
       case 'official minecraft':
-        return '📁';
-      default:
+      case 'official':
         return '🎮';
+      default:
+        return '📦';
     }
   }
 

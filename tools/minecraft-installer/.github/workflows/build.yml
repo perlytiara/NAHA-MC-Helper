@@ -19,28 +19,23 @@ jobs:
           # Windows builds
           - os: windows-latest
             target: x86_64-pc-windows-msvc
-            artifact_name: minecraft-installer-windows-x86_64.exe
-            binary_name: minecraft-installer.exe
+            platform_suffix: windows-x86_64
           - os: windows-latest
             target: x86_64-pc-windows-gnu
-            artifact_name: minecraft-installer-windows-gnu-x86_64.exe
-            binary_name: minecraft-installer.exe
+            platform_suffix: windows-gnu-x86_64
 
           # Linux builds
           - os: ubuntu-latest
             target: x86_64-unknown-linux-gnu
-            artifact_name: minecraft-installer-linux-x86_64
-            binary_name: minecraft-installer
+            platform_suffix: linux-x86_64
 
           # macOS builds
           - os: macos-latest
             target: x86_64-apple-darwin
-            artifact_name: minecraft-installer-macos-intel-x86_64
-            binary_name: minecraft-installer
+            platform_suffix: macos-intel-x86_64
           - os: macos-latest
             target: aarch64-apple-darwin
-            artifact_name: minecraft-installer-macos-apple-silicon-aarch64
-            binary_name: minecraft-installer
+            platform_suffix: macos-apple-silicon-aarch64
 
     steps:
       - name: Checkout code
@@ -79,21 +74,44 @@ jobs:
           export OPENSSL_LIB_DIR=$(brew --prefix openssl)/lib
           export OPENSSL_INCLUDE_DIR=$(brew --prefix openssl)/include
 
-      - name: Build
-        run: cargo build --release --target ${{ matrix.target }}
+      - name: Build both binaries
+        run: |
+          cargo build --release --target ${{ matrix.target }} --bin minecraft-installer
+          cargo build --release --target ${{ matrix.target }} --bin minecraft-updater
 
       - name: Run tests
         run: cargo test --lib --target ${{ matrix.target }}
 
-      - name: Strip binary (Linux/macOS)
-        if: matrix.os != 'windows-latest'
-        run: strip target/${{ matrix.target }}/release/${{ matrix.binary_name }}
+      - name: Prepare binaries (Windows)
+        if: matrix.os == 'windows-latest'
+        run: |
+          mkdir -p dist
+          cp "target/${{ matrix.target }}/release/minecraft-installer.exe" "dist/minecraft-installer-${{ matrix.platform_suffix }}.exe"
+          cp "target/${{ matrix.target }}/release/minecraft-updater.exe" "dist/minecraft-updater-${{ matrix.platform_suffix }}.exe"
 
-      - name: Upload build artifact
+      - name: Prepare binaries (Linux/macOS)
+        if: matrix.os != 'windows-latest'
+        run: |
+          mkdir -p dist
+          cp "target/${{ matrix.target }}/release/minecraft-installer" "dist/minecraft-installer-${{ matrix.platform_suffix }}"
+          cp "target/${{ matrix.target }}/release/minecraft-updater" "dist/minecraft-updater-${{ matrix.platform_suffix }}"
+          strip "dist/minecraft-installer-${{ matrix.platform_suffix }}"
+          strip "dist/minecraft-updater-${{ matrix.platform_suffix }}"
+          chmod +x "dist/minecraft-installer-${{ matrix.platform_suffix }}"
+          chmod +x "dist/minecraft-updater-${{ matrix.platform_suffix }}"
+
+      - name: Upload installer artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.artifact_name }}
-          path: target/${{ matrix.target }}/release/${{ matrix.binary_name }}
+          name: installer-${{ matrix.platform_suffix }}
+          path: dist/minecraft-installer-${{ matrix.platform_suffix }}*
+          retention-days: 30
+
+      - name: Upload updater artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: updater-${{ matrix.platform_suffix }}
+          path: dist/minecraft-updater-${{ matrix.platform_suffix }}*
           retention-days: 30
 
   create-release:
@@ -115,49 +133,75 @@ jobs:
         with:
           path: ./artifacts
 
-      - name: Create checksums and flatten structure
+      - name: Organize files and create checksums
         run: |
+          mkdir -p upload
           cd artifacts
-          echo "Current directory structure:"
-          find . -type f -name "minecraft-installer*" | head -10
-          echo "Creating checksums and flattening structure..."
-
-          # Create a flat directory for uploads
-          mkdir -p ../upload
-
-          find . -type f -name "minecraft-installer*" | while read -r file; do
-            filename=$(basename "$file")
-            dirname=$(dirname "$file")
-
-            # Use the directory name as the platform identifier to avoid conflicts
-            platform_name=$(basename "$dirname")
-
-            # Copy the binary to upload directory with platform-specific name
-            cp "$file" "../upload/$platform_name"
-            echo "Copied: $file -> ../upload/$platform_name"
-
-            # Create checksum in upload directory
-            shasum -a 256 "$file" > "../upload/${platform_name}.sha256"
-            echo "Created checksum: ../upload/${platform_name}.sha256"
+          
+          echo "📦 Organizing binaries..."
+          
+          # Process installer artifacts
+          for dir in installer-*; do
+            if [ -d "$dir" ]; then
+              for file in "$dir"/*; do
+                if [ -f "$file" ]; then
+                  filename=$(basename "$file")
+                  cp "$file" "../upload/$filename"
+                  echo "✓ Copied installer: $filename"
+                  
+                  # Create checksum
+                  cd ../upload
+                  shasum -a 256 "$filename" > "${filename}.sha256"
+                  cd ../artifacts
+                fi
+              done
+            fi
           done
-
-          echo "All files in upload directory:"
-          find ../upload -type f | sort
+          
+          # Process updater artifacts
+          for dir in updater-*; do
+            if [ -d "$dir" ]; then
+              for file in "$dir"/*; do
+                if [ -f "$file" ]; then
+                  filename=$(basename "$file")
+                  cp "$file" "../upload/$filename"
+                  echo "✓ Copied updater: $filename"
+                  
+                  # Create checksum
+                  cd ../upload
+                  shasum -a 256 "$filename" > "${filename}.sha256"
+                  cd ../artifacts
+                fi
+              done
+            fi
+          done
+          
+          cd ..
+          echo ""
+          echo "📋 Files ready for release:"
+          ls -lh upload/ | grep -E "(minecraft-installer|minecraft-updater)"
 
       - name: Create release notes
         id: release_notes
         run: |
           cat > release_notes.md << 'EOF'
-          # Minecraft Installer ${{ steps.get_version.outputs.VERSION }}
+          # Minecraft Installer & Updater ${{ steps.get_version.outputs.VERSION }}
 
-          ## 🎉 New Release
+          ## 🎉 Dual-Executable Release
 
-          This release includes builds for all major platforms:
+          This release includes **two separate executables** for all major platforms:
+          
+          1. **`minecraft-installer`** - Install modpacks to launchers
+          2. **`minecraft-updater`** - Scan and update existing instances
+
+          ---
 
           ### 📦 Downloads
 
+          #### Minecraft Installer
+
           **Windows:**
-          - `minecraft-installer-windows-x86_64.exe` - Windows x64 (MSVC)
+          - `minecraft-installer-windows-x86_64.exe` - Windows x64 (MSVC, recommended)
           - `minecraft-installer-windows-gnu-x86_64.exe` - Windows x64 (GNU)
 
           **Linux:**
@@ -165,35 +209,140 @@ jobs:
 
           **macOS:**
           - `minecraft-installer-macos-intel-x86_64` - macOS Intel
-          - `minecraft-installer-macos-apple-silicon-aarch64` - macOS Apple Silicon
+          - `minecraft-installer-macos-apple-silicon-aarch64` - macOS Apple Silicon (M1/M2/M3)
 
-          ### ✨ Features
+          #### Minecraft Updater
 
-          - **Multi-Launcher Support**: AstralRinth, ModrinthApp, XMCL, PrismLauncher, Official Minecraft, MultiMC
-          - **Custom Path Installation**: Install directly to any directory (perfect for Legacy Launcher)
-          - **API Integration**: Download modpacks from NAHA API
-          - **Automodpack Setup**: Automatic server configuration
+          **Windows:**
+          - `minecraft-updater-windows-x86_64.exe` - Windows x64 (MSVC, recommended)
+          - `minecraft-updater-windows-gnu-x86_64.exe` - Windows x64 (GNU)
 
-          ### 🚀 Quick Start
+          **Linux:**
+          - `minecraft-updater-linux-x86_64` - Linux x64
 
-          ```bash
-          # Install from mrpack file
-          ./minecraft-installer --mrpack "modpack.mrpack" --create-instance
-
-          # Install to custom path
-          ./minecraft-installer --mrpack "modpack.mrpack" --target-launcher other --custom-path "/path/to/install" --create-instance
-
-          # Download from API
-          ./minecraft-installer --download-neoforge --create-instance
-          ```
-
-          ### 📋 Checksums
-
-          All files include SHA256 checksums for verification.
+          **macOS:**
+          - `minecraft-updater-macos-intel-x86_64` - macOS Intel
+          - `minecraft-updater-macos-apple-silicon-aarch64` - macOS Apple Silicon (M1/M2/M3)
 
           ---
 
-          **Full Changelog**: https://github.com/perlytiara/minecraft-installer/compare/${{ github.event.before }}...${{ github.ref_name }}
+          ### ✨ Key Features
+
+          #### Minecraft Installer
+          - 🎮 **Multi-Launcher Support**: AstralRinth, ModrinthApp, XMCL, PrismLauncher, Official Minecraft, MultiMC
+          - 📁 **Custom Path Installation**: Install directly to any directory
+          - 🌐 **GitHub API Integration**: Download modpacks from GitHub Releases
+          - ⚙️ **Automodpack Setup**: Automatic server configuration
+          - 💾 **Database Integration**: Automatic database injection for AstralRinth/ModrinthApp
+
+          #### Minecraft Updater
+          - 🔍 **Instance Scanner**: Auto-detects all Minecraft instances across launchers
+          - 🧠 **Intelligent Mod Updates**: Compares versions and only updates what's needed
+          - 🗑️ **Duplicate Removal**: Automatically removes old mod versions
+          - 🔒 **User Mod Protection**: Preserves mods not in the modpack
+          - 🎯 **Version Selection**: Update to specific versions or latest
+          - 💾 **Database Sync**: Updates launcher databases with new version info
+          - 📊 **JSON Output**: Perfect for Electron app integration
+
+          ---
+
+          ### 🚀 Quick Start
+
+          #### Install a Modpack
+          ```bash
+          # From mrpack file
+          minecraft-installer --mrpack "modpack.mrpack" --create-instance
+
+          # From GitHub API (latest)
+          minecraft-installer --download-neoforge --create-instance
+
+          # To custom path
+          minecraft-installer --mrpack "modpack.mrpack" --target-launcher other --custom-path "C:\Games\Minecraft" --create-instance
+          ```
+
+          #### Update Existing Instances
+          ```bash
+          # Scan all instances
+          minecraft-updater scan --format compact
+
+          # Interactive update (select from list)
+          minecraft-updater interactive --modpack-type neoforge
+
+          # Update specific instance to latest
+          minecraft-updater update --instance-path "C:\path\to\instance" --modpack-type neoforge
+
+          # Update to specific version
+          minecraft-updater update --instance-path "C:\path\to\instance" --modpack-type neoforge --version 0.0.18
+
+          # Get JSON output for Electron apps
+          minecraft-updater scan --format json
+          ```
+
+          ---
+
+          ### 🔧 Electron Integration
+
+          Both tools provide JSON output for easy integration with Electron apps:
+
+          ```javascript
+          const { spawn } = require('child_process')
+          
+          // Scan instances
+          const scanner = spawn('minecraft-updater', ['scan', '--format', 'json'])
+          scanner.stdout.on('data', (data) => {
+            const instances = JSON.parse(data)
+            console.log(`Found ${instances.length} instances`)
+          })
+
+          // Update instance
+          const updater = spawn('minecraft-updater', [
+            'update',
+            '--instance-path', instancePath,
+            '--modpack-type', 'neoforge',
+            '--format', 'json'
+          ])
+          ```
+
+          ---
+
+          ### 📋 Supported Launchers
+
+          | Launcher | Installer | Updater | Database Sync |
+          |----------|-----------|---------|---------------|
+          | AstralRinth | ✅ | ✅ | ✅ |
+          | ModrinthApp | ✅ | ✅ | ✅ |
+          | XMCL | ✅ | ✅ | ❌ |
+          | PrismLauncher | ✅ | ✅ | ❌ |
+          | Official Minecraft | ✅ | ✅ | ❌ |
+          | MultiMC | ✅ | ✅ | ❌ |
+          | Custom Path | ✅ | ❌ | ❌ |
+
+          ---
+
+          ### 🔒 Checksums
+
+          All binaries include SHA256 checksums (`.sha256` files) for verification.
+
+          To verify a download:
+          ```bash
+          # Windows (PowerShell)
+          Get-FileHash minecraft-installer-windows-x86_64.exe -Algorithm SHA256
+
+          # Linux/macOS
+          shasum -a 256 -c minecraft-installer-linux-x86_64.sha256
+          ```
+
+          ---
+
+          ### 📚 Documentation
+
+          - [Integration Guide](https://github.com/perlytiara/AstralRinth/blob/main/minecraft-installer/INTEGRATION_GUIDE.md)
+          - [Quick Start](https://github.com/perlytiara/AstralRinth/blob/main/minecraft-installer/QUICK_START.md)
+          - [Updater Guide](https://github.com/perlytiara/AstralRinth/blob/main/minecraft-installer/UPDATER_GUIDE.md)
+
+          ---
+
+          **Full Changelog**: https://github.com/perlytiara/AstralRinth/compare/${{ github.event.before }}...${{ github.ref_name }}
           EOF
 
           echo "RELEASE_NOTES<<EOF" >> $GITHUB_OUTPUT
@@ -205,7 +354,7 @@ jobs:
         with:
           token: ${{ secrets.GH_TOKEN }}
           tag_name: ${{ github.ref_name }}
-          name: Minecraft Installer ${{ steps.get_version.outputs.VERSION }}
+          name: Minecraft Tools ${{ steps.get_version.outputs.VERSION }}
           body: ${{ steps.release_notes.outputs.RELEASE_NOTES }}
           files: |
             upload/*

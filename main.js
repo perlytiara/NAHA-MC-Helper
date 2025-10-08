@@ -265,7 +265,7 @@ ipcMain.handle("minecraft-updater:scan-instances", async (event, format = 'json'
     // Check if binary exists
     if (!fsModule.existsSync(updaterPath)) {
       console.log("⚠️ minecraft-updater binary not found, using mock data");
-      // Return mock data
+      // Return mock data with all launcher types
       const mockInstances = [
         {
           name: "NAHA-Neoforge-1.21.1-0.0.18",
@@ -282,6 +282,22 @@ ipcMain.handle("minecraft-updater:scan-instances", async (event, format = 'json'
           mod_loader: "fabric",
           instance_path: "C:\\Users\\user\\AppData\\Roaming\\ModrinthApp\\profiles\\NAHA-Fabric-1.21.8-0.1.10",
           mod_count: 48
+        },
+        {
+          name: "NAHA-Neoforge-1.21.1",
+          launcher_type: "PrismLauncher",
+          minecraft_version: "1.21.1",
+          mod_loader: "neoforge",
+          instance_path: "C:\\Users\\user\\AppData\\Roaming\\PrismLauncher\\instances\\NAHA-Neoforge-1.21.1",
+          mod_count: 52
+        },
+        {
+          name: "NAHA-Fabric-1.21.8",
+          launcher_type: "XMCL",
+          minecraft_version: "1.21.8",
+          mod_loader: "fabric",
+          instance_path: "C:\\Users\\user\\.xmcl\\instances\\NAHA-Fabric-1.21.8",
+          mod_count: 47
         }
       ];
       return { success: true, instances: launcher ? mockInstances.filter(i => i.launcher_type.toLowerCase() === launcher.toLowerCase()) : mockInstances };
@@ -316,6 +332,22 @@ ipcMain.handle("minecraft-updater:scan-instances", async (event, format = 'json'
             mod_loader: "fabric",
             instance_path: "C:\\Users\\user\\AppData\\Roaming\\ModrinthApp\\profiles\\NAHA-Fabric-1.21.8-0.1.10",
             mod_count: 48
+          },
+          {
+            name: "NAHA-Neoforge-1.21.1",
+            launcher_type: "PrismLauncher",
+            minecraft_version: "1.21.1",
+            mod_loader: "neoforge",
+            instance_path: "C:\\Users\\user\\AppData\\Roaming\\PrismLauncher\\instances\\NAHA-Neoforge-1.21.1",
+            mod_count: 52
+          },
+          {
+            name: "NAHA-Fabric-1.21.8",
+            launcher_type: "XMCL",
+            minecraft_version: "1.21.8",
+            mod_loader: "fabric",
+            instance_path: "C:\\Users\\user\\.xmcl\\instances\\NAHA-Fabric-1.21.8",
+            mod_count: 47
           }
         ];
         resolve({ success: true, instances: launcher ? mockInstances.filter(i => i.launcher_type.toLowerCase() === launcher.toLowerCase()) : mockInstances });
@@ -345,6 +377,30 @@ ipcMain.handle("minecraft-updater:scan-instances", async (event, format = 'json'
                 mod_loader: "neoforge",
                 instance_path: "C:\\Users\\user\\AppData\\Roaming\\AstralRinthApp\\profiles\\NAHA-Neoforge-1.21.1-0.0.18",
                 mod_count: 53
+              },
+              {
+                name: "NAHA-Fabric-1.21.8-0.1.10",
+                launcher_type: "ModrinthApp",
+                minecraft_version: "1.21.8",
+                mod_loader: "fabric",
+                instance_path: "C:\\Users\\user\\AppData\\Roaming\\ModrinthApp\\profiles\\NAHA-Fabric-1.21.8-0.1.10",
+                mod_count: 48
+              },
+              {
+                name: "NAHA-Neoforge-1.21.1",
+                launcher_type: "PrismLauncher",
+                minecraft_version: "1.21.1",
+                mod_loader: "neoforge",
+                instance_path: "C:\\Users\\user\\AppData\\Roaming\\PrismLauncher\\instances\\NAHA-Neoforge-1.21.1",
+                mod_count: 52
+              },
+              {
+                name: "NAHA-Fabric-1.21.8",
+                launcher_type: "XMCL",
+                minecraft_version: "1.21.8",
+                mod_loader: "fabric",
+                instance_path: "C:\\Users\\user\\.xmcl\\instances\\NAHA-Fabric-1.21.8",
+                mod_count: 47
               }
             ];
             resolve({ success: true, instances: mockInstances });
@@ -360,6 +416,30 @@ ipcMain.handle("minecraft-updater:scan-instances", async (event, format = 'json'
               mod_loader: "neoforge",
               instance_path: "C:\\Users\\user\\AppData\\Roaming\\AstralRinthApp\\profiles\\NAHA-Neoforge-1.21.1-0.0.18",
               mod_count: 53
+            },
+            {
+              name: "NAHA-Fabric-1.21.8-0.1.10",
+              launcher_type: "ModrinthApp",
+              minecraft_version: "1.21.8",
+              mod_loader: "fabric",
+              instance_path: "C:\\Users\\user\\AppData\\Roaming\\ModrinthApp\\profiles\\NAHA-Fabric-1.21.8-0.1.10",
+              mod_count: 48
+            },
+            {
+              name: "NAHA-Neoforge-1.21.1",
+              launcher_type: "PrismLauncher",
+              minecraft_version: "1.21.1",
+              mod_loader: "neoforge",
+              instance_path: "C:\\Users\\user\\AppData\\Roaming\\PrismLauncher\\instances\\NAHA-Neoforge-1.21.1",
+              mod_count: 52
+            },
+            {
+              name: "NAHA-Fabric-1.21.8",
+              launcher_type: "XMCL",
+              minecraft_version: "1.21.8",
+              mod_loader: "fabric",
+              instance_path: "C:\\Users\\user\\.xmcl\\instances\\NAHA-Fabric-1.21.8",
+              mod_count: 47
             }
           ];
           resolve({ success: true, instances: mockInstances });
