@@ -245,7 +245,7 @@ const createWindow = () => {
 
   if (isDev) {
     // Try to load Vite dev server first, fallback to built files
-    mainWindow.loadURL("http://localhost:5173").catch((err) => {
+    mainWindow.loadURL("http://localhost:3000").catch((err) => {
       console.error("Failed to load Vite dev server:", err);
       console.log("Falling back to built files...");
       // Fallback to built files if dev server is not available

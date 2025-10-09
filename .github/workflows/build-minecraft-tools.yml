@@ -396,5 +396,4 @@ jobs:
             upload/*
           draft: false
           prerelease: false
-          make_latest: false
 

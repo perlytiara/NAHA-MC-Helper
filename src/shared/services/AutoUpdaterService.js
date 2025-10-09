@@ -306,35 +306,29 @@ class AutoUpdaterService {
       
       if (platform === 'win32') {
         // Windows: Run NSIS installer with silent flag
+        // The installer will wait for this app to close before updating
         this.sendToRenderer('update-installing', {
           version: this.updateInfo.version,
           message: 'Installing update in background...'
         });
         
+        // Start the installer in detached mode so it survives after we quit
         const installer = spawn(tempPath, ['/S'], {
           detached: true,
           stdio: 'ignore'
         });
         
-        installer.on('close', (code) => {
-          console.log('✅ Auto-updater: Silent installation completed with code:', code);
-          
-          // Send completion event - ask user to restart
+        // Unref so it doesn't keep the parent process alive
+        installer.unref();
+        
+        // Wait a moment to ensure the installer starts, then prompt user to restart
+        setTimeout(() => {
+          console.log('✅ Auto-updater: Installer started, prompting user to restart');
           this.sendToRenderer('update-ready-to-restart', {
             version: this.updateInfo.version,
-            message: 'Update installed successfully! Restart to apply changes.'
+            message: 'Update ready! Restart to complete installation.'
           });
-        });
-        
-        installer.on('error', (err) => {
-          console.error('❌ Auto-updater: Installation error:', err);
-          this.sendToRenderer('update-error', {
-            message: 'Failed to install update',
-            details: err.message
-          });
-        });
-        
-        installer.unref();
+        }, 2000);
       } else {
         // macOS/Linux: Open installer (user needs to complete installation)
         const result = await shell.openPath(tempPath);

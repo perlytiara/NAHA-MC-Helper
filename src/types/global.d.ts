@@ -38,6 +38,8 @@ interface AutoUpdater {
   onUpdateNotAvailable: (callback: (event: any, updateInfo: UpdateInfo) => void) => () => void;
   onDownloadProgress: (callback: (event: any, progress: DownloadProgress) => void) => () => void;
   onUpdateDownloaded: (callback: (event: any, updateInfo: UpdateInfo) => void) => () => void;
+  onUpdateInstalling: (callback: (event: any, data: any) => void) => () => void;
+  onUpdateReadyToRestart: (callback: (event: any, data: any) => void) => () => void;
   onUpdateError: (callback: (event: any, error: string) => void) => () => void;
   on: (event: string, callback: (...args: any[]) => void) => () => void;
   off: (event: string, callback: (...args: any[]) => void) => void;
@@ -51,6 +53,7 @@ interface Window {
     onShowAboutDialog: (callback: () => void) => () => void;
     getFileHash: (filePath: string, algorithm?: string) => Promise<string>;
     getAppVersion: () => Promise<string>;
+    quitApp: () => Promise<void>;
     autoUpdater: AutoUpdater;
     minecraftUpdater: {
       scanInstances: (format: string, launcher?: string | null) => Promise<{ success: boolean; instances: any[] }>;

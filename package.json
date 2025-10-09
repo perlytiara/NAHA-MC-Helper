@@ -1,6 +1,6 @@
 {
   "name": "naha-mc-helper",
-  "version": "1.0.1",
+  "version": "1.0.3",
   "type": "module",
   "main": "main.js",
   "engines": {
@@ -78,6 +78,10 @@
       "src/shared/services/**/*",
       "src/shared/utils/**/*",
       "node_modules/**/*"
+    ],
+    "asarUnpack": [
+      "src/shared/services/**/*",
+      "src/shared/utils/**/*"
     ],
     "icon": "public/icons/win/icon.ico",
     "extraResources": [
