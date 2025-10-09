@@ -951,7 +951,7 @@ ipcMain.handle("get-app-version", async () => {
     return packageJson.version;
   } catch (error) {
     console.error("Failed to read version from package.json:", error);
-    return "1.0.1"; // Fallback version
+    return "1.0.2"; // Fallback version
   }
 });
 

@@ -26,7 +26,7 @@
   let isChecking: boolean = false;
   let isDownloading: boolean = false;
   let updateError: UpdateError | null = null;
-  let currentVersion: string = '1.0.1'; // Will be loaded from package.json
+  let currentVersion: string = '1.0.2'; // Will be loaded from package.json
   let showRestartAnimation: boolean = false;
   let updateMessage: string = 'Downloading update...';
   let showRestartPrompt: boolean = false;
