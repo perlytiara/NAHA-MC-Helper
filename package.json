@@ -1,6 +1,6 @@
 {
   "name": "naha-mc-helper",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "type": "module",
   "main": "main.js",
   "engines": {
@@ -75,11 +75,13 @@
       "dist/**/*",
       "main.js",
       "preload.js",
+      "public/**/*",
       "src/shared/services/**/*",
       "src/shared/utils/**/*",
       "node_modules/**/*"
     ],
     "asarUnpack": [
+      "public/**/*",
       "src/shared/services/**/*",
       "src/shared/utils/**/*"
     ],

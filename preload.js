@@ -40,6 +40,8 @@ contextBridge.exposeInMainWorld('nahaAPI', {
   getAppInfo: () => ipcRenderer.invoke('get-app-info'),
   getAppVersion: () => ipcRenderer.invoke('get-app-version'),
   quitApp: () => ipcRenderer.invoke('quit-app'),
+  installAndQuit: () => ipcRenderer.invoke('install-and-quit'),
+  cancelDownload: () => ipcRenderer.invoke('cancel-download'),
   onShowAboutDialog: (callback) => ipcRenderer.on('show-about-dialog', callback),
   
   // Debug mode functions

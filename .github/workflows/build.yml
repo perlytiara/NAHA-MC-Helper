@@ -119,7 +119,7 @@ jobs:
     - name: Generate release notes
       run: |
         # Define the changes for this version (customize per release)
-        CHANGES="Seamless Auto-Update Experience with Cute Cat Animation,Improved Update Modal UI/UX,Fixed Smooth Transition from Download to Restart,Enhanced Background Installation,Compact Modal Design,Bilingual Support (English/French)"
+        CHANGES="Cute Animated Cat During Updates,Integrated Cancel Confirmation UI,Proper Download Abortion with AbortController,Fixed Icon and Logo Display in Production,Improved Release Notes Parsing,Compact Modal with Scrollable Release Notes"
         
         # Check if release notes already exist (pre-generated)
         if [ -f "tools/github/releases/notes/RELEASE_NOTES_v${{ steps.get_version.outputs.version }}.md" ]; then

@@ -1,4 +1,6 @@
 // Global type declarations for the application
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable no-undef */
 
 interface UpdateInfo {
   version: string;
@@ -54,6 +56,8 @@ interface Window {
     getFileHash: (filePath: string, algorithm?: string) => Promise<string>;
     getAppVersion: () => Promise<string>;
     quitApp: () => Promise<void>;
+    installAndQuit: () => Promise<void>;
+    cancelDownload: () => Promise<void>;
     autoUpdater: AutoUpdater;
     minecraftUpdater: {
       scanInstances: (format: string, launcher?: string | null) => Promise<{ success: boolean; instances: any[] }>;

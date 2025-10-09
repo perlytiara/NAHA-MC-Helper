@@ -951,7 +951,7 @@ ipcMain.handle("get-app-version", async () => {
     return packageJson.version;
   } catch (error) {
     console.error("Failed to read version from package.json:", error);
-    return "1.0.3"; // Fallback version
+    return "1.0.4"; // Fallback version
   }
 });
 
@@ -959,6 +959,27 @@ ipcMain.handle("get-app-version", async () => {
 ipcMain.handle("quit-app", () => {
   console.log('App quit requested');
   app.quit();
+});
+
+// Install update and quit handler
+ipcMain.handle("install-and-quit", () => {
+  console.log('Install and quit requested');
+  if (autoUpdater) {
+    autoUpdater.installAndQuit();
+  } else {
+    console.error('AutoUpdaterService not available');
+    app.quit();
+  }
+});
+
+// Cancel download handler
+ipcMain.handle("cancel-download", () => {
+  console.log('Cancel download requested');
+  if (autoUpdater) {
+    autoUpdater.cancelDownload();
+  } else {
+    console.log('AutoUpdaterService not available');
+  }
 });
 
 // Debug mode handlers

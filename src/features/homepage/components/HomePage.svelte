@@ -126,7 +126,7 @@ const featureKeys = [
     <!-- Hero section -->
     <div class="hero-section">
         <div class="hero-content">
-            <img src="/naha-mc-helper-logo.png" alt="NAHA MC Helper Logo" class="hero-logo" />
+            <img src="./naha-mc-helper-logo.png" alt="NAHA MC Helper Logo" class="hero-logo" />
             <h1 class="hero-title">{$t('homepage.title')}</h1>
             <p class="hero-subtitle">{$t('homepage.subtitle')}</p>
         </div>

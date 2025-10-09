@@ -13,9 +13,11 @@
   export let downloadProgress: DownloadProgress | null = null;
   export let isChecking = false;
   export let error: UpdateError | null = null;
-  export let currentVersion = '1.0.3';
+  export let currentVersion = '1.0.4';
   export let isInstalling = false;
   export let showRestartPrompt = false;
+  
+  let showCancelConfirmation = false;
   
   function handleDownload() {
     dispatch('download');
@@ -26,57 +28,102 @@
   }
 
   function handleClose() {
+    // If downloading or installing, show cancel confirmation UI
+    if (downloadProgress || isInstalling) {
+      showCancelConfirmation = true;
+      return;
+    }
     dispatch('close');
+  }
+
+  function confirmCancel() {
+    console.log('Update cancelled by user');
+    showCancelConfirmation = false;
+    dispatch('cancel');
+    dispatch('close');
+  }
+
+  function resumeUpdate() {
+    console.log('User resumed update');
+    showCancelConfirmation = false;
   }
 </script>
 
 {#if show}
   <!-- svelte-ignore a11y-no-static-element-interactions -->
   <!-- svelte-ignore a11y-click-events-have-key-events -->
-  <div class="modal-overlay" on:click={handleClose} on:keydown={(e) => e.key === 'Escape' && handleClose()} role="dialog" aria-modal="true" tabindex="-1">
+  <div class="modal-overlay" on:click={() => {
+    // Don't allow overlay click to close during download/install
+    if (!downloadProgress && !isInstalling) {
+      handleClose();
+    }
+  }} on:keydown={(e) => {
+    if (e.key === 'Escape') {
+      handleClose();
+    }
+  }} role="dialog" aria-modal="true" tabindex="-1">
     <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
     <!-- svelte-ignore a11y-no-static-element-interactions -->
     <!-- svelte-ignore a11y-click-events-have-key-events -->
     <div class="modal-content" on:click|stopPropagation on:keydown|stopPropagation role="document">
       <button class="close-button" on:click={handleClose}>✕</button>
       
-      <div class="modal-header">
-        <div class="update-icon">
-          {#if isChecking}
-            <span class="spinner">🔄</span>
-          {:else if error}
-            <span class="error-icon">⚠️</span>
-          {:else if showRestartPrompt}
-            <span class="check-icon">✨</span>
-          {:else if downloadProgress || isInstalling}
-            <span class="available-icon">📥</span>
-          {:else if updateInfo}
-            <span class="available-icon">📥</span>
-          {:else}
-            <span class="check-icon">✅</span>
-          {/if}
+      {#if !showCancelConfirmation}
+        <div class="modal-header">
+          <div class="update-icon">
+            {#if isChecking}
+              <span class="spinner">🔄</span>
+            {:else if error}
+              <span class="error-icon">⚠️</span>
+            {:else if showRestartPrompt}
+              <span class="check-icon">✨</span>
+            {:else if downloadProgress || isInstalling}
+              <span class="available-icon">📥</span>
+            {:else if updateInfo}
+              <span class="available-icon">📥</span>
+            {:else}
+              <span class="check-icon">✅</span>
+            {/if}
+          </div>
+          <h2 class="modal-title">
+            {#if isChecking}
+              {$t('updateModal.checking')}
+            {:else if error}
+              {$t('updateModal.updateError')}
+            {:else if showRestartPrompt}
+              Ready to Restart
+            {:else if isInstalling}
+              Installing Update
+            {:else if downloadProgress}
+              Downloading Update
+            {:else if updateInfo}
+              {$t('updateModal.updateAvailable')}
+            {:else}
+              {$t('updateModal.noUpdates')}
+            {/if}
+          </h2>
         </div>
-        <h2 class="modal-title">
-          {#if isChecking}
-            {$t('updateModal.checking')}
-          {:else if error}
-            {$t('updateModal.updateError')}
-          {:else if showRestartPrompt}
-            Ready to Restart
-          {:else if isInstalling}
-            Installing Update
-          {:else if downloadProgress}
-            Downloading Update
-          {:else if updateInfo}
-            {$t('updateModal.updateAvailable')}
-          {:else}
-            {$t('updateModal.noUpdates')}
-          {/if}
-        </h2>
-      </div>
+      {/if}
 
       <div class="modal-body">
-        {#if isChecking}
+        {#if showCancelConfirmation}
+          <!-- Cancel Confirmation UI -->
+          <div class="cancel-confirmation">
+            <div class="cancel-icon">⚠️</div>
+            <h3 class="cancel-title">Cancel Update?</h3>
+            <p class="cancel-message">
+              The update download will be stopped and you'll need to restart it manually.
+            </p>
+            <div class="cancel-buttons">
+              <button class="btn-resume" on:click={resumeUpdate}>
+                ← Continue Download
+              </button>
+              <button class="btn-cancel" on:click={confirmCancel}>
+                Cancel Update
+              </button>
+            </div>
+          </div>
+        {:else if isChecking}
           <p class="checking-text">{$t('updateModal.lookingForLatest')}</p>
         {:else if error}
           <div class="error-message">
@@ -137,7 +184,7 @@
               <line x1="145" y1="86" x2="165" y2="88" stroke="#047857" stroke-width="1.5" opacity="0.7" class="whisker"/>
             </svg>
             
-            <p class="restart-message">Update installed! Ready to restart</p>
+            <p class="restart-message">Update ready! Click restart to install</p>
           </div>
         {:else if downloadProgress || isInstalling}
           <!-- Download/Install with Cat Animation -->
@@ -221,7 +268,21 @@
             <div class="release-notes">
               <h3>{$t('updateModal.whatsNew')}</h3>
               <div class="release-notes-content">
-                {#each (updateInfo.releaseNotes || 'Bug fixes and improvements').split('\n').filter((line: string) => line.trim()) as line}
+                {#each (updateInfo.releaseNotes || 'Bug fixes and improvements').split('\n').filter((line: string) => {
+                  const trimmed = line.trim();
+                  return trimmed && 
+                         !trimmed.startsWith('#') && 
+                         !trimmed.startsWith('##') &&
+                         !trimmed.startsWith('Welcome') &&
+                         !trimmed.startsWith('Download') && 
+                         !trimmed.startsWith('**') && 
+                         !trimmed.startsWith('###') &&
+                         !trimmed.startsWith('---') &&
+                         !trimmed.startsWith('[') &&
+                         !trimmed.startsWith('http') &&
+                         trimmed.length > 5 &&
+                         trimmed.length < 120;
+                }).slice(0, 6) as line}
                   <p class="release-note-item">{line}</p>
                 {/each}
               </div>
@@ -232,26 +293,28 @@
         {/if}
       </div>
 
-      <div class="modal-footer">
-        {#if showRestartPrompt}
-          <button class="install-button" on:click={handleInstall}>
-            🔄 Restart Now
-          </button>
-          <button class="close-button-footer" on:click={handleClose}>
-            Later
-          </button>
-        {:else if downloadProgress || isInstalling}
-          <!-- No buttons during download/install -->
-        {:else if updateInfo}
-          <button class="download-button" on:click={handleDownload}>
-            📥 {$t('updateModal.downloadUpdate')}
-          </button>
-        {:else if !isChecking}
-          <button class="close-button-footer" on:click={handleClose}>
-            {$t('updateModal.close')}
-          </button>
-        {/if}
-      </div>
+      {#if !showCancelConfirmation}
+        <div class="modal-footer">
+          {#if showRestartPrompt}
+            <button class="install-button" on:click={handleInstall}>
+              🔄 Restart Now
+            </button>
+            <button class="close-button-footer" on:click={handleClose}>
+              Later
+            </button>
+          {:else if downloadProgress || isInstalling}
+            <!-- No buttons during download/install -->
+          {:else if updateInfo}
+            <button class="download-button" on:click={handleDownload}>
+              📥 {$t('updateModal.downloadUpdate')}
+            </button>
+          {:else if !isChecking}
+            <button class="close-button-footer" on:click={handleClose}>
+              {$t('updateModal.close')}
+            </button>
+          {/if}
+        </div>
+      {/if}
     </div>
   </div>
 {/if}
@@ -438,14 +501,44 @@
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
+    max-height: 180px;
+    overflow-y: auto;
+    padding-right: 0.5rem;
+  }
+
+  .release-notes-content::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .release-notes-content::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 3px;
+  }
+
+  .release-notes-content::-webkit-scrollbar-thumb {
+    background: rgba(16, 185, 129, 0.5);
+    border-radius: 3px;
+  }
+
+  .release-notes-content::-webkit-scrollbar-thumb:hover {
+    background: rgba(16, 185, 129, 0.7);
   }
 
   .release-note-item {
-    font-size: 0.9rem;
-    line-height: 1.5;
+    font-size: 0.85rem;
+    line-height: 1.4;
     color: rgba(255, 255, 255, 0.9);
     margin: 0;
-    padding-left: 0.25rem;
+    padding-left: 1rem;
+    position: relative;
+  }
+
+  .release-note-item::before {
+    content: '•';
+    position: absolute;
+    left: 0;
+    color: #10b981;
+    font-weight: bold;
   }
 
   .modal-footer {
@@ -487,6 +580,83 @@
 
   .close-button-footer:hover {
     background: rgba(255, 255, 255, 0.15);
+  }
+
+  /* Cancel Confirmation Styles */
+  .cancel-confirmation {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.5rem 0;
+  }
+
+  .cancel-icon {
+    font-size: 3rem;
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.1); opacity: 0.8; }
+  }
+
+  .cancel-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: white;
+    margin: 0;
+    text-align: center;
+  }
+
+  .cancel-message {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.8);
+    text-align: center;
+    margin: 0;
+    line-height: 1.5;
+    max-width: 320px;
+  }
+
+  .cancel-buttons {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+    width: 100%;
+    justify-content: center;
+  }
+
+  .btn-resume,
+  .btn-cancel {
+    border: none;
+    border-radius: 8px;
+    padding: 0.75rem 1.25rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .btn-resume {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+  }
+
+  .btn-resume:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+  }
+
+  .btn-cancel {
+    background: rgba(239, 68, 68, 0.15);
+    color: #ef4444;
+    border: 2px solid rgba(239, 68, 68, 0.3);
+  }
+
+  .btn-cancel:hover {
+    background: rgba(239, 68, 68, 0.25);
+    border-color: rgba(239, 68, 68, 0.5);
   }
 
   /* Update Animation Styles */

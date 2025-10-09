@@ -10,6 +10,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 export default defineConfig({
   plugins: [svelte()],
   base: './',
+  publicDir: 'public',
   server: {
     host: '127.0.0.1', // Use IPv4 instead of IPv6
     port: 3000, // Changed from 5173 due to Windows port exclusion
@@ -30,5 +31,6 @@ export default defineConfig({
   },
   build: {
     outDir: 'dist',
+    emptyOutDir: true,
   },
 });

@@ -15,6 +15,9 @@ class AutoUpdaterService {
     this.updateDownloaded = false;
     this.currentVersion = app.getVersion();
     this.updateCheckInterval = null;
+    this.installerPath = null;
+    this.abortController = null;
+    this.isDownloading = false;
     
     this.setupAutoUpdater();
   }
@@ -238,9 +241,16 @@ class AutoUpdaterService {
         version: this.updateInfo.version
       });
       
+      // Create abort controller for cancellable download
+      // eslint-disable-next-line no-undef
+      this.abortController = new AbortController();
+      this.isDownloading = true;
+      
       // Download the installer
       // eslint-disable-next-line no-undef
-      const response = await fetch(downloadUrl);
+      const response = await fetch(downloadUrl, {
+        signal: this.abortController.signal
+      });
       if (!response.ok) {
         throw new Error(`Failed to download installer: ${response.status} ${response.statusText}`);
       }
@@ -253,25 +263,50 @@ class AutoUpdaterService {
       const chunks = [];
       const startTime = Date.now();
       
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
+      try {
+        while (true) {
+          // Check if download was cancelled
+          if (this.abortController.signal.aborted) {
+            console.log('❌ Download aborted by user');
+            reader.cancel();
+            break;
+          }
+          
+          const { done, value } = await reader.read();
+          if (done) break;
         
-        chunks.push(value);
-        downloaded += value.length;
-        
-        const currentTime = Date.now();
-        const elapsedTime = (currentTime - startTime) / 1000; // in seconds
-        const bytesPerSecond = elapsedTime > 0 ? downloaded / elapsedTime : 0;
-        
-        const percent = Math.round((downloaded / total) * 100);
-        this.sendToRenderer('download-progress', {
-          percent: percent,
-          transferred: downloaded,
-          total: total,
-          bytesPerSecond: bytesPerSecond,
-          version: this.updateInfo.version
-        });
+          chunks.push(value);
+          downloaded += value.length;
+          
+          const currentTime = Date.now();
+          const elapsedTime = (currentTime - startTime) / 1000; // in seconds
+          const bytesPerSecond = elapsedTime > 0 ? downloaded / elapsedTime : 0;
+          
+          const percent = Math.round((downloaded / total) * 100);
+          this.sendToRenderer('download-progress', {
+            percent: percent,
+            transferred: downloaded,
+            total: total,
+            bytesPerSecond: bytesPerSecond,
+            version: this.updateInfo.version
+          });
+        }
+      } catch (readError) {
+        if (readError.name === 'AbortError' || this.abortController?.signal.aborted) {
+          console.log('❌ Download was cancelled by user');
+          this.isDownloading = false;
+          this.abortController = null;
+          return; // Exit without throwing error
+        }
+        throw readError;
+      }
+      
+      // Check one more time before saving
+      if (this.abortController?.signal.aborted) {
+        console.log('❌ Download cancelled before saving');
+        this.isDownloading = false;
+        this.abortController = null;
+        return;
       }
       
       // Combine chunks into a single buffer
@@ -294,6 +329,8 @@ class AutoUpdaterService {
       console.log('✅ Auto-updater: Installer downloaded successfully!');
       console.log('📤 Auto-updater: Sending update-downloaded event');
       
+      this.isDownloading = false;
+      
       // Send download completed event
       this.sendToRenderer('update-downloaded', {
         version: this.updateInfo.version,
@@ -301,34 +338,20 @@ class AutoUpdaterService {
         releaseNotes: `Update ${this.updateInfo.version} downloaded successfully. The installer will open automatically.`
       });
       
-      // Install silently in background
-      console.log('🚀 Auto-updater: Installing update silently in background...');
+      // Notify that update is ready to install
+      console.log('🚀 Auto-updater: Update downloaded and ready to install');
       
       if (platform === 'win32') {
-        // Windows: Run NSIS installer with silent flag
-        // The installer will wait for this app to close before updating
-        this.sendToRenderer('update-installing', {
+        // Windows: Installer will run when user clicks restart
+        // Store installer path for later use
+        this.installerPath = tempPath;
+        
+        // Notify renderer that update is ready
+        this.sendToRenderer('update-ready-to-restart', {
           version: this.updateInfo.version,
-          message: 'Installing update in background...'
+          message: 'Update downloaded! Click restart to install.',
+          installerPath: tempPath
         });
-        
-        // Start the installer in detached mode so it survives after we quit
-        const installer = spawn(tempPath, ['/S'], {
-          detached: true,
-          stdio: 'ignore'
-        });
-        
-        // Unref so it doesn't keep the parent process alive
-        installer.unref();
-        
-        // Wait a moment to ensure the installer starts, then prompt user to restart
-        setTimeout(() => {
-          console.log('✅ Auto-updater: Installer started, prompting user to restart');
-          this.sendToRenderer('update-ready-to-restart', {
-            version: this.updateInfo.version,
-            message: 'Update ready! Restart to complete installation.'
-          });
-        }, 2000);
       } else {
         // macOS/Linux: Open installer (user needs to complete installation)
         const result = await shell.openPath(tempPath);
@@ -348,7 +371,18 @@ class AutoUpdaterService {
       }
       
     } catch (error) {
+      // Don't show error if download was intentionally cancelled
+      if (error.name === 'AbortError' || this.abortController?.signal.aborted) {
+        console.log('Auto-updater: Download cancelled by user');
+        this.isDownloading = false;
+        this.abortController = null;
+        return;
+      }
+      
       console.error('Auto-updater: Error downloading installer:', error);
+      
+      this.isDownloading = false;
+      this.abortController = null;
       
       let errorMessage = 'Failed to download installer';
       if (error.code === 'EBUSY') {
@@ -361,6 +395,21 @@ class AutoUpdaterService {
         message: errorMessage,
         details: error.stack || error.toString()
       });
+    }
+  }
+
+  /**
+   * Cancel ongoing download
+   */
+  cancelDownload() {
+    console.log('Auto-updater: Cancelling download...');
+    if (this.abortController && this.isDownloading) {
+      this.abortController.abort();
+      this.isDownloading = false;
+      this.abortController = null;
+      console.log('✅ Download cancelled successfully');
+    } else {
+      console.log('No active download to cancel');
     }
   }
 
@@ -427,46 +476,50 @@ class AutoUpdaterService {
   // Parse release notes markdown to extract key features
   parseReleaseNotes(markdown) {
     try {
-      // Extract the "What's New" section
-      const whatsNewMatch = markdown.match(/##\s*✨\s*What's New[^#]*((?:- \*\*[^*]+\*\*[^\n]*\n?)+)/);
+      console.log('🔍 Parsing release notes, input length:', markdown?.length);
       
-      if (whatsNewMatch && whatsNewMatch[1]) {
-        // Extract bullet points and clean them up
-        const bullets = whatsNewMatch[1]
-          .split('\n')
-          .filter(line => line.trim().startsWith('-'))
-          .map(line => {
-            // Remove markdown formatting and emoji, keep just the feature name
-            return line
-              .replace(/^-\s*\*\*/, '• ')  // Replace - ** with bullet
-              .replace(/\*\*:.*$/, '')      // Remove **: and everything after
-              .trim();
-          })
-          .filter(line => line.length > 0)
-          .join('\n');
+      // Simple approach: Just grab all lines starting with "- **" from anywhere
+      const lines = markdown.split('\n');
+      const featureLines = [];
+      
+      for (const line of lines) {
+        const trimmed = line.trim();
         
-        return bullets || 'Bug fixes and improvements';
+        // Look for lines like: - **Feature Name**: Description emoji
+        if (trimmed.startsWith('- **')) {
+          // Extract just the feature name (before the colon)
+          let featureName = trimmed
+            .replace(/^-\s*\*\*/, '')     // Remove - **
+            .replace(/\*\*:.*$/, '')       // Remove everything after **:
+            .replace(/\*\*\s*$/, '')       // Remove trailing **
+            .trim();
+          
+          if (featureName.length > 0 && featureName.length < 100) {
+            featureLines.push(featureName);
+            console.log('📌 Found feature:', featureName);
+          }
+        }
+        
+        // Stop after finding 6 features
+        if (featureLines.length >= 6) break;
       }
       
-      // Fallback: try to find any bullet points
-      const bulletPoints = markdown.match(/^-\s+\*\*([^*]+)\*\*/gm);
-      if (bulletPoints) {
-        return bulletPoints
-          .map(point => point.replace(/^-\s+\*\*/, '• ').replace(/\*\*.*$/, ''))
-          .join('\n');
+      if (featureLines.length > 0) {
+        const result = featureLines.join('\n');
+        console.log('✅ Successfully parsed', featureLines.length, 'features');
+        console.log('📋 Result:', result);
+        return result;
       }
       
-      // Last resort: return first paragraph
-      const firstPara = markdown.split('\n\n')[0];
-      if (firstPara && firstPara.length < 200) {
-        return firstPara.replace(/[#*]/g, '').trim();
-      }
+      console.log('❌ No features found in release notes');
       
-      return 'Bug fixes and improvements';
     } catch (error) {
-      console.error('Error parsing release notes:', error);
-      return 'Bug fixes and improvements';
+      console.error('❌ Error parsing release notes:', error);
     }
+    
+    // Absolute fallback
+    console.log('⚠️ Using fallback message');
+    return 'New features and improvements included in this release.';
   }
 
   // Compare version strings to determine if one is newer
@@ -535,6 +588,45 @@ class AutoUpdaterService {
       case 2: // View Release Notes
         shell.openExternal(`https://github.com/perlytiara/NAHA-MC-Helper/releases/tag/${updateInfo.version}`);
         break;
+    }
+  }
+
+  /**
+   * Install update and quit application
+   * This starts the installer and immediately quits the app
+   */
+  installAndQuit() {
+    if (!this.installerPath) {
+      console.error('No installer path available');
+      return;
+    }
+
+    console.log('🚀 Starting installer and quitting app...');
+    console.log('Installer path:', this.installerPath);
+
+    try {
+      // Start the installer in detached mode
+      const installer = spawn(this.installerPath, [], {
+        detached: true,
+        stdio: 'ignore'
+      });
+
+      // Unref so it survives after we quit
+      installer.unref();
+
+      console.log('✅ Installer started, quitting app in 500ms');
+
+      // Give the installer a moment to start, then quit
+      setTimeout(() => {
+        app.quit();
+      }, 500);
+
+    } catch (error) {
+      console.error('Failed to start installer:', error);
+      this.sendToRenderer('update-error', {
+        message: 'Failed to start installer',
+        details: error.message
+      });
     }
   }
 }

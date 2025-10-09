@@ -26,9 +26,10 @@
   let isDownloading: boolean = false;
   let isInstalling: boolean = false;
   let updateError: UpdateError | null = null;
-  let currentVersion: string = '1.0.3'; // Will be loaded from package.json
+  let currentVersion: string = '1.0.4'; // Will be loaded from package.json
   let updateMessage: string = 'Downloading update...';
   let showRestartPrompt: boolean = false;
+  let updateCancelled: boolean = false;
 
   // Auto-updater event handlers
   function handleUpdateChecking(): void {
@@ -41,6 +42,11 @@
     console.log('App: handleUpdateAvailable called with:', data);
     updateInfo = data;
     isChecking = false;
+    // Clear download/install states for fresh update view
+    downloadProgress = null;
+    isDownloading = false;
+    isInstalling = false;
+    showRestartPrompt = false;
     showUpdateModal = true;
     updateError = null;
     console.log('App: Update modal should now be visible:', showUpdateModal);
@@ -70,6 +76,11 @@
   }
 
   function handleDownloadProgress(event: any, data: DownloadProgress): void {
+    // Ignore if update was cancelled
+    if (updateCancelled) {
+      console.log('🚫 App: Ignoring download progress - update was cancelled');
+      return;
+    }
     console.log('🔥 App: handleDownloadProgress called with:', data);
     downloadProgress = data;
     isDownloading = true;
@@ -80,6 +91,11 @@
   }
 
   function handleUpdateDownloaded(event: any, data: UpdateInfo): void {
+    // Ignore if update was cancelled
+    if (updateCancelled) {
+      console.log('🚫 App: Ignoring update downloaded - update was cancelled');
+      return;
+    }
     console.log('🎉 App: Update downloaded!', data);
     // Keep showing progress at 100% briefly
     downloadProgress = { percent: 100, transferred: 0, total: 0, bytesPerSecond: 0 };
@@ -90,6 +106,11 @@
   }
 
   function handleUpdateInstalling(event: any, data: any): void {
+    // Ignore if update was cancelled
+    if (updateCancelled) {
+      console.log('🚫 App: Ignoring update installing - update was cancelled');
+      return;
+    }
     console.log('🔧 App: Installing update in background...', data);
     showUpdateModal = true; // Keep modal open
     isDownloading = false;
@@ -103,6 +124,11 @@
   }
 
   function handleUpdateReadyToRestart(event: any, data: any): void {
+    // Ignore if update was cancelled
+    if (updateCancelled) {
+      console.log('🚫 App: Ignoring update ready - update was cancelled');
+      return;
+    }
     console.log('✅ App: Update ready to restart!', data);
     showUpdateModal = true; // Keep modal open
     isDownloading = false;
@@ -126,6 +152,9 @@
     console.log('🔥 App: window.nahaAPI available:', !!window.nahaAPI);
     console.log('🔥 App: window.nahaAPI.autoUpdater available:', !!window.nahaAPI?.autoUpdater);
     console.log('🔥 App: downloadUpdate function available:', !!window.nahaAPI?.autoUpdater?.downloadUpdate);
+    
+    // Reset cancellation flag when starting a new download
+    updateCancelled = false;
     
     if (window.nahaAPI?.autoUpdater?.downloadUpdate) {
       console.log('🔥 App: Calling downloadUpdate with updateInfo:', updateInfo);
@@ -151,9 +180,12 @@
   }
 
   function handleInstall(): void {
-    console.log('App: Restart requested to apply update');
-    // Close the app - the new version will start automatically
-    if (window.nahaAPI?.quitApp) {
+    console.log('App: Restart requested to install update and quit');
+    // Start the installer and quit the app
+    if (window.nahaAPI?.installAndQuit) {
+      window.nahaAPI.installAndQuit();
+    } else if (window.nahaAPI?.quitApp) {
+      // Fallback to just quitting
       window.nahaAPI.quitApp();
     }
   }
@@ -165,13 +197,41 @@
     }
   }
 
-  function handleUpdateModalClose(): void {
+  function handleCancelUpdate(): void {
+    console.log('App: Update cancelled by user');
+    
+    // Call backend to actually cancel the download
+    if (window.nahaAPI?.cancelDownload) {
+      window.nahaAPI.cancelDownload().catch((err: any) => {
+        console.error('Failed to cancel download:', err);
+      });
+    }
+    
+    // Set cancellation flag to ignore future events
+    updateCancelled = true;
+    
+    // Clear all update-related states
     showUpdateModal = false;
     updateInfo = null;
     downloadProgress = null;
     updateError = null;
     isChecking = false;
     isDownloading = false;
+    isInstalling = false;
+    showRestartPrompt = false;
+  }
+
+  function handleUpdateModalClose(): void {
+    console.log('App: Update modal closed');
+    showUpdateModal = false;
+    updateInfo = null;
+    downloadProgress = null;
+    updateError = null;
+    isChecking = false;
+    isDownloading = false;
+    isInstalling = false;
+    showRestartPrompt = false;
+    updateCancelled = false; // Reset cancellation flag
   }
 
   function handleUpdateLater(): void {
@@ -248,6 +308,15 @@
       console.log('App: electronAPI available:', !!window.electronAPI);
       console.log('App: prism.autoUpdater available:', !!window.nahaAPI?.autoUpdater);
 
+      // Reset ALL states for a fresh check
+      updateCancelled = false;
+      updateInfo = null;
+      downloadProgress = null;
+      updateError = null;
+      isDownloading = false;
+      isInstalling = false;
+      showRestartPrompt = false;
+      
       // Set checking state immediately
       isChecking = true;
       showUpdateModal = true;
@@ -344,6 +413,12 @@
           releaseDate: release.published_at
         };
 
+        // Clear old download/install states for fresh start
+        downloadProgress = null;
+        isDownloading = false;
+        isInstalling = false;
+        showRestartPrompt = false;
+        
         showUpdateModal = true;
         isChecking = false;
 
@@ -352,6 +427,11 @@
       } else {
         console.log('App: ℹ️ No updates available via direct GitHub API');
         isChecking = false;
+        // Clear old states
+        downloadProgress = null;
+        isDownloading = false;
+        isInstalling = false;
+        showRestartPrompt = false;
         // DON'T close the modal here - let the user see the "no updates" message
         console.log('App: Keeping modal open to show "no updates" state');
       }
@@ -531,6 +611,7 @@
     {showRestartPrompt}
     on:download={handleDownload}
     on:install={handleInstall}
+    on:cancel={handleCancelUpdate}
     on:close={handleUpdateModalClose}
   />
 
