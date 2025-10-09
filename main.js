@@ -245,7 +245,7 @@ const createWindow = () => {
 
   if (isDev) {
     // Try to load Vite dev server first, fallback to built files
-    mainWindow.loadURL("http://localhost:3000").catch((err) => {
+    mainWindow.loadURL("http://127.0.0.1:3000").catch((err) => {
       console.error("Failed to load Vite dev server:", err);
       console.log("Falling back to built files...");
       // Fallback to built files if dev server is not available
@@ -951,7 +951,7 @@ ipcMain.handle("get-app-version", async () => {
     return packageJson.version;
   } catch (error) {
     console.error("Failed to read version from package.json:", error);
-    return "1.0.2"; // Fallback version
+    return "1.0.3"; // Fallback version
   }
 });
 

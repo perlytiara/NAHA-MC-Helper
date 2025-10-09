@@ -11,7 +11,6 @@
   import StatusBanner from '../shared/components/ui/feedback/StatusBanner.svelte';
   import AboutDialog from '../shared/components/ui/dialogs/AboutDialog.svelte';
   import UpdateModal from '../shared/components/updates/UpdateModal.svelte';
-  import RestartAnimation from '../shared/components/updates/RestartAnimation.svelte';
   import { isOnboardingCompleted } from '../shared/utils/onboardingUtils';
   import { loadSavedLanguage } from '../shared/utils/i18n';
   // Types are now available globally from src/types/global.d.ts
@@ -25,9 +24,9 @@
   let downloadProgress: DownloadProgress | null = null;
   let isChecking: boolean = false;
   let isDownloading: boolean = false;
+  let isInstalling: boolean = false;
   let updateError: UpdateError | null = null;
-  let currentVersion: string = '1.0.2'; // Will be loaded from package.json
-  let showRestartAnimation: boolean = false;
+  let currentVersion: string = '1.0.3'; // Will be loaded from package.json
   let updateMessage: string = 'Downloading update...';
   let showRestartPrompt: boolean = false;
 
@@ -74,32 +73,42 @@
     console.log('🔥 App: handleDownloadProgress called with:', data);
     downloadProgress = data;
     isDownloading = true;
-    showUpdateModal = false; // Hide modal
-    showRestartAnimation = true; // Show cat animation during download
+    isInstalling = false;
+    showUpdateModal = true; // Keep modal open
     showRestartPrompt = false;
     updateMessage = `Downloading update... ${data.percent?.toFixed(0)}%`;
   }
 
   function handleUpdateDownloaded(event: any, data: UpdateInfo): void {
     console.log('🎉 App: Update downloaded!', data);
+    // Keep showing progress at 100% briefly
     downloadProgress = { percent: 100, transferred: 0, total: 0, bytesPerSecond: 0 };
     isDownloading = false;
+    isInstalling = true; // Start showing installing state
     updateInfo = { ...updateInfo, ...data };
     updateMessage = 'Download complete! Preparing installation...';
   }
 
   function handleUpdateInstalling(event: any, data: any): void {
     console.log('🔧 App: Installing update in background...', data);
-    showUpdateModal = false; // Hide update modal
-    showRestartAnimation = true; // Keep cat animation visible
+    showUpdateModal = true; // Keep modal open
+    isDownloading = false;
+    isInstalling = true; // Keep installing state
+    // Keep progress briefly to show smooth transition
+    setTimeout(() => {
+      downloadProgress = null; // Clear progress after a moment
+    }, 100);
     showRestartPrompt = false;
     updateMessage = 'Installing update in background...';
   }
 
   function handleUpdateReadyToRestart(event: any, data: any): void {
     console.log('✅ App: Update ready to restart!', data);
-    showRestartAnimation = true; // Keep animation visible
-    showRestartPrompt = true; // Show restart prompt over animation
+    showUpdateModal = true; // Keep modal open
+    isDownloading = false;
+    isInstalling = false; // Installation complete
+    downloadProgress = null;
+    showRestartPrompt = true; // Show restart prompt
     updateMessage = 'Update installed successfully!';
     updateInfo = { ...updateInfo, ...data, readyToRestart: true };
   }
@@ -108,6 +117,7 @@
     updateError = typeof data === 'string' ? { message: data } : data;
     isChecking = false;
     isDownloading = false;
+    isInstalling = false;
     showUpdateModal = true;
   }
 
@@ -148,12 +158,6 @@
     }
   }
 
-  function handleRestartLater(): void {
-    console.log('App: User chose to restart later');
-    showRestartAnimation = false;
-    showRestartPrompt = false;
-    // User can restart manually later
-  }
 
   function handleViewReleaseNotes(): void {
     if (updateInfo?.version) {
@@ -523,18 +527,11 @@
     {isChecking}
     error={updateError}
     {currentVersion}
+    {isInstalling}
+    {showRestartPrompt}
     on:download={handleDownload}
     on:install={handleInstall}
     on:close={handleUpdateModalClose}
-  />
-
-  <!-- Restart Animation -->
-  <RestartAnimation 
-    isVisible={showRestartAnimation}
-    message={updateMessage}
-    showRestartPrompt={showRestartPrompt}
-    onRestart={handleInstall}
-    onLater={handleRestartLater}
   />
 
 </main>

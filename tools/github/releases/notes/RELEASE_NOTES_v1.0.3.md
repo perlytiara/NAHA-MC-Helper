@@ -4,11 +4,12 @@ Welcome to the latest update of **NAHA MC Helper**! We've packed this release wi
 
 ## ✨ What's New in v1.0.3
 
-- **Auto-Updater Improvements**: Enhanced functionality for better user experience. 💎
-- **Fixed App Quit After Update Download**: Enhanced functionality for better user experience. 💎
-- **Formatted Release Notes Display**: Enhanced functionality for better user experience. 💎
-- **Fixed Missing Utils in Packaged App**: Enhanced functionality for better user experience. 💎
-- **Enhanced Update Modal UI**: Enhanced functionality for better user experience. 💎
+- **Seamless Auto-Update Experience with Cute Cat Animation**: Adorable animated cat keeps you company during downloads and installations! 🐱
+- **Improved Update Modal UI/UX**: Compact, centered modal with no scrollbars and smooth transitions 💎
+- **Fixed Smooth Transition from Download to Restart**: No more flashing between screens - seamless flow throughout 🔄
+- **Enhanced Background Installation**: Silent installation that completes while you work 🔧
+- **Compact Modal Design**: Cleaner, more efficient use of space with bigger cat and better animations ✨
+- **Bilingual Support (English/French)**: Full localization for French-speaking users 🇫🇷
 
 ## 📥 Installation Instructions
 

@@ -13,7 +13,9 @@
   export let downloadProgress: DownloadProgress | null = null;
   export let isChecking = false;
   export let error: UpdateError | null = null;
-  export let currentVersion = '1.0.2';
+  export let currentVersion = '1.0.3';
+  export let isInstalling = false;
+  export let showRestartPrompt = false;
   
   function handleDownload() {
     dispatch('download');
@@ -44,6 +46,10 @@
             <span class="spinner">🔄</span>
           {:else if error}
             <span class="error-icon">⚠️</span>
+          {:else if showRestartPrompt}
+            <span class="check-icon">✨</span>
+          {:else if downloadProgress || isInstalling}
+            <span class="available-icon">📥</span>
           {:else if updateInfo}
             <span class="available-icon">📥</span>
           {:else}
@@ -55,6 +61,12 @@
             {$t('updateModal.checking')}
           {:else if error}
             {$t('updateModal.updateError')}
+          {:else if showRestartPrompt}
+            Ready to Restart
+          {:else if isInstalling}
+            Installing Update
+          {:else if downloadProgress}
+            Downloading Update
           {:else if updateInfo}
             {$t('updateModal.updateAvailable')}
           {:else}
@@ -71,6 +83,127 @@
             <p>{$t('updateModal.failedToCheck')}</p>
             <p class="error-details">{error.message}</p>
           </div>
+        {:else if showRestartPrompt}
+          <!-- Restart Prompt -->
+          <div class="restart-prompt">
+            <svg class="cute-cat" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+              <!-- Cat body (more round and cute) -->
+              <ellipse cx="100" cy="130" rx="50" ry="45" fill="#10b981" class="cat-body"/>
+              
+              <!-- Cat head (bigger and rounder) -->
+              <circle cx="100" cy="80" r="40" fill="#10b981" class="cat-head"/>
+              
+              <!-- Cat ears (rounded) -->
+              <ellipse cx="75" cy="50" rx="18" ry="25" fill="#10b981" class="ear-left"/>
+              <ellipse cx="125" cy="50" rx="18" ry="25" fill="#10b981" class="ear-right"/>
+              
+              <!-- Inner ears (pink/light green) -->
+              <ellipse cx="75" cy="55" rx="10" ry="15" fill="#6ee7b7" class="inner-ear"/>
+              <ellipse cx="125" cy="55" rx="10" ry="15" fill="#6ee7b7" class="inner-ear"/>
+              
+              <!-- Cat tail (curly and cute) -->
+              <path d="M 145 135 Q 170 130 175 110 Q 178 90 172 75" stroke="#10b981" stroke-width="14" fill="none" stroke-linecap="round" class="tail"/>
+              
+              <!-- Cat eyes (bigger and cuter) -->
+              <ellipse cx="85" cy="75" rx="10" ry="14" fill="white"/>
+              <ellipse cx="115" cy="75" rx="10" ry="14" fill="white"/>
+              
+              <!-- Cat pupils (gentle swing) -->
+              <circle cx="85" cy="77" r="6" fill="#064e3b">
+                <animate attributeName="cx" values="83;87;83" dur="2.5s" repeatCount="indefinite"/>
+              </circle>
+              <circle cx="115" cy="77" r="6" fill="#064e3b">
+                <animate attributeName="cx" values="113;117;113" dur="2.5s" repeatCount="indefinite"/>
+              </circle>
+              
+              <!-- Cute highlights in eyes -->
+              <circle cx="87" cy="74" r="3" fill="white" opacity="0.8"/>
+              <circle cx="117" cy="74" r="3" fill="white" opacity="0.8"/>
+              
+              <!-- Cat nose (cute triangle) -->
+              <path d="M 100 88 L 96 94 L 104 94 Z" fill="#059669"/>
+              
+              <!-- Cat mouth (cute smile) -->
+              <path d="M 100 94 Q 92 100 85 98 M 100 94 Q 108 100 115 98" stroke="#059669" stroke-width="2.5" fill="none" stroke-linecap="round" class="mouth"/>
+              
+              <!-- Blush marks -->
+              <ellipse cx="65" cy="85" rx="8" ry="5" fill="#f472b6" opacity="0.3"/>
+              <ellipse cx="135" cy="85" rx="8" ry="5" fill="#f472b6" opacity="0.3"/>
+              
+              <!-- Cat whiskers (delicate) -->
+              <line x1="55" y1="80" x2="35" y2="78" stroke="#047857" stroke-width="1.5" opacity="0.7" class="whisker"/>
+              <line x1="55" y1="86" x2="35" y2="88" stroke="#047857" stroke-width="1.5" opacity="0.7" class="whisker"/>
+              <line x1="145" y1="80" x2="165" y2="78" stroke="#047857" stroke-width="1.5" opacity="0.7" class="whisker"/>
+              <line x1="145" y1="86" x2="165" y2="88" stroke="#047857" stroke-width="1.5" opacity="0.7" class="whisker"/>
+            </svg>
+            
+            <p class="restart-message">Update installed! Ready to restart</p>
+          </div>
+        {:else if downloadProgress || isInstalling}
+          <!-- Download/Install with Cat Animation -->
+          <div class="update-animation">
+            <svg class="cute-cat" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+              <!-- Cat body (more round and cute) -->
+              <ellipse cx="100" cy="130" rx="50" ry="45" fill="#10b981" class="cat-body"/>
+              
+              <!-- Cat head (bigger and rounder) -->
+              <circle cx="100" cy="80" r="40" fill="#10b981" class="cat-head"/>
+              
+              <!-- Cat ears (rounded) -->
+              <ellipse cx="75" cy="50" rx="18" ry="25" fill="#10b981" class="ear-left"/>
+              <ellipse cx="125" cy="50" rx="18" ry="25" fill="#10b981" class="ear-right"/>
+              
+              <!-- Inner ears (pink/light green) -->
+              <ellipse cx="75" cy="55" rx="10" ry="15" fill="#6ee7b7" class="inner-ear"/>
+              <ellipse cx="125" cy="55" rx="10" ry="15" fill="#6ee7b7" class="inner-ear"/>
+              
+              <!-- Cat tail (curly and cute) -->
+              <path d="M 145 135 Q 170 130 175 110 Q 178 90 172 75" stroke="#10b981" stroke-width="14" fill="none" stroke-linecap="round" class="tail"/>
+              
+              <!-- Cat eyes (bigger and cuter) -->
+              <ellipse cx="85" cy="75" rx="10" ry="14" fill="white"/>
+              <ellipse cx="115" cy="75" rx="10" ry="14" fill="white"/>
+              
+              <!-- Cat pupils (gentle swing) -->
+              <circle cx="85" cy="77" r="6" fill="#064e3b">
+                <animate attributeName="cx" values="83;87;83" dur="2.5s" repeatCount="indefinite"/>
+              </circle>
+              <circle cx="115" cy="77" r="6" fill="#064e3b">
+                <animate attributeName="cx" values="113;117;113" dur="2.5s" repeatCount="indefinite"/>
+              </circle>
+              
+              <!-- Cute highlights in eyes -->
+              <circle cx="87" cy="74" r="3" fill="white" opacity="0.8"/>
+              <circle cx="117" cy="74" r="3" fill="white" opacity="0.8"/>
+              
+              <!-- Cat nose (cute triangle) -->
+              <path d="M 100 88 L 96 94 L 104 94 Z" fill="#059669"/>
+              
+              <!-- Cat mouth (cute smile) -->
+              <path d="M 100 94 Q 92 100 85 98 M 100 94 Q 108 100 115 98" stroke="#059669" stroke-width="2.5" fill="none" stroke-linecap="round" class="mouth"/>
+              
+              <!-- Blush marks -->
+              <ellipse cx="65" cy="85" rx="8" ry="5" fill="#f472b6" opacity="0.3"/>
+              <ellipse cx="135" cy="85" rx="8" ry="5" fill="#f472b6" opacity="0.3"/>
+              
+              <!-- Cat whiskers (delicate) -->
+              <line x1="55" y1="80" x2="35" y2="78" stroke="#047857" stroke-width="1.5" opacity="0.7" class="whisker"/>
+              <line x1="55" y1="86" x2="35" y2="88" stroke="#047857" stroke-width="1.5" opacity="0.7" class="whisker"/>
+              <line x1="145" y1="80" x2="165" y2="78" stroke="#047857" stroke-width="1.5" opacity="0.7" class="whisker"/>
+              <line x1="145" y1="86" x2="165" y2="88" stroke="#047857" stroke-width="1.5" opacity="0.7" class="whisker"/>
+            </svg>
+            
+            {#if downloadProgress}
+              <div class="progress-display">
+                <span class="progress-percent">{downloadProgress.percent?.toFixed(0) || 0}%</span>
+                <div class="progress-bar">
+                  <div class="progress-fill" style="width: {downloadProgress.percent || 0}%"></div>
+                </div>
+              </div>
+            {:else}
+              <p class="status-text">Installing...</p>
+            {/if}
+          </div>
         {:else if updateInfo}
           <div class="update-info">
             <div class="version-comparison">
@@ -85,30 +218,14 @@
               </div>
             </div>
             
-            {#if downloadProgress}
-              <div class="download-progress">
-                <div class="progress-header">
-                  <span>{$t('updateModal.downloadingUpdate')}</span>
-                  <span class="progress-percent">{downloadProgress.percent?.toFixed(0)}%</span>
-                </div>
-                <div class="progress-bar">
-                  <div class="progress-fill" style="width: {downloadProgress.percent}%"></div>
-                </div>
-                <div class="progress-stats">
-                  <span class="transferred">{(downloadProgress.transferred / 1024 / 1024).toFixed(1)} MB</span>
-                  <span class="total">of {(downloadProgress.total / 1024 / 1024).toFixed(1)} MB</span>
-                </div>
+            <div class="release-notes">
+              <h3>{$t('updateModal.whatsNew')}</h3>
+              <div class="release-notes-content">
+                {#each (updateInfo.releaseNotes || 'Bug fixes and improvements').split('\n').filter((line: string) => line.trim()) as line}
+                  <p class="release-note-item">{line}</p>
+                {/each}
               </div>
-            {:else}
-              <div class="release-notes">
-                <h3>{$t('updateModal.whatsNew')}</h3>
-                <div class="release-notes-content">
-                  {#each (updateInfo.releaseNotes || 'Bug fixes and improvements').split('\n').filter(line => line.trim()) as line}
-                    <p class="release-note-item">{line}</p>
-                  {/each}
-                </div>
-              </div>
-            {/if}
+            </div>
           </div>
         {:else}
           <p class="up-to-date-text">{$t('updateModal.latestVersion')} (v{currentVersion})</p>
@@ -116,18 +233,20 @@
       </div>
 
       <div class="modal-footer">
-        {#if updateInfo?.readyToRestart}
+        {#if showRestartPrompt}
           <button class="install-button" on:click={handleInstall}>
             🔄 Restart Now
           </button>
           <button class="close-button-footer" on:click={handleClose}>
             Later
           </button>
-        {:else if updateInfo && !downloadProgress}
+        {:else if downloadProgress || isInstalling}
+          <!-- No buttons during download/install -->
+        {:else if updateInfo}
           <button class="download-button" on:click={handleDownload}>
             📥 {$t('updateModal.downloadUpdate')}
           </button>
-        {:else if !isChecking && !downloadProgress}
+        {:else if !isChecking}
           <button class="close-button-footer" on:click={handleClose}>
             {$t('updateModal.close')}
           </button>
@@ -159,11 +278,11 @@
     background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
     border: 2px solid rgba(255, 255, 255, 0.1);
     border-radius: 16px;
-    padding: 2rem;
-    max-width: 500px;
+    padding: 1.5rem;
+    max-width: 420px;
     width: 90%;
-    max-height: 80vh;
-    overflow-y: auto;
+    max-height: fit-content;
+    overflow: hidden;
     position: relative;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
     animation: slideIn 0.3s ease;
@@ -207,12 +326,12 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 1rem;
-    margin-bottom: 1.5rem;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
   }
 
   .update-icon {
-    font-size: 3rem;
+    font-size: 2.5rem;
   }
 
   .spinner {
@@ -234,8 +353,10 @@
   }
 
   .modal-body {
-    margin-bottom: 1.5rem;
+    margin-bottom: 1rem;
     color: rgba(255, 255, 255, 0.9);
+    min-height: fit-content;
+    max-height: fit-content;
   }
 
   .checking-text,
@@ -306,44 +427,6 @@
     color: #10b981;
   }
 
-  .download-progress {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-
-  .progress-header {
-    display: flex;
-    justify-content: space-between;
-    font-size: 0.9rem;
-    font-weight: 600;
-  }
-
-  .progress-percent {
-    color: #10b981;
-  }
-
-  .progress-bar {
-    width: 100%;
-    height: 8px;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 4px;
-    overflow: hidden;
-  }
-
-  .progress-fill {
-    height: 100%;
-    background: linear-gradient(90deg, #10b981, #059669);
-    transition: width 0.3s ease;
-  }
-
-  .progress-stats {
-    display: flex;
-    justify-content: space-between;
-    font-size: 0.8rem;
-    color: rgba(255, 255, 255, 0.6);
-  }
-
   .release-notes h3 {
     font-size: 1rem;
     font-weight: 600;
@@ -406,14 +489,139 @@
     background: rgba(255, 255, 255, 0.15);
   }
 
+  /* Update Animation Styles */
+  .update-animation,
+  .restart-prompt {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem 0;
+  }
+
+  .cute-cat {
+    width: 120px;
+    height: 120px;
+    margin: 0 auto;
+    animation: gentle-bounce 2.5s ease-in-out infinite;
+  }
+
+  @keyframes gentle-bounce {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-8px); }
+  }
+
+  .cute-cat .cat-body {
+    animation: body-wiggle 3s ease-in-out infinite;
+    transform-origin: center;
+  }
+
+  @keyframes body-wiggle {
+    0%, 100% { transform: scaleX(1); }
+    50% { transform: scaleX(1.05); }
+  }
+
+  .cute-cat .cat-head {
+    animation: head-tilt 3s ease-in-out infinite;
+    transform-origin: 100px 80px;
+  }
+
+  @keyframes head-tilt {
+    0%, 100% { transform: rotate(0deg); }
+    25% { transform: rotate(-3deg); }
+    75% { transform: rotate(3deg); }
+  }
+
+  .cute-cat .ear-left,
+  .cute-cat .ear-right {
+    animation: ear-wiggle 2s ease-in-out infinite;
+    transform-origin: center;
+  }
+
+  .cute-cat .ear-right {
+    animation-delay: 0.3s;
+  }
+
+  @keyframes ear-wiggle {
+    0%, 100% { transform: rotate(0deg) scaleY(1); }
+    50% { transform: rotate(5deg) scaleY(1.1); }
+  }
+
+  .cute-cat .tail {
+    animation: tail-sway 2.5s ease-in-out infinite;
+    transform-origin: 145px 135px;
+  }
+
+  @keyframes tail-sway {
+    0%, 100% { transform: rotate(0deg); }
+    50% { transform: rotate(15deg); }
+  }
+
+  .cute-cat .mouth {
+    animation: smile-blink 4s ease-in-out infinite;
+  }
+
+  @keyframes smile-blink {
+    0%, 90%, 100% { opacity: 1; }
+    95% { opacity: 0.5; }
+  }
+
+  .cute-cat .whisker {
+    animation: whisker-twitch 3.5s ease-in-out infinite;
+  }
+
+  @keyframes whisker-twitch {
+    0%, 100% { opacity: 0.7; }
+    50% { opacity: 1; }
+  }
+
+  .restart-message,
+  .status-text {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.9);
+    text-align: center;
+    margin: 0;
+    font-weight: 500;
+  }
+
+  .progress-display {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .progress-percent {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #10b981;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+  }
+
+  .progress-bar {
+    width: 100%;
+    height: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #10b981, #059669);
+    border-radius: 4px;
+    transition: width 0.4s ease-out;
+  }
+
   @media (max-width: 640px) {
     .modal-content {
-      padding: 1.5rem;
+      padding: 1.25rem;
       max-width: 95%;
     }
 
     .modal-title {
-      font-size: 1.25rem;
+      font-size: 1.15rem;
     }
 
     .version-comparison {
@@ -423,6 +631,15 @@
 
     .arrow {
       transform: rotate(90deg);
+    }
+
+    .cute-cat {
+      width: 100px;
+      height: 100px;
+    }
+
+    .progress-percent {
+      font-size: 1.25rem;
     }
   }
 </style>

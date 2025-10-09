@@ -104,6 +104,36 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
       
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+      
+    - name: Extract version from tag
+      id: get_version
+      run: |
+        VERSION=${GITHUB_REF#refs/tags/v}
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
+        echo "Extracted version: $VERSION"
+      
+    - name: Generate release notes
+      run: |
+        # Define the changes for this version (customize per release)
+        CHANGES="Seamless Auto-Update Experience with Cute Cat Animation,Improved Update Modal UI/UX,Fixed Smooth Transition from Download to Restart,Enhanced Background Installation,Compact Modal Design,Bilingual Support (English/French)"
+        
+        # Check if release notes already exist (pre-generated)
+        if [ -f "tools/github/releases/notes/RELEASE_NOTES_v${{ steps.get_version.outputs.version }}.md" ]; then
+          echo "Using pre-generated release notes"
+          cp tools/github/releases/notes/RELEASE_NOTES_v${{ steps.get_version.outputs.version }}.md ./release_notes.md
+        else
+          echo "Generating release notes with script"
+          node tools/github/releases/generate-release-notes.cjs "${{ steps.get_version.outputs.version }}" "$CHANGES"
+          cp tools/github/releases/notes/RELEASE_NOTES_v${{ steps.get_version.outputs.version }}.md ./release_notes.md
+        fi
+        
+        echo "Release notes ready:"
+        cat ./release_notes.md
+      
     - name: Download all artifacts
       uses: actions/download-artifact@v4
       
@@ -127,7 +157,7 @@ jobs:
           dist-*/*.rpm
           dist-*/*.zip
           dist-*/*.blockmap
-        generate_release_notes: true
+        body_path: ./release_notes.md
         draft: false
         prerelease: false
       env:
